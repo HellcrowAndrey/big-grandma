@@ -36,7 +36,7 @@ public class DependenciesGraph {
                         }
                     }
                     for (Key key : groupByKey.keySet()) {
-                        String fileName = key.fileName;
+                        String fileName = key.rootFieldName;
                         if (MapperUtils.isFieldExist(fileName, target)) {
                             Object source = groupByKey.get(key);
                             MapperUtils.setFields(source, target, fileName);
@@ -85,7 +85,9 @@ public class DependenciesGraph {
 
         Class<?> currentType;
 
-        String fileName;
+        String rootFieldName;
+
+        String currentFieldName;
 
         Class<?> collType;
 
@@ -93,25 +95,81 @@ public class DependenciesGraph {
 
         Key key;
 
-        public SubGraph(Class<?> rootType, Class<?> currentType, String fileName) {
+        public SubGraph rootType(Class<?> rootType) {
             this.rootType = Objects.requireNonNull(rootType);
-            this.currentType = Objects.requireNonNull(currentType);
-            this.fileName = Objects.requireNonNull(fileName);
-            this.key = new Key(rootType, currentType, fileName, null);
+            return this;
         }
 
-        public SubGraph(Class<?> rootType, Class<?> currentType, String fileName, Class<?> collType) {
-            this(rootType, currentType, fileName);
+        public SubGraph currentType(Class<?> currentType) {
+            this.currentType = Objects.requireNonNull(currentType);
+            return this;
+        }
+
+        public SubGraph rootFieldName(String rootFieldName) {
+            this.rootFieldName = rootFieldName;
+            return this;
+        }
+
+        public SubGraph currentFieldName(String currentFieldName) {
+            this.currentFieldName = Objects.requireNonNull(currentFieldName);
+            return this;
+        }
+
+        public SubGraph collType(Class<?> collType) {
             if (!MapperUtils.isColl(collType)) {
                 throw new IllegalArgumentException(String.format("Is not collections -> %s", collType));
             }
             this.collType = MapperUtils.collTypeMapper(Objects.requireNonNull(collType));
-            this.key = new Key(rootType, currentType, fileName, this.collType);
+            return this;
         }
 
-        public SubGraph(Class<?> rootType, Class<?> currentType, String fileName,
-                        Class<?> collType, List<SubGraph> graphs) {
-            this(rootType, currentType, fileName, collType);
+        public SubGraph graphs(List<SubGraph> graphs) {
+            this.graphs = graphs;
+            return this;
+        }
+
+        public SubGraph key() {
+            this.key = new Key(this.rootType, this.currentType, this.rootFieldName, this.currentFieldName, this.collType);
+            return this;
+        }
+
+        public SubGraph(Class<?> rootType, Class<?> currentType, String rootFieldName) {
+            this.rootType = Objects.requireNonNull(rootType);
+            this.currentType = Objects.requireNonNull(currentType);
+            this.rootFieldName = Objects.requireNonNull(rootFieldName);
+            this.key = new Key(rootType, currentType, rootFieldName,null, null);
+        }
+
+        public SubGraph(Class<?> rootType, Class<?> currentType, String rootFieldName, String currentFieldName) {
+            this(rootType, currentType, rootFieldName);
+            this.currentFieldName = Objects.requireNonNull(currentFieldName);
+        }
+
+        public SubGraph(Class<?> rootType, Class<?> currentType, String rootFieldName, Class<?> collType) {
+            this(rootType, currentType, rootFieldName);
+            if (!MapperUtils.isColl(collType)) {
+                throw new IllegalArgumentException(String.format("Is not collections -> %s", collType));
+            }
+            this.collType = MapperUtils.collTypeMapper(Objects.requireNonNull(collType));
+            this.key = new Key(rootType, currentType, rootFieldName,null, this.collType);
+        }
+
+        public SubGraph(Class<?> rootType, Class<?> currentType, String rootFieldName, String currentFieldName, Class<?> collType) {
+            this(rootType, currentType, rootFieldName, currentFieldName);
+            if (!MapperUtils.isColl(collType)) {
+                throw new IllegalArgumentException(String.format("Is not collections -> %s", collType));
+            }
+            this.collType = MapperUtils.collTypeMapper(Objects.requireNonNull(collType));
+            this.key = new Key(rootType, currentType, rootFieldName, currentFieldName, this.collType);
+        }
+
+        public SubGraph(Class<?> rootType, Class<?> currentType, String rootFieldName, Class<?> collType, List<SubGraph> graphs) {
+            this(rootType, currentType, rootFieldName, collType);
+            this.graphs = graphs;
+        }
+
+        public SubGraph(Class<?> rootType, Class<?> currentType, String rootFieldName, String currentFieldName, Class<?> collType, List<SubGraph> graphs) {
+            this(rootType, currentType, rootFieldName, currentFieldName, collType);
             this.graphs = graphs;
         }
 
@@ -133,16 +191,16 @@ public class DependenciesGraph {
                         if (Objects.isNull(containerKey.collType)) {
                             Object prevTarget = node.prevTarget;
                             if (Objects.nonNull(prevTarget)) {
-                                MapperUtils.setFields(source, prevTarget, this.fileName);
-                                MapperUtils.setFields(prevTarget, source, containerKey.fileName);
+                                MapperUtils.setFields(source, prevTarget, this.rootFieldName);
+                                MapperUtils.setFields(prevTarget, source, containerKey.rootFieldName);
                             }
                         } else {
                             Collection<?> prevCollTarget = node.prevCollTarget;
                             if (Objects.nonNull(prevCollTarget)) {
                                 prevCollTarget.forEach(target ->
-                                        MapperUtils.setFields(source, target, this.fileName)
+                                        MapperUtils.setFields(source, target, this.rootFieldName)
                                 );
-                                MapperUtils.setFields(prevCollTarget, source, containerKey.fileName);
+                                MapperUtils.setFields(prevCollTarget, source, containerKey.rootFieldName);
                             }
                         }
                     } else {
@@ -157,19 +215,19 @@ public class DependenciesGraph {
                                             .filter(elem -> elem.equals(prevPrevTarget))
                                             .findFirst().orElse(null);
                                     if (Objects.nonNull(container)) {
-                                        Collection<Object> coll = MapperUtils.getCollections(containerKey.fileName, containerKey.rootType, container);
+                                        Collection<Object> coll = MapperUtils.getCollections(containerKey.rootFieldName, containerKey.rootType, container);
                                         if (Objects.isNull(coll)) {
                                             coll = MapperUtils.collFactory(containerKey.collType);
                                         }
                                         coll.add(prevTarget);
-                                        MapperUtils.setFields(container, prevTarget, this.fileName);
+                                        MapperUtils.setFields(container, prevTarget, this.rootFieldName);
                                     }
                                 }
                             } else {
                                 // TODO: 06.02.22 check it case ?
                                 Object prevTarget = node.prevTarget;
-                                MapperUtils.setFields(prevTarget, prevPrevTarget, containerKey.fileName);
-                                MapperUtils.setFields(prevPrevTarget, prevTarget, this.fileName);
+                                MapperUtils.setFields(prevTarget, prevPrevTarget, containerKey.rootFieldName);
+                                MapperUtils.setFields(prevPrevTarget, prevTarget, this.rootFieldName);
                             }
                         }
                     }
@@ -179,10 +237,10 @@ public class DependenciesGraph {
                     if (Objects.isNull(this.collType)) {
                         obj = MapperUtils.ofEntity(values, this.currentType);
                         if (Objects.isNull(sourceKey.collType)) {
-                            MapperUtils.setFields(obj, source, this.fileName);
+                            MapperUtils.setFields(obj, source, this.rootFieldName);
                         } else {
                             coll = MapperUtils.cast(source);
-                            coll.forEach(val -> MapperUtils.setFields(obj, val, this.fileName));
+                            coll.forEach(val -> MapperUtils.setFields(obj, val, this.rootFieldName));
                         }
                         groupBy.put(this.key, obj);
                     } else {
@@ -193,7 +251,7 @@ public class DependenciesGraph {
                             collTo.add(obj);
                             Collection<Object> collFrom = MapperUtils.cast(source);
                             collFrom.forEach(s -> collTo.forEach(t ->
-                                            MapperUtils.setFields(s, t, sourceKey.fileName)
+                                            MapperUtils.setFields(s, t, sourceKey.rootFieldName)
                                     )
                             );
                             coll = collTo;
@@ -260,12 +318,12 @@ public class DependenciesGraph {
             if (!(o instanceof SubGraph)) return false;
             SubGraph subGraph = (SubGraph) o;
             return Objects.equals(rootType, subGraph.rootType) &&
-                    Objects.equals(fileName, subGraph.fileName);
+                    Objects.equals(rootFieldName, subGraph.rootFieldName);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(rootType, fileName);
+            return Objects.hash(rootType, rootFieldName);
         }
     }
 
@@ -275,7 +333,9 @@ public class DependenciesGraph {
 
         Class<?> currentType;
 
-        String fileName;
+        String rootFieldName;
+
+        String currentFieldName;
 
         Class<?> collType;
 
@@ -287,10 +347,11 @@ public class DependenciesGraph {
             this.rootType = rootType;
         }
 
-        public Key(Class<?> rootType, Class<?> currentType, String fileName, Class<?> collType) {
+        public Key(Class<?> rootType, Class<?> currentType, String rootFieldName, String currentFieldName, Class<?> collType) {
             this.rootType = rootType;
             this.currentType = currentType;
-            this.fileName = fileName;
+            this.rootFieldName = rootFieldName;
+            this.currentFieldName = currentFieldName;
             this.collType = collType;
         }
 
@@ -301,13 +362,14 @@ public class DependenciesGraph {
             Key key = (Key) o;
             return Objects.equals(rootType, key.rootType) &&
                     Objects.equals(currentType, key.currentType) &&
-                    Objects.equals(fileName, key.fileName) &&
+                    Objects.equals(rootFieldName, key.rootFieldName) &&
+                    Objects.equals(currentFieldName, key.currentFieldName) &&
                     Objects.equals(collType, key.collType);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(rootType, currentType, fileName, collType);
+            return Objects.hash(rootType, currentType, rootFieldName, currentFieldName, collType);
         }
 
         @Override
@@ -315,10 +377,12 @@ public class DependenciesGraph {
             return "Key{" +
                     "rootType=" + rootType +
                     ", currentType=" + currentType +
-                    ", fileName='" + fileName + '\'' +
+                    ", rootFieldName='" + rootFieldName + '\'' +
+                    ", currentFieldName='" + currentFieldName + '\'' +
                     ", collType=" + collType +
                     '}';
         }
+
     }
 
     static class Node {
