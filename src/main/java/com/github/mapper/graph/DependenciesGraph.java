@@ -35,7 +35,7 @@ public class DependenciesGraph {
                     List<SubGraph> graphs = root.graphs;
                     for (Round round : rounds) {
                         for (SubGraph graph : graphs) {
-                            graph.rounds(round, values);
+                            graph.rounds(target, round, values);
                         }
                     }
                     for (String key : values.keySet()) {

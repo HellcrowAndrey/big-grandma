@@ -1,8 +1,11 @@
 package com.github.mapper.graph;
 
 import com.github.mapper.utils.MapperUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
+
+import static com.github.mapper.utils.MapperUtils.*;
 
 public class SubGraph {
 
@@ -94,16 +97,6 @@ public class SubGraph {
         });
     }
 
-    private Round restore(Map<String, Object> values, List<Round> rounds, int lvl) {
-        Round result = new Round(lvl + 1, this.currentType, MapperUtils.ofEntity(values, this.currentType));
-        if (!this.graphs.isEmpty()) {
-            for (SubGraph graph : this.graphs) {
-                result.addRound(graph.restore(values, lvl + 1));
-            }
-        }
-        return result;
-    }
-
     public Round restore(Map<String, Object> values, int lvl) {
         Round result = new Round(lvl + 1, this.currentType, MapperUtils.ofEntity(values, this.currentType));
         lvl = lvl + 1;
@@ -115,41 +108,37 @@ public class SubGraph {
         return result;
     }
 
-    public void rounds(Round round, Map<String, Object> values) {
-        Object value = round.value;
+    public void rounds(Object root, Round round, Map<String, Object> values) {
+        Object target = round.value;
         if (round.type.equals(this.currentType)) {
             if (Objects.isNull(this.collType)) {
-                values.put(this.rootFieldName, value);
+                values.put(this.rootFieldName, target);
             } else {
-                Collection<Object> container = MapperUtils.cast(
-                        values.getOrDefault(
-                                this.rootFieldName, MapperUtils.collFactory(this.collType)
-                        )
+                Collection<Object> container = cast(
+                        values.getOrDefault(this.rootFieldName, collFactory(this.collType))
                 );
                 if (container.isEmpty()) {
-                    container.add(value);
+                    container.add(target);
                     values.put(this.rootFieldName, container);
                 } else {
-                    container.add(value);
+                    container.add(target);
                 }
             }
             if (!this.graphs.isEmpty()) {
-                // TODO: 10.02.22  work about this
-                for (Round r : round.rounds) {
+                Map<String, Object> nexValues = new HashMap<>();
+                for (Round nextRound : round.rounds) {
                     for (SubGraph graph : this.graphs) {
-                        graph.rounds(value, r);
+                        graph.rounds(target, nextRound, nexValues);
+                    }
+                }
+                for (String key : nexValues.keySet()) {
+                    if (isFieldExist(key, target)) {
+                        setFields(nexValues.get(key), target, key);
                     }
                 }
             }
-        }
-    }
-
-    public void rounds(Object prevValue, Round round) {
-        Object value = null;
-
-        if (!this.graphs.isEmpty()) {
-            for (SubGraph graph : this.graphs) {
-                graph.rounds(value, round);
+            if (StringUtils.hasText(this.currentFieldName)) {
+                setFields(root, target, this.currentFieldName);
             }
         }
     }
