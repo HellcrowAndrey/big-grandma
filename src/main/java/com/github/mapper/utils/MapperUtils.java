@@ -72,13 +72,12 @@ public class MapperUtils {
         return StringUtils.hasText(name) && Objects.nonNull(ReflectionUtils.findField(target, name));
     }
 
-    @SuppressWarnings(value = "unchecked")
-    public static Collection<Object> collFactory(Class<?> collType) {
+    public static Collection<?> collFactory(Class<?> collType) {
         if (Map.class.equals(collType)) {
             throw new RuntimeException("Interface Map<?, ?> not exist in interface Collections<?>.");
         }
         try {
-            return (Collection<Object>) collType.getConstructor().newInstance();
+            return (Collection<?>) collType.getConstructor().newInstance();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e.getMessage());
         }
