@@ -64,6 +64,15 @@ public class MapperUtils {
         }
     }
 
+    public static void mapFields(Map<String, Object> values, Object target) {
+        values.keySet().stream()
+                .filter(key -> MapperUtils.isFieldExist(key, target))
+                .forEach(key -> {
+                    Object source = values.get(key);
+                    MapperUtils.setFields(source, target, key);
+                });
+    }
+
     public static boolean isFieldExist(String name, Object target) {
        return isFieldExist(name, target.getClass());
     }
