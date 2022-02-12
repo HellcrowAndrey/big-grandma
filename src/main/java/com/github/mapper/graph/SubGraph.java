@@ -21,8 +21,6 @@ public class SubGraph {
 
     List<SubGraph> graphs = new ArrayList<>(); //optional
 
-    DependenciesGraph.Key key;
-
     private SubGraph(Builder b) {
         this.rootType = b.rootType;
         this.currentType = b.currentType;
@@ -30,7 +28,6 @@ public class SubGraph {
         this.currentFieldName = b.currentFieldName;
         this.collType = b.collType;
         this.graphs = b.graphs;
-        this.key = b.key;
     }
 
     public static class Builder {
@@ -46,8 +43,6 @@ public class SubGraph {
         Class<?> collType;
 
         List<SubGraph> graphs = new ArrayList<>(); //optional
-
-        DependenciesGraph.Key key;
 
         public Builder rootType(Class<?> rootType) {
             this.rootType = Objects.requireNonNull(rootType);
@@ -83,18 +78,9 @@ public class SubGraph {
         }
 
         public SubGraph build() {
-            this.key = new DependenciesGraph.Key(this.rootType, this.currentType, this.rootFieldName, this.currentFieldName, this.collType);
             return new SubGraph(this);
         }
 
-    }
-
-    public void keyLinks(DependenciesGraph.Key prevKey) {
-        key.prev = prevKey;
-        this.graphs.forEach(nexKey -> {
-            key.next = nexKey.key;
-            nexKey.keyLinks(key);
-        });
     }
 
     public Round restore(Map<String, Object> values, int lvl) {

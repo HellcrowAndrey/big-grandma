@@ -2,6 +2,7 @@ package com.github.mapper.graph;
 
 import com.github.mapper.utils.MapperUtils;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -12,11 +13,9 @@ public class DependenciesGraph {
 
     public DependenciesGraph(Root root) {
         this.root = root;
-        this.root.graphs.forEach(graph -> graph.keyLinks(this.root.key));
     }
 
-    @SuppressWarnings(value = "unchecked")
-    public <T> Flux<T> mapMany(List<Map<String, Object>> tuples) {
+    public <T> Flux<T> many(List<Map<String, Object>> tuples) {
         return Flux.fromStream(tuples.stream())
                 .collect(Collectors.groupingBy(
                         k -> MapperUtils.ofEntity(k, root.rootType),
@@ -25,21 +24,38 @@ public class DependenciesGraph {
                                         .map(subGraph -> subGraph.restore(tuple, 0))
                                 , RoundCollector.toListOfRounds()
                         )
-                )).flatMapMany(groupByRoot ->
-                        Flux.fromStream(groupByRoot.keySet().stream())
-                                .map(target -> {
-                                    Map<String, Object> values = new HashMap<>();
-                                    List<Round> rounds = groupByRoot.get(target);
-                                    List<SubGraph> graphs = root.graphs;
-                                    rounds.forEach(round ->
-                                            graphs.forEach(graph ->
-                                                    graph.rounds(target, round, values)
-                                            )
-                                    );
-                                    MapperUtils.mapFields(values, target);
-                                    return (T) target;
-                                })
-                );
+                )).flatMapMany(this::toTarget);
+    }
+
+    @SuppressWarnings(value = "unchecked")
+    public <T> Mono<T> single(List<Map<String, Object>> tuples) {
+        return (Mono<T>) Flux.fromStream(tuples.stream())
+                .collect(Collectors.groupingBy(
+                        k -> MapperUtils.ofEntity(k, root.rootType),
+                        LinkedHashMap::new,
+                        Collectors.flatMapping(tuple -> root.graphs.stream()
+                                        .map(subGraph -> subGraph.restore(tuple, 0))
+                                , RoundCollector.toListOfRounds()
+                        )
+                )).flatMapMany(groupByRoot -> toTarget(groupByRoot).take(1))
+                .single();
+    }
+
+    @SuppressWarnings(value = "unchecked")
+    private <T> Flux<T> toTarget(LinkedHashMap<?, List<Round>> groupByRoot) {
+        return Flux.fromStream(groupByRoot.keySet().stream())
+                .map(target -> {
+                    Map<String, Object> values = new HashMap<>();
+                    List<Round> rounds = groupByRoot.get(target);
+                    List<SubGraph> graphs = root.graphs;
+                    rounds.forEach(round ->
+                            graphs.forEach(graph ->
+                                    graph.rounds(target, round, values)
+                            )
+                    );
+                    MapperUtils.mapFields(values, target);
+                    return (T) target;
+                });
     }
 
     public static class Root {
@@ -48,14 +64,11 @@ public class DependenciesGraph {
 
         List<SubGraph> graphs; //optional
 
-        Key key;
-
         Round round;
 
         public Root(Class<?> rootType, List<SubGraph> graphs) {
             this.rootType = Objects.requireNonNull(rootType);
             this.graphs = Objects.requireNonNullElse(graphs, new ArrayList<>());
-            this.key = new Key(rootType);
         }
 
         public void setRound(Round round) {
@@ -74,80 +87,6 @@ public class DependenciesGraph {
         public int hashCode() {
             return Objects.hash(rootType);
         }
-    }
-
-    static class Key {
-
-        Class<?> rootType;
-
-        Class<?> currentType;
-
-        String rootFieldName;
-
-        String currentFieldName;
-
-        Class<?> collType;
-
-        Key next; //optional
-
-        Key prev; //optional
-
-        public Key(Class<?> rootType) {
-            this.rootType = rootType;
-        }
-
-        public Key(Class<?> rootType, Class<?> currentType, String rootFieldName, String currentFieldName, Class<?> collType) {
-            this.rootType = rootType;
-            this.currentType = currentType;
-            this.rootFieldName = rootFieldName;
-            this.currentFieldName = currentFieldName;
-            this.collType = collType;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof Key)) return false;
-            Key key = (Key) o;
-            return Objects.equals(rootType, key.rootType) &&
-                    Objects.equals(currentType, key.currentType) &&
-                    Objects.equals(rootFieldName, key.rootFieldName) &&
-                    Objects.equals(currentFieldName, key.currentFieldName) &&
-                    Objects.equals(collType, key.collType);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(rootType, currentType, rootFieldName, currentFieldName, collType);
-        }
-
-        @Override
-        public String toString() {
-            return "Key{" +
-                    "rootType=" + rootType +
-                    ", currentType=" + currentType +
-                    ", rootFieldName='" + rootFieldName + '\'' +
-                    ", currentFieldName='" + currentFieldName + '\'' +
-                    ", collType=" + collType +
-                    '}';
-        }
-
-    }
-
-    static class Node {
-
-        Node prev;
-
-        Object prevTarget;
-
-        Collection<?> prevCollTarget;
-
-        public Node(Node prev, Object prevTarget, Collection<?> prevCollTarget) {
-            this.prev = prev;
-            this.prevTarget = prevTarget;
-            this.prevCollTarget = prevCollTarget;
-        }
-
     }
 
 }
