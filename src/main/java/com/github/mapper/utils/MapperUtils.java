@@ -9,30 +9,23 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.function.Supplier;
 
 public class MapperUtils {
 
     private static final Logger log = LoggerFactory.getLogger(MapperUtils.class);
 
-    @SuppressWarnings(value = "unchecked")
-    public static <T> T ofEntity(Map<String, Object> source, Class<T> czl) {
+    public static void setField(Field field, Object target, Object value) {
         try {
-            Constructor<?> constructor = requiredEmptyConstructor(czl);
-            Object target = constructor.newInstance();
-            Field[] fields = czl.getDeclaredFields();
-            String prefix = czl.getSimpleName();
-            Arrays.stream(fields).forEach(field -> {
-                var fieldName = findRequiredField(prefix, field, source);
-                if (StringUtils.hasText(fieldName)) {
-                    field.setAccessible(Boolean.TRUE);
-                    ReflectionUtils.setField(field, target, source.get(fieldName));
-                }
-            });
-            return (T) target;
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            log.error("Enter: {}", e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            ReflectionUtils.setField(field, target, value);
+        } catch (Throwable e) {
+            var message = String.format(
+                    "Field type miss match in target: %s, field: [name: %s, type: %s], source: %s",
+                    target.getClass().getSimpleName(),
+                    field.getName(),
+                    field.getType(),
+                    value.getClass().getSimpleName()
+            );
+            log.error(message);
         }
     }
 
@@ -55,32 +48,12 @@ public class MapperUtils {
             Field field = ReflectionUtils.findField(clz, fieldName);
             if (Objects.nonNull(field)) {
                 Objects.requireNonNull(field).setAccessible(Boolean.TRUE);
-                try {
-                    ReflectionUtils.setField(field, target, source);
-                } catch (Throwable e) {
-                    var message = String.format(
-                            "Field type miss match in target: %s, field: [name: %s, type: %s], source: %s",
-                            target.getClass().getSimpleName(),
-                            field.getName(),
-                            field.getType(),
-                            source.getClass().getSimpleName()
-                    );
-                    log.error(message);
-                    throw new IllegalArgumentException(message);
-                }
+                setField(field, target, source);
             } else {
                 log.error("Can't find field -> {} in: {} ", fieldName, target.getClass());
             }
         } else {
             log.error("Not existing field in -> {}, field name [ {} ], source: {}", target.getClass().getSimpleName(), fieldName, source);
-        }
-    }
-
-    public static void logMessage(Supplier<Void> check, RuntimeException exception) {
-        try {
-            check.get();
-        } catch (Throwable e) {
-            throw exception;
         }
     }
 
@@ -160,7 +133,7 @@ public class MapperUtils {
         return result;
     }
 
-    private static String findRequiredField(String prefix, Field field, Map<String, Object> source) {
+    public static String findRequiredField(String prefix, Field field, Map<String, Object> source) {
         String name = field.getName();
         var requiredFieldName = name.contains(prefix) ||
                 name.contains(prefix.toLowerCase(Locale.ROOT)) ||

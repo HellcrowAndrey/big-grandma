@@ -1,5 +1,6 @@
 package com.github.mapper.graph;
 
+import com.github.mapper.factories.EntityFactory;
 import com.github.mapper.utils.MapperUtils;
 import org.springframework.util.StringUtils;
 
@@ -19,7 +20,7 @@ public class SubGraph {
 
     Class<?> collType;
 
-    List<SubGraph> graphs = new ArrayList<>(); //optional
+    List<SubGraph> graphs; //optional
 
     private SubGraph(Builder b) {
         this.rootType = b.rootType;
@@ -84,7 +85,7 @@ public class SubGraph {
     }
 
     public Round restore(Map<String, Object> values, int lvl) {
-        Round result = new Round(lvl + 1, this.currentType, MapperUtils.ofEntity(values, this.currentType));
+        Round result = new Round(lvl + 1, this.currentType, EntityFactory.ofEntity(values, this.currentType));
         lvl = lvl + 1;
         if (!this.graphs.isEmpty()) {
             for (SubGraph graph : this.graphs) {

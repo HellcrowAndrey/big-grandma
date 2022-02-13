@@ -1,5 +1,6 @@
 package com.github.mapper.graph;
 
+import com.github.mapper.factories.EntityFactory;
 import com.github.mapper.utils.MapperUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,7 +20,7 @@ public class DependenciesGraph {
         return Flux.fromStream(tuples.stream())
                 .filter(DependenciesGraph::isTupleEmpty)
                 .collect(Collectors.groupingBy(
-                        source -> MapperUtils.ofEntity(source, root.rootType),
+                        source -> EntityFactory.ofEntity(source, root.rootType),
                         LinkedHashMap::new,
                         Collectors.flatMapping(tuple -> root.graphs.stream()
                                         .map(subGraph -> subGraph.restore(tuple, 0))
@@ -33,7 +34,7 @@ public class DependenciesGraph {
         return (Mono<T>) Flux.fromStream(tuples.stream())
                 .filter(DependenciesGraph::isTupleEmpty)
                 .collect(Collectors.groupingBy(
-                        source -> MapperUtils.ofEntity(source, root.rootType),
+                        source -> EntityFactory.ofEntity(source, root.rootType),
                         LinkedHashMap::new,
                         Collectors.flatMapping(tuple -> root.graphs.stream()
                                         .map(subGraph -> subGraph.restore(tuple, 0))
