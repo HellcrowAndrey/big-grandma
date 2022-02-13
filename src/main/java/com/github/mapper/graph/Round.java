@@ -20,12 +20,6 @@ public class Round {
         this.value = value;
     }
 
-    public void init(int lvl, Class<?> type, Object value) {
-        this.lvl = lvl;
-        this.type = type;
-        this.value = value;
-    }
-
     public void addRound(Round round) {
         round.prev = this;
         this.rounds.add(round);
