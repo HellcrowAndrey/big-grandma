@@ -28,10 +28,6 @@ public class DependenciesGraph {
                 )).flatMapMany(this::toTarget);
     }
 
-    private static boolean isTupleEmpty(Map<String, Object> values) {
-        return !values.isEmpty();
-    }
-
     @SuppressWarnings(value = "unchecked")
     public <T> Mono<T> single(List<Map<String, Object>> tuples) {
         return (Mono<T>) Flux.fromStream(tuples.stream())
@@ -62,6 +58,10 @@ public class DependenciesGraph {
                     MapperUtils.mapFields(values, target);
                     return (T) target;
                 });
+    }
+
+    private static boolean isTupleEmpty(Map<String, Object> values) {
+        return !values.isEmpty();
     }
 
     public void sql() {
