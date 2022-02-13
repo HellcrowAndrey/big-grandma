@@ -9,6 +9,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.function.Supplier;
 
 public class MapperUtils {
 
@@ -17,21 +18,34 @@ public class MapperUtils {
     @SuppressWarnings(value = "unchecked")
     public static <T> T ofEntity(Map<String, Object> source, Class<T> czl) {
         try {
-            Constructor<?> constructor = czl.getConstructor();
+            Constructor<?> constructor = requiredEmptyConstructor(czl);
             Object target = constructor.newInstance();
             Field[] fields = czl.getDeclaredFields();
             String prefix = czl.getSimpleName();
             Arrays.stream(fields).forEach(field -> {
-                        var fieldName = findRequiredField(prefix, field, source);
-                        if (StringUtils.hasText(fieldName)) {
-                            field.setAccessible(Boolean.TRUE);
-                            ReflectionUtils.setField(field, target, source.get(fieldName));
-                        }
-                    });
+                var fieldName = findRequiredField(prefix, field, source);
+                if (StringUtils.hasText(fieldName)) {
+                    field.setAccessible(Boolean.TRUE);
+                    ReflectionUtils.setField(field, target, source.get(fieldName));
+                }
+            });
             return (T) target;
-        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
             log.error("Enter: {}", e.getMessage());
             throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public static Constructor<?> requiredEmptyConstructor(Class<?> clz) {
+        try {
+            return clz.getConstructor();
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(
+                    String.format(
+                            "Default constructor is not exist in this entity -> %s, in package -> %s",
+                            clz.getSimpleName(), clz.getPackageName()
+                    )
+            );
         }
     }
 
@@ -41,12 +55,32 @@ public class MapperUtils {
             Field field = ReflectionUtils.findField(clz, fieldName);
             if (Objects.nonNull(field)) {
                 Objects.requireNonNull(field).setAccessible(Boolean.TRUE);
-                ReflectionUtils.setField(field, target, source);
+                try {
+                    ReflectionUtils.setField(field, target, source);
+                } catch (Throwable e) {
+                    var message = String.format(
+                            "Field type miss match in target: %s, field: [name: %s, type: %s], source: %s",
+                            target.getClass().getSimpleName(),
+                            field.getName(),
+                            field.getType(),
+                            source.getClass().getSimpleName()
+                    );
+                    log.error(message);
+                    throw new IllegalArgumentException(message);
+                }
             } else {
-                log.error("Can't find field {} in: {} ", fieldName, target.getClass());
+                log.error("Can't find field -> {} in: {} ", fieldName, target.getClass());
             }
         } else {
-            log.error("Not existing field in {}, field name [ {} ], source: {}", target.getClass().getSimpleName(), fieldName, source);
+            log.error("Not existing field in -> {}, field name [ {} ], source: {}", target.getClass().getSimpleName(), fieldName, source);
+        }
+    }
+
+    public static void logMessage(Supplier<Void> check, RuntimeException exception) {
+        try {
+            check.get();
+        } catch (Throwable e) {
+            throw exception;
         }
     }
 
@@ -74,7 +108,7 @@ public class MapperUtils {
     }
 
     public static boolean isFieldExist(String name, Object target) {
-       return isFieldExist(name, target.getClass());
+        return isFieldExist(name, target.getClass());
     }
 
     public static boolean isFieldExist(String name, Class<?> target) {
@@ -128,7 +162,7 @@ public class MapperUtils {
 
     private static String findRequiredField(String prefix, Field field, Map<String, Object> source) {
         String name = field.getName();
-        var requiredFieldName =  name.contains(prefix) ||
+        var requiredFieldName = name.contains(prefix) ||
                 name.contains(prefix.toLowerCase(Locale.ROOT)) ||
                 name.contains(prefix.toUpperCase(Locale.ROOT))
                 ? name : String.format("%s%s", prefix, field.getName());

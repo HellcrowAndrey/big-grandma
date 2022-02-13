@@ -36,11 +36,13 @@ public class DependenciesGraphCase2Test {
                                                                 .rootType(ABranch1Lvl2Case2.class)
                                                                 .currentType(ABranch1Lvl3Case2.class)
                                                                 .rootFieldName("bBranch1Lvl3Case2s")
+                                                                .collType(Set.class)
                                                                 .build(),
                                                         new SubGraph.Builder()
                                                                 .rootType(ABranch1Lvl2Case2.class)
                                                                 .currentType(BBranch1Lvl3Case2.class)
                                                                 .rootFieldName("bBranch1Lvl3Case2s")
+                                                                .collType(Set.class)
                                                                 .build() // 3
                                                 )).build(),
                                         new SubGraph.Builder() // 2

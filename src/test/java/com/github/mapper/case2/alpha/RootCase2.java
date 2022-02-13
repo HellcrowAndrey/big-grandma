@@ -41,6 +41,9 @@ public class RootCase2 {
 
     private List<Branch2Lvl1Case2> branch2Lvl1Case2s = new ArrayList<>();
 
+    public RootCase2() {
+    }
+
     public RootCase2(Long id, String name, List<Branch1Lvl1Case2> branch1Lvl1Case2s) {
         this.id = id;
         this.name = name;

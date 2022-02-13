@@ -17,8 +17,9 @@ public class DependenciesGraph {
 
     public <T> Flux<T> many(List<Map<String, Object>> tuples) {
         return Flux.fromStream(tuples.stream())
+                .filter(DependenciesGraph::isTupleEmpty)
                 .collect(Collectors.groupingBy(
-                        k -> MapperUtils.ofEntity(k, root.rootType),
+                        source -> MapperUtils.ofEntity(source, root.rootType),
                         LinkedHashMap::new,
                         Collectors.flatMapping(tuple -> root.graphs.stream()
                                         .map(subGraph -> subGraph.restore(tuple, 0))
@@ -27,11 +28,16 @@ public class DependenciesGraph {
                 )).flatMapMany(this::toTarget);
     }
 
+    private static boolean isTupleEmpty(Map<String, Object> values) {
+        return !values.isEmpty();
+    }
+
     @SuppressWarnings(value = "unchecked")
     public <T> Mono<T> single(List<Map<String, Object>> tuples) {
         return (Mono<T>) Flux.fromStream(tuples.stream())
+                .filter(DependenciesGraph::isTupleEmpty)
                 .collect(Collectors.groupingBy(
-                        k -> MapperUtils.ofEntity(k, root.rootType),
+                        source -> MapperUtils.ofEntity(source, root.rootType),
                         LinkedHashMap::new,
                         Collectors.flatMapping(tuple -> root.graphs.stream()
                                         .map(subGraph -> subGraph.restore(tuple, 0))
