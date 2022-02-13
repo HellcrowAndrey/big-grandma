@@ -16,12 +16,12 @@ public class EntityFactory {
     private static final Logger log = LoggerFactory.getLogger(EntityFactory.class);
 
     @SuppressWarnings(value = "unchecked")
-    public static <T> T ofEntity(Map<String, Object> sources, Class<T> czl) {
+    public static <T> T ofEntity(Map<String, Object> sources, Class<T> clz) {
         try {
-            Constructor<?> constructor = MapperUtils.requiredEmptyConstructor(czl);
+            Constructor<?> constructor = MapperUtils.requiredEmptyConstructor(clz);
             Object target = constructor.newInstance();
-            Field[] fields = czl.getDeclaredFields();
-            String prefix = czl.getSimpleName();
+            Field[] fields = clz.getDeclaredFields();
+            String prefix = clz.getSimpleName();
             Arrays.stream(fields).forEach(field -> {
                 var fieldName = MapperUtils.findRequiredField(prefix, field, sources);
                 if (StringUtils.hasText(fieldName)) {
@@ -31,8 +31,8 @@ public class EntityFactory {
             });
             return (T) target;
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            log.error("Enter: {}", e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            log.error("Enter: Can not construct {}", clz);
+            throw new RuntimeException(String.format("Can not construct -> %s", clz));
         }
     }
 
