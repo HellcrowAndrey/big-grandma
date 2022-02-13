@@ -37,7 +37,7 @@ public class DependenciesGraph {
                                         .map(subGraph -> subGraph.restore(tuple, 0))
                                 , RoundCollector.toListOfRounds()
                         )
-                )).flatMapMany(groupByRoot -> toTarget(groupByRoot).take(1))
+                )).flatMapMany(groupBy -> this.toTarget(groupBy).take(1))
                 .single();
     }
 
@@ -58,21 +58,19 @@ public class DependenciesGraph {
                 });
     }
 
+    public void sql() {
+
+    }
+
     public static class Root {
 
         Class<?> rootType;
 
         List<SubGraph> graphs; //optional
 
-        Round round;
-
         public Root(Class<?> rootType, List<SubGraph> graphs) {
             this.rootType = Objects.requireNonNull(rootType);
             this.graphs = Objects.requireNonNullElse(graphs, new ArrayList<>());
-        }
-
-        public void setRound(Round round) {
-            this.round = round;
         }
 
         @Override
