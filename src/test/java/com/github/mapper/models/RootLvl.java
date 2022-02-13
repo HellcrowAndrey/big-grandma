@@ -69,12 +69,13 @@ public class RootLvl {
                 Objects.equals(vinCode, rootLvl.vinCode) &&
                 Objects.equals(name, rootLvl.name) &&
                 Objects.equals(firstName, rootLvl.firstName) &&
-                Objects.equals(lastName, rootLvl.lastName);
+                Objects.equals(lastName, rootLvl.lastName) &&
+                Objects.equals(round1Lvl1, rootLvl.round1Lvl1);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, vinCode, name, firstName, lastName);
+        return Objects.hash(id, vinCode, name, firstName, lastName, round1Lvl1);
     }
 
     @Override
