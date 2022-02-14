@@ -10,6 +10,8 @@ public class Round1Lvl1 {
 
     private Integer amount;
 
+    private RootLvl rootLvl;
+
     public Round1Lvl1() {
     }
 
@@ -33,6 +35,14 @@ public class Round1Lvl1 {
 
     public Integer getAmount() {
         return amount;
+    }
+
+    public RootLvl getRootLvl() {
+        return rootLvl;
+    }
+
+    public void setRootLvl(RootLvl rootLvl) {
+        this.rootLvl = rootLvl;
     }
 
     @Override

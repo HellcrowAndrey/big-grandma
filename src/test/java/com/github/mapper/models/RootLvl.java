@@ -60,6 +60,12 @@ public class RootLvl {
         return round1Lvl1;
     }
 
+    public RootLvl round1Lvl1(Round1Lvl1 round1Lvl1) {
+        this.round1Lvl1 = round1Lvl1;
+        this.round1Lvl1.setRootLvl(this);
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -76,6 +82,10 @@ public class RootLvl {
     @Override
     public int hashCode() {
         return Objects.hash(id, vinCode, name, firstName, lastName, round1Lvl1);
+    }
+
+    public boolean isEquals(Round1Lvl1 input) {
+        return input.equals(this.round1Lvl1);
     }
 
     @Override
