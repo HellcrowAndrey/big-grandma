@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 
 import static com.github.mapper.cases.DependenciesGraphCase4.expect;
 
+/**
+ * Bidirectional 0 -> 1 lvl one to one
+ */
 public class DefaultSqlDependenciesMapperCase4Test {
 
     @Test
