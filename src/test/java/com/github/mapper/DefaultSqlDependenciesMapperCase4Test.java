@@ -6,7 +6,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Map;
@@ -15,7 +14,7 @@ import java.util.stream.Collectors;
 import static com.github.mapper.cases.DependenciesGraphCase4.expect;
 
 /**
- * Bidirectional 0 -> 1 lvl one to one
+ * Bidirectional 0 -> 1 lvl one to one.
  */
 public class DefaultSqlDependenciesMapperCase4Test {
 
@@ -26,9 +25,12 @@ public class DefaultSqlDependenciesMapperCase4Test {
         SqlDependenciesMapper sqlDependenciesMapper =
                 SqlDependenciesMapper.defaultMap(DependenciesGraphCase4.graph());
         Mono<RootLvl> publisher = sqlDependenciesMapper.single(tuples);
-        StepVerifier.create(publisher)
-                .expectNext(exp)
-                .verifyComplete();
+        RootLvl act = publisher.block();
+        Assertions.assertThat(act).isNotNull();
+        Assertions.assertThat(exp)
+                .isEqualTo(act);
+        Assertions.assertThat(exp.getRound1Lvl1().getRootLvl())
+                .isEqualTo(act.getRound1Lvl1().getRootLvl());
     }
 
     @Test

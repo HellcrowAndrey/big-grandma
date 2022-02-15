@@ -1,5 +1,7 @@
 package com.github.mapper.models;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class RootLvl {
@@ -15,6 +17,8 @@ public class RootLvl {
     private String lastName;
 
     private Round1Lvl1 round1Lvl1;
+
+    private List<Round2Lvl1> round2Lvl1s = new ArrayList<>();
 
     public RootLvl() {
     }
@@ -60,9 +64,18 @@ public class RootLvl {
         return round1Lvl1;
     }
 
+    public List<Round2Lvl1> getRound2Lvl1s() {
+        return round2Lvl1s;
+    }
+
     public RootLvl round1Lvl1(Round1Lvl1 round1Lvl1) {
         this.round1Lvl1 = round1Lvl1;
         this.round1Lvl1.setRootLvl(this);
+        return this;
+    }
+
+    public RootLvl round2Lvl1s(Round2Lvl1 round2Lvl1) {
+        this.round2Lvl1s.add(round2Lvl1);
         return this;
     }
 
