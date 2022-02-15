@@ -20,7 +20,7 @@ import static com.github.mapper.cases.DependenciesGraphCase6.expect;
  * No directional 0 -> 1 lvl one to Many coll type List.
  * All fields
  */
-public class DefaultSqlDependenciesMapperCase6Test {
+public class DefaultSqlDependenciesMapperCase7Test {
 
     @Test
     void givenListMap_whenSingle_thenReturnFluxOnlyRoot() {
@@ -71,5 +71,6 @@ public class DefaultSqlDependenciesMapperCase6Test {
         Assertions.assertThat(exp)
                 .containsAll(act);
     }
+
 
 }
