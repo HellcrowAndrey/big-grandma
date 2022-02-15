@@ -75,6 +75,7 @@ public class RootLvl {
     }
 
     public RootLvl round2Lvl1s(Round2Lvl1 round2Lvl1) {
+        round2Lvl1.setRootLvl(this);
         this.round2Lvl1s.add(round2Lvl1);
         return this;
     }

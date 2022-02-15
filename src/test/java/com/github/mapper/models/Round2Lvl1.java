@@ -12,6 +12,8 @@ public class Round2Lvl1 {
 
     private String name;
 
+    private RootLvl rootLvl;
+
     public Round2Lvl1() {
     }
 
@@ -40,6 +42,14 @@ public class Round2Lvl1 {
 
     public String getName() {
         return name;
+    }
+
+    public RootLvl getRootLvl() {
+        return rootLvl;
+    }
+
+    public void setRootLvl(RootLvl rootLvl) {
+        this.rootLvl = rootLvl;
     }
 
     @Override
