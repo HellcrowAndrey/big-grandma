@@ -27,6 +27,9 @@ public class DependenciesGraphCase5 {
         entity_1_1.put("ROUND1LVL1AMOUNT", 111);
 
         entity_1_1.put("ROUND2LVL1ID", 1L);
+        entity_1_1.put("ROUND2LVL1ISFLAG", Boolean.FALSE);
+        entity_1_1.put("ROUND2LVL1TAG", 1);
+        entity_1_1.put("ROUND2LVL1NAME", "name-1");
 
         Map<String, Object> entity_1_2 = new HashMap<>();
 
@@ -41,6 +44,9 @@ public class DependenciesGraphCase5 {
         entity_1_2.put("ROUND1LVL1AMOUNT", 111);
 
         entity_1_2.put("ROUND2LVL1ID", 2L);
+        entity_1_2.put("ROUND2LVL1ISFLAG", Boolean.FALSE);
+        entity_1_2.put("ROUND2LVL1TAG", 2);
+        entity_1_2.put("ROUND2LVL1NAME", "name-2");
 
         Map<String, Object> entity_1_3 = new HashMap<>();
 
@@ -55,6 +61,9 @@ public class DependenciesGraphCase5 {
         entity_1_3.put("ROUND1LVL1AMOUNT", 111);
 
         entity_1_3.put("ROUND2LVL1ID", 3L);
+        entity_1_3.put("ROUND2LVL1ISFLAG", Boolean.TRUE);
+        entity_1_3.put("ROUND2LVL1TAG", 3);
+        entity_1_3.put("ROUND2LVL1NAME", "name-3");
 
         Map<String, Object> entity_1_4 = new HashMap<>();
 
@@ -69,6 +78,9 @@ public class DependenciesGraphCase5 {
         entity_1_4.put("ROUND1LVL1AMOUNT", 111);
 
         entity_1_4.put("ROUND2LVL1ID", 4L);
+        entity_1_4.put("ROUND2LVL1ISFLAG", Boolean.TRUE);
+        entity_1_4.put("ROUND2LVL1TAG", 4);
+        entity_1_4.put("ROUND2LVL1NAME", "name-4");
 
         Map<String, Object> entity_1_5 = new HashMap<>();
 
@@ -83,6 +95,9 @@ public class DependenciesGraphCase5 {
         entity_1_5.put("ROUND1LVL1AMOUNT", 111);
 
         entity_1_5.put("ROUND2LVL1ID", 5L);
+        entity_1_5.put("ROUND2LVL1ISFLAG", Boolean.FALSE);
+        entity_1_5.put("ROUND2LVL1TAG", 5);
+        entity_1_5.put("ROUND2LVL1NAME", "name-5");
 
         Map<String, Object> entity_2_1 = new HashMap<>();
 
@@ -97,6 +112,9 @@ public class DependenciesGraphCase5 {
         entity_2_1.put("ROUND1LVL1AMOUNT", 222);
 
         entity_2_1.put("ROUND2LVL1ID", 6L);
+        entity_2_1.put("ROUND2LVL1ISFLAG", Boolean.TRUE);
+        entity_2_1.put("ROUND2LVL1TAG", 6);
+        entity_2_1.put("ROUND2LVL1NAME", "name-6");
 
         Map<String, Object> entity_2_2 = new HashMap<>();
 
@@ -111,6 +129,9 @@ public class DependenciesGraphCase5 {
         entity_2_2.put("ROUND1LVL1AMOUNT", 222);
 
         entity_2_2.put("ROUND2LVL1ID", 7L);
+        entity_2_2.put("ROUND2LVL1ISFLAG", Boolean.FALSE);
+        entity_2_2.put("ROUND2LVL1TAG", 7);
+        entity_2_2.put("ROUND2LVL1NAME", "name-7");
 
         Map<String, Object> entity_2_3 = new HashMap<>();
 
@@ -125,6 +146,9 @@ public class DependenciesGraphCase5 {
         entity_2_3.put("ROUND1LVL1AMOUNT", 222);
 
         entity_2_3.put("ROUND2LVL1ID", 8L);
+        entity_2_3.put("ROUND2LVL1ISFLAG", Boolean.TRUE);
+        entity_2_3.put("ROUND2LVL1TAG", 8);
+        entity_2_3.put("ROUND2LVL1NAME", "name-8");
 
         Map<String, Object> entity_2_4 = new HashMap<>();
 
@@ -139,6 +163,9 @@ public class DependenciesGraphCase5 {
         entity_2_4.put("ROUND1LVL1AMOUNT", 222);
 
         entity_2_4.put("ROUND2LVL1ID", 9L);
+        entity_2_4.put("ROUND2LVL1ISFLAG", Boolean.FALSE);
+        entity_2_4.put("ROUND2LVL1TAG", 9);
+        entity_2_4.put("ROUND2LVL1NAME", "name-9");
 
         Map<String, Object> entity_2_5 = new HashMap<>();
 
@@ -153,6 +180,9 @@ public class DependenciesGraphCase5 {
         entity_2_5.put("ROUND1LVL1AMOUNT", 222);
 
         entity_2_5.put("ROUND2LVL1ID", 10L);
+        entity_2_5.put("ROUND2LVL1ISFLAG", Boolean.FALSE);
+        entity_2_5.put("ROUND2LVL1TAG", 10);
+        entity_2_5.put("ROUND2LVL1NAME", "name-10");
 
         Map<String, Object> entity_3_1 = new HashMap<>();
 
@@ -167,6 +197,9 @@ public class DependenciesGraphCase5 {
         entity_3_1.put("ROUND1LVL1AMOUNT", 333);
 
         entity_3_1.put("ROUND2LVL1ID", 11L);
+        entity_3_1.put("ROUND2LVL1ISFLAG", Boolean.TRUE);
+        entity_3_1.put("ROUND2LVL1TAG", 11);
+        entity_3_1.put("ROUND2LVL1NAME", "name-11");
 
         Map<String, Object> entity_3_2 = new HashMap<>();
 
@@ -181,6 +214,9 @@ public class DependenciesGraphCase5 {
         entity_3_2.put("ROUND1LVL1AMOUNT", 333);
 
         entity_3_2.put("ROUND2LVL1ID", 12L);
+        entity_3_2.put("ROUND2LVL1ISFLAG", Boolean.TRUE);
+        entity_3_2.put("ROUND2LVL1TAG", 12);
+        entity_3_2.put("ROUND2LVL1NAME", "name-12");
 
         Map<String, Object> entity_3_3 = new HashMap<>();
 
@@ -195,6 +231,9 @@ public class DependenciesGraphCase5 {
         entity_3_3.put("ROUND1LVL1AMOUNT", 333);
 
         entity_3_3.put("ROUND2LVL1ID", 13L);
+        entity_3_3.put("ROUND2LVL1ISFLAG", Boolean.TRUE);
+        entity_3_3.put("ROUND2LVL1TAG", 13);
+        entity_3_3.put("ROUND2LVL1NAME", "name-13");
 
         Map<String, Object> entity_3_4 = new HashMap<>();
 
@@ -209,6 +248,9 @@ public class DependenciesGraphCase5 {
         entity_3_4.put("ROUND1LVL1AMOUNT", 333);
 
         entity_3_4.put("ROUND2LVL1ID", 14L);
+        entity_3_4.put("ROUND2LVL1ISFLAG", Boolean.TRUE);
+        entity_3_4.put("ROUND2LVL1TAG", 14);
+        entity_3_4.put("ROUND2LVL1NAME", "name-14");
 
         Map<String, Object> entity_3_5 = new HashMap<>();
 
@@ -223,6 +265,9 @@ public class DependenciesGraphCase5 {
         entity_3_5.put("ROUND1LVL1AMOUNT", 333);
 
         entity_3_5.put("ROUND2LVL1ID", 15L);
+        entity_3_5.put("ROUND2LVL1ISFLAG", Boolean.TRUE);
+        entity_3_5.put("ROUND2LVL1TAG", 15);
+        entity_3_5.put("ROUND2LVL1NAME", "name-15");
 
         Map<String, Object> entity_4_1 = new HashMap<>();
 
@@ -237,6 +282,9 @@ public class DependenciesGraphCase5 {
         entity_4_1.put("ROUND1LVL1AMOUNT", 444);
 
         entity_4_1.put("ROUND2LVL1ID", 16L);
+        entity_4_1.put("ROUND2LVL1ISFLAG", Boolean.TRUE);
+        entity_4_1.put("ROUND2LVL1TAG", 16);
+        entity_4_1.put("ROUND2LVL1NAME", "name-16");
 
         Map<String, Object> entity_4_2 = new HashMap<>();
 
@@ -251,6 +299,9 @@ public class DependenciesGraphCase5 {
         entity_4_2.put("ROUND1LVL1AMOUNT", 444);
 
         entity_4_2.put("ROUND2LVL1ID", 17L);
+        entity_4_2.put("ROUND2LVL1ISFLAG", Boolean.TRUE);
+        entity_4_2.put("ROUND2LVL1TAG", 17);
+        entity_4_2.put("ROUND2LVL1NAME", "name-17");
 
         Map<String, Object> entity_4_3 = new HashMap<>();
 
@@ -265,6 +316,9 @@ public class DependenciesGraphCase5 {
         entity_4_3.put("ROUND1LVL1AMOUNT", 444);
 
         entity_4_3.put("ROUND2LVL1ID", 18L);
+        entity_4_3.put("ROUND2LVL1ISFLAG", Boolean.TRUE);
+        entity_4_3.put("ROUND2LVL1TAG", 18);
+        entity_4_3.put("ROUND2LVL1NAME", "name-18");
 
         Map<String, Object> entity_4_4 = new HashMap<>();
 
@@ -279,6 +333,9 @@ public class DependenciesGraphCase5 {
         entity_4_4.put("ROUND1LVL1AMOUNT", 444);
 
         entity_4_4.put("ROUND2LVL1ID", 19L);
+        entity_4_4.put("ROUND2LVL1ISFLAG", Boolean.TRUE);
+        entity_4_4.put("ROUND2LVL1TAG", 19);
+        entity_4_4.put("ROUND2LVL1NAME", "name-19");
 
         Map<String, Object> entity_4_5 = new HashMap<>();
 
@@ -293,6 +350,9 @@ public class DependenciesGraphCase5 {
         entity_4_5.put("ROUND1LVL1AMOUNT", 444);
 
         entity_4_5.put("ROUND2LVL1ID", 20L);
+        entity_4_5.put("ROUND2LVL1ISFLAG", Boolean.FALSE);
+        entity_4_5.put("ROUND2LVL1TAG", 20);
+        entity_4_5.put("ROUND2LVL1NAME", "name-20");
 
         Map<String, Object> entity_5_1 = new HashMap<>();
 
@@ -307,6 +367,9 @@ public class DependenciesGraphCase5 {
         entity_5_1.put("ROUND1LVL1AMOUNT", 555);
 
         entity_5_1.put("ROUND2LVL1ID", 21L);
+        entity_5_1.put("ROUND2LVL1ISFLAG", Boolean.FALSE);
+        entity_5_1.put("ROUND2LVL1TAG", 21);
+        entity_5_1.put("ROUND2LVL1NAME", "name-21");
 
         Map<String, Object> entity_5_2 = new HashMap<>();
 
@@ -321,6 +384,9 @@ public class DependenciesGraphCase5 {
         entity_5_2.put("ROUND1LVL1AMOUNT", 555);
 
         entity_5_2.put("ROUND2LVL1ID", 22L);
+        entity_5_2.put("ROUND2LVL1ISFLAG", Boolean.TRUE);
+        entity_5_2.put("ROUND2LVL1TAG", 22);
+        entity_5_2.put("ROUND2LVL1NAME", "name-22");
 
         Map<String, Object> entity_5_3 = new HashMap<>();
 
@@ -335,6 +401,9 @@ public class DependenciesGraphCase5 {
         entity_5_3.put("ROUND1LVL1AMOUNT", 555);
 
         entity_5_3.put("ROUND2LVL1ID", 23L);
+        entity_5_3.put("ROUND2LVL1ISFLAG", Boolean.TRUE);
+        entity_5_3.put("ROUND2LVL1TAG", 23);
+        entity_5_3.put("ROUND2LVL1NAME", "name-23");
 
         Map<String, Object> entity_5_4 = new HashMap<>();
 
@@ -349,6 +418,9 @@ public class DependenciesGraphCase5 {
         entity_5_4.put("ROUND1LVL1AMOUNT", 555);
 
         entity_5_4.put("ROUND2LVL1ID", 24L);
+        entity_5_4.put("ROUND2LVL1ISFLAG", Boolean.TRUE);
+        entity_5_4.put("ROUND2LVL1TAG", 24);
+        entity_5_4.put("ROUND2LVL1NAME", "name-24");
 
         Map<String, Object> entity_5_5 = new HashMap<>();
 
@@ -363,6 +435,9 @@ public class DependenciesGraphCase5 {
         entity_5_5.put("ROUND1LVL1AMOUNT", 555);
 
         entity_5_5.put("ROUND2LVL1ID", 25L);
+        entity_5_5.put("ROUND2LVL1ISFLAG", Boolean.FALSE);
+        entity_5_5.put("ROUND2LVL1TAG", 25);
+        entity_5_5.put("ROUND2LVL1NAME", "name-25");
 
         return List.of(
                 entity_1_1,
@@ -412,6 +487,9 @@ public class DependenciesGraphCase5 {
         entity_1_1.put("ROUND1LVL1AMOUNT", 111);
 
         entity_1_1.put("ROUND2LVL1ID", 1L);
+        entity_1_1.put("ROUND2LVL1ISFLAG", Boolean.FALSE);
+        entity_1_1.put("ROUND2LVL1TAG", 1);
+        entity_1_1.put("ROUND2LVL1NAME", "name-1");
 
         Map<String, Object> entity_1_2 = new HashMap<>();
 
@@ -426,6 +504,9 @@ public class DependenciesGraphCase5 {
         entity_1_2.put("ROUND1LVL1AMOUNT", 111);
 
         entity_1_2.put("ROUND2LVL1ID", 2L);
+        entity_1_2.put("ROUND2LVL1ISFLAG", Boolean.FALSE);
+        entity_1_2.put("ROUND2LVL1TAG", 2);
+        entity_1_2.put("ROUND2LVL1NAME", "name-2");
 
         Map<String, Object> entity_1_3 = new HashMap<>();
 
@@ -440,6 +521,9 @@ public class DependenciesGraphCase5 {
         entity_1_3.put("ROUND1LVL1AMOUNT", 111);
 
         entity_1_3.put("ROUND2LVL1ID", 3L);
+        entity_1_3.put("ROUND2LVL1ISFLAG", Boolean.FALSE);
+        entity_1_3.put("ROUND2LVL1TAG", 3);
+        entity_1_3.put("ROUND2LVL1NAME", "name-3");
 
         Map<String, Object> entity_1_4 = new HashMap<>();
 
@@ -454,6 +538,9 @@ public class DependenciesGraphCase5 {
         entity_1_4.put("ROUND1LVL1AMOUNT", 111);
 
         entity_1_4.put("ROUND2LVL1ID", 4L);
+        entity_1_4.put("ROUND2LVL1ISFLAG", Boolean.FALSE);
+        entity_1_4.put("ROUND2LVL1TAG", 4);
+        entity_1_4.put("ROUND2LVL1NAME", "name-4");
 
         Map<String, Object> entity_1_5 = new HashMap<>();
 
@@ -468,6 +555,9 @@ public class DependenciesGraphCase5 {
         entity_1_5.put("ROUND1LVL1AMOUNT", 111);
 
         entity_1_5.put("ROUND2LVL1ID", 5L);
+        entity_1_5.put("ROUND2LVL1ISFLAG", Boolean.FALSE);
+        entity_1_5.put("ROUND2LVL1TAG", 5);
+        entity_1_5.put("ROUND2LVL1NAME", "name-5");
 
         return List.of(
                 entity_1_1,

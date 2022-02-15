@@ -15,11 +15,13 @@ import java.util.stream.Collectors;
 
 import static com.github.mapper.cases.DependenciesGraphCase5.expect;
 
+
 /**
  * Bidirectional 0 -> 1 lvl one to one.
  * No directional 0 -> 1 lvl one to Many coll type List.
+ * All fields
  */
-public class DefaultSqlDependenciesMapperCase5Test {
+public class DefaultSqlDependenciesMapperCase6Test {
 
     @Test
     void givenListMap_whenSingle_thenReturnFluxOnlyRoot() {
@@ -70,5 +72,6 @@ public class DefaultSqlDependenciesMapperCase5Test {
         Assertions.assertThat(exp)
                 .containsAll(act);
     }
+
 
 }
