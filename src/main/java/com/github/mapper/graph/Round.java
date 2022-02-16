@@ -1,6 +1,7 @@
 package com.github.mapper.graph;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Round {
 
@@ -58,7 +59,10 @@ public class Round {
             List<Round> currentRounds = findRoundByLvl(i);
             List<Round> newRounds = round.findRoundByLvl(i);
             if (!currentRounds.containsAll(newRounds)) {
-                this.rounds.addAll(newRounds);
+                this.rounds.addAll(newRounds.stream()
+                        .filter(r -> Objects.nonNull(r.value))
+                        .collect(Collectors.toList())
+                );
             }
         }
     }

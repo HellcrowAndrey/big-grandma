@@ -25,13 +25,19 @@ public class RoundCollector implements Collector<Round, List<Round>, List<Round>
     public BiConsumer<List<Round>, Round> accumulator() {
         return (list, round) -> {
             if (list.isEmpty()) {
-                list.add(round);
+                if (Objects.nonNull(round.value)) {
+                    list.add(round);
+                }
             } else {
                 if (list.contains(round)) {
-                    Round containsRound = list.get(list.indexOf(round));
-                    containsRound.addRounds(round);
+                    if (Objects.nonNull(round.value)) {
+                        Round containsRound = list.get(list.indexOf(round));
+                        containsRound.addRounds(round);
+                    }
                 } else {
-                    list.add(round);
+                    if (Objects.nonNull(round.value)) {
+                        list.add(round);
+                    }
                 }
             }
         };

@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 
 public class EntityFactory {
 
@@ -26,9 +27,16 @@ public class EntityFactory {
                 var fieldName = MapperUtils.findRequiredField(prefix, field, sources);
                 if (StringUtils.hasText(fieldName)) {
                     field.setAccessible(Boolean.TRUE);
-                    MapperUtils.setField(field, target, sources.get(fieldName));
+                    Object obj = sources.get(fieldName);
+                    if (Objects.nonNull(obj)) {
+                        MapperUtils.setField(field, target, obj);
+                    }
                 }
             });
+            Object isEmpty = constructor.newInstance();
+            if (isEmpty.equals(target)) {
+                return null;
+            }
             return (T) target;
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
             log.error("Enter: Can not construct {}", clz);

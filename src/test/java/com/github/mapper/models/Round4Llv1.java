@@ -1,6 +1,8 @@
 package com.github.mapper.models;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 public class Round4Llv1 {
 
@@ -9,6 +11,8 @@ public class Round4Llv1 {
     private Integer count;
 
     private Integer amount;
+
+    private Set<Round3Llv1> round3Llv1s = new HashSet<>();
 
     public Round4Llv1() {
     }
@@ -29,6 +33,10 @@ public class Round4Llv1 {
 
     public Integer getAmount() {
         return amount;
+    }
+
+    public Set<Round3Llv1> getRound3Llv1s() {
+        return round3Llv1s;
     }
 
     @Override

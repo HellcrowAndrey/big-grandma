@@ -1,7 +1,9 @@
 package com.github.mapper.models;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 public class Round3Llv1 {
 
@@ -10,6 +12,8 @@ public class Round3Llv1 {
     private String  roundName;
 
     private byte[] array;
+
+    private Set<Round4Llv1> round4Llv1s = new HashSet<>();
 
     public Round3Llv1() {
     }
@@ -30,6 +34,10 @@ public class Round3Llv1 {
 
     public byte[] getArray() {
         return array;
+    }
+
+    public Set<Round4Llv1> getRound4Llv1s() {
+        return round4Llv1s;
     }
 
     @Override
