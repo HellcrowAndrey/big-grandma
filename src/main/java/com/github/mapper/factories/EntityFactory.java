@@ -34,10 +34,7 @@ public class EntityFactory {
                 }
             });
             Object isEmpty = constructor.newInstance();
-            if (isEmpty.equals(target)) {
-                return null;
-            }
-            return (T) target;
+            return isEmpty.equals(target) ? null : (T) target;
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
             log.error("Enter: Can not construct {}", clz);
             throw new RuntimeException(String.format("Can not construct -> %s", clz));
