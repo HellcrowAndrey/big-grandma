@@ -20,6 +20,10 @@ public class RootLvl {
 
     private List<Round2Lvl1> round2Lvl1s = new ArrayList<>();
 
+    private Round3Llv1 round3Llv1;
+
+    private Round4Llv1 round4Llv1;
+
     public RootLvl() {
     }
 
@@ -68,6 +72,14 @@ public class RootLvl {
         return round2Lvl1s;
     }
 
+    public Round3Llv1 getRound3Llv1() {
+        return round3Llv1;
+    }
+
+    public Round4Llv1 getRound4Llv1() {
+        return round4Llv1;
+    }
+
     public RootLvl round1Lvl1(Round1Lvl1 round1Lvl1) {
         this.round1Lvl1 = round1Lvl1;
         this.round1Lvl1.setRootLvl(this);
@@ -80,22 +92,44 @@ public class RootLvl {
         return this;
     }
 
+    public RootLvl round3Lvl1(Round3Llv1 round3Llv1) {
+        this.round3Llv1 = round3Llv1;
+        return this;
+    }
+
+    public RootLvl round4Lvl1(Round4Llv1 round4Llv1) {
+        this.round4Llv1 = round4Llv1;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof RootLvl)) return false;
         RootLvl rootLvl = (RootLvl) o;
-        return Objects.equals(id, rootLvl.id) &&
-                Objects.equals(vinCode, rootLvl.vinCode) &&
-                Objects.equals(name, rootLvl.name) &&
-                Objects.equals(firstName, rootLvl.firstName) &&
-                Objects.equals(lastName, rootLvl.lastName) &&
-                Objects.equals(round1Lvl1, rootLvl.round1Lvl1);
+        return Objects.equals(id, rootLvl.id)
+                && Objects.equals(vinCode, rootLvl.vinCode)
+                && Objects.equals(name, rootLvl.name)
+                && Objects.equals(firstName, rootLvl.firstName)
+                && Objects.equals(lastName, rootLvl.lastName)
+                && Objects.equals(round1Lvl1, rootLvl.round1Lvl1)
+                && Objects.equals(round3Llv1, rootLvl.round3Llv1)
+                && Objects.equals(round4Llv1, rootLvl.round4Llv1);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, vinCode, name, firstName, lastName, round1Lvl1);
+        return Objects.hash(
+                id,
+                vinCode,
+                name,
+                firstName,
+                lastName,
+                round1Lvl1,
+                round2Lvl1s,
+                round3Llv1,
+                round4Llv1
+        );
     }
 
     public boolean isEquals(Round1Lvl1 input) {
