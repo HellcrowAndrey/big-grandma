@@ -22,6 +22,8 @@ public class SubGraph {
 
     List<SubGraph> graphs; //optional
 
+    boolean isManyToMany;
+
     private SubGraph(Builder b) {
         this.rootType = b.rootType;
         this.currentType = b.currentType;
@@ -29,6 +31,7 @@ public class SubGraph {
         this.currentFieldName = b.currentFieldName;
         this.collType = b.collType;
         this.graphs = b.graphs;
+        this.isManyToMany = b.isManyToMany;
     }
 
     public static class Builder {
@@ -44,6 +47,13 @@ public class SubGraph {
         Class<?> collType;
 
         List<SubGraph> graphs = new ArrayList<>(); //optional
+
+        boolean isManyToMany;
+
+        public Builder isManyToMany() {
+            this.isManyToMany = Boolean.TRUE;
+            return this;
+        }
 
         public Builder rootType(Class<?> rootType) {
             this.rootType = Objects.requireNonNull(rootType);
@@ -84,8 +94,8 @@ public class SubGraph {
 
     }
 
-    public Round restore(Map<String, Object> values, int lvl) {
-        Round result = new Round(lvl + 1, this.currentType, EntityFactory.ofEntity(values, this.currentType));
+    public GeneralRounds restore(Map<String, Object> values, int lvl) {
+        GeneralRounds result = Round.create(lvl + 1, this.currentType, EntityFactory.ofEntity(values, this.currentType));
         lvl = lvl + 1;
         if (!this.graphs.isEmpty()) {
             for (SubGraph graph : this.graphs) {
@@ -95,9 +105,9 @@ public class SubGraph {
         return result;
     }
 
-    public void rounds(Object root, Round round, Map<String, Object> values) {
-        Object target = round.value;
-        if (round.type.equals(this.currentType)) {
+    public void rounds(Object root, GeneralRounds round, Map<String, Object> values) {
+        Object target = round.value();
+        if (round.type().equals(this.currentType)) {
             if (Objects.isNull(this.collType)) {
                 values.put(this.rootFieldName, target);
             } else {
@@ -113,7 +123,7 @@ public class SubGraph {
             }
             if (!this.graphs.isEmpty()) {
                 Map<String, Object> nexValues = new HashMap<>();
-                for (Round nextRound : round.rounds) {
+                for (GeneralRounds nextRound : round.rounds()) {
                     for (SubGraph graph : this.graphs) {
                         graph.rounds(target, nextRound, nexValues);
                     }
@@ -124,7 +134,7 @@ public class SubGraph {
                     }
                 }
             }
-            if (StringUtils.hasText(this.currentFieldName)) {
+            if (StringUtils.hasText(this.currentFieldName) && !this.isManyToMany) {
                 setFields(root, target, this.currentFieldName);
             }
         }

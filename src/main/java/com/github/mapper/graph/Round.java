@@ -3,9 +3,7 @@ package com.github.mapper.graph;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Round {
-
-    Round prev;
+public class Round implements GeneralRounds {
 
     int lvl;
 
@@ -13,23 +11,27 @@ public class Round {
 
     Object value;
 
-    Set<Round> rounds = new HashSet<>();
+    Set<GeneralRounds> rounds = new HashSet<>();
 
-    public Round(int lvl, Class<?> type, Object value) {
+    private Round(int lvl, Class<?> type, Object value) {
         this.lvl = lvl;
         this.type = type;
         this.value = value;
     }
 
-    public void addRound(Round round) {
-        round.prev = this;
+    public static GeneralRounds create(int lvl, Class<?> type, Object value) {
+        return new Round(lvl, type, value);
+    }
+
+    @Override
+    public void addRound(GeneralRounds round) {
         this.rounds.add(round);
     }
 
-    public List<Round> findRoundByLvl(int lvl) {
-        List<Round> result = new ArrayList<>();
+    public List<GeneralRounds> findRoundByLvl(int lvl) {
+        List<GeneralRounds> result = new ArrayList<>();
         if (this.lvl < lvl) {
-            for (Round round : this.rounds) {
+            for (GeneralRounds round : this.rounds) {
                 result.addAll(round.findRoundByLvl(lvl));
             }
         } else {
@@ -38,12 +40,13 @@ public class Round {
         return result;
     }
 
+    @Override
     public int levels() {
         int lvl = 0;
-        for (Round r : this.rounds) {
-            if (r.rounds.size() == 0) {
-                if (r.lvl > lvl) {
-                    lvl = r.lvl;
+        for (GeneralRounds r : this.rounds) {
+            if (r.rounds().size() == 0) {
+                if (r.levels() > lvl) {
+                    lvl = r.levels();
                 }
             }
         }
@@ -53,18 +56,39 @@ public class Round {
         return lvl;
     }
 
-    public void addRounds(Round round) {
+    @Override
+    public void collectRounds(GeneralRounds round) {
         int levels = round.levels();
         for (int i = 1; i < levels; i++) {
-            List<Round> currentRounds = findRoundByLvl(i);
-            List<Round> newRounds = round.findRoundByLvl(i);
+            List<GeneralRounds> currentRounds = findRoundByLvl(i);
+            List<GeneralRounds> newRounds = round.findRoundByLvl(i);
             if (!currentRounds.containsAll(newRounds)) {
                 this.rounds.addAll(newRounds.stream()
-                        .filter(r -> Objects.nonNull(r.value))
+                        .filter(r -> Objects.nonNull(r.value()))
                         .collect(Collectors.toList())
                 );
             }
         }
+    }
+
+    @Override
+    public RoundType roundType() {
+        return RoundType.def;
+    }
+
+    @Override
+    public Class<?> type() {
+        return this.type;
+    }
+
+    @Override
+    public Object value() {
+        return this.value;
+    }
+
+    @Override
+    public Set<GeneralRounds> rounds() {
+        return this.rounds;
     }
 
     @Override

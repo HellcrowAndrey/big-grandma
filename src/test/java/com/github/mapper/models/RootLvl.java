@@ -20,7 +20,7 @@ public class RootLvl {
 
     private List<Round2Lvl1> round2Lvl1s = new ArrayList<>();
 
-    private List<Round3ManyToManyLvl2> round3ManyToManyLvl2s = new ArrayList<>();
+    private List<Round3ManyToManyLvl1> round3ManyToManyLvl1s = new ArrayList<>();
 
     public RootLvl() {
     }
@@ -70,8 +70,8 @@ public class RootLvl {
         return round2Lvl1s;
     }
 
-    public List<Round3ManyToManyLvl2> getRound3ManyToManyLvl1s() {
-        return round3ManyToManyLvl2s;
+    public List<Round3ManyToManyLvl1> getRound3ManyToManyLvl1s() {
+        return round3ManyToManyLvl1s;
     }
 
     public RootLvl round1Lvl1(Round1Lvl1 round1Lvl1) {

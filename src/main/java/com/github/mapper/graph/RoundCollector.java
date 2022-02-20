@@ -7,7 +7,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
-public class RoundCollector implements Collector<Round, List<Round>, List<Round>> {
+public class RoundCollector implements Collector<GeneralRounds, List<GeneralRounds>, List<GeneralRounds>> {
 
     private RoundCollector() {
     }
@@ -17,25 +17,25 @@ public class RoundCollector implements Collector<Round, List<Round>, List<Round>
     }
 
     @Override
-    public Supplier<List<Round>> supplier() {
+    public Supplier<List<GeneralRounds>> supplier() {
         return ArrayList::new;
     }
 
     @Override
-    public BiConsumer<List<Round>, Round> accumulator() {
+    public BiConsumer<List<GeneralRounds>, GeneralRounds> accumulator() {
         return (list, round) -> {
             if (list.isEmpty()) {
-                if (Objects.nonNull(round.value)) {
+                if (Objects.nonNull(round.value())) {
                     list.add(round);
                 }
             } else {
                 if (list.contains(round)) {
-                    if (Objects.nonNull(round.value)) {
-                        Round containsRound = list.get(list.indexOf(round));
-                        containsRound.addRounds(round);
+                    if (Objects.nonNull(round.value())) {
+                        GeneralRounds containsRound = list.get(list.indexOf(round));
+                        containsRound.collectRounds(round);
                     }
                 } else {
-                    if (Objects.nonNull(round.value)) {
+                    if (Objects.nonNull(round.value())) {
                         list.add(round);
                     }
                 }
@@ -44,7 +44,7 @@ public class RoundCollector implements Collector<Round, List<Round>, List<Round>
     }
 
     @Override
-    public BinaryOperator<List<Round>> combiner() {
+    public BinaryOperator<List<GeneralRounds>> combiner() {
         return (first, second) -> {
             first.addAll(second);
             return first;
@@ -52,7 +52,7 @@ public class RoundCollector implements Collector<Round, List<Round>, List<Round>
     }
 
     @Override
-    public Function<List<Round>, List<Round>> finisher() {
+    public Function<List<GeneralRounds>, List<GeneralRounds>> finisher() {
         return ArrayList::new;
     }
 

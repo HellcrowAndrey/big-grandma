@@ -45,11 +45,11 @@ public class DependenciesGraph {
     }
 
     @SuppressWarnings(value = "unchecked")
-    private <T> Flux<T> toTarget(LinkedHashMap<?, List<Round>> groupByRoot) {
+    private <T> Flux<T> toTarget(LinkedHashMap<?, List<GeneralRounds>> groupByRoot) {
         return Flux.fromStream(groupByRoot.keySet().stream())
                 .map(target -> {
                     Map<String, Object> values = new HashMap<>();
-                    List<Round> rounds = groupByRoot.get(target);
+                    List<GeneralRounds> rounds = groupByRoot.get(target);
                     List<SubGraph> graphs = root.graphs;
                     rounds.forEach(round ->
                             graphs.forEach(graph ->
@@ -63,10 +63,6 @@ public class DependenciesGraph {
 
     private static boolean isTupleEmpty(Map<String, Object> values) {
         return !values.isEmpty();
-    }
-
-    public void sql() {
-
     }
 
     public static class Root {
