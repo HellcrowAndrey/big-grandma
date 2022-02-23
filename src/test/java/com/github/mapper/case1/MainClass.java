@@ -13,14 +13,14 @@ public class MainClass {
                 RootCase1.class,
                 List.of(
                         // branch 0
-                        new SubGraph.Builder()
+                        new SubGraph.DefaultBuilder()
                                 .rootType(RootCase1.class)
                                 .currentType(SubGraphLvl2Case1.class)
                                 .rootFieldName("subGraphLvl2Case1")
                                 .currentFieldName("rootCase1")
                                 .collType(List.class)
                                 .graphs(List.of(
-                                        new SubGraph.Builder()
+                                        new SubGraph.DefaultBuilder()
                                                 .rootType(SubGraphLvl2Case1.class)
                                                 .currentType(SubGraphLvl3Case1.class)
                                                 .rootFieldName("subGraphLvl3Case1s")
@@ -29,7 +29,7 @@ public class MainClass {
                                                 .build()
                                 )).build(),
                         // branch 1
-                        new SubGraph.Builder()
+                        new SubGraph.DefaultBuilder()
                                 .rootType(RootCase1.class)
                                 .currentType(Branch1Lvl1Case1.class)
                                 .rootFieldName("branch1Lvl1Case1")

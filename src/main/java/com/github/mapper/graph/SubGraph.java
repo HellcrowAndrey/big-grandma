@@ -20,21 +20,29 @@ public class SubGraph {
 
     Class<?> collType;
 
-    List<SubGraph> graphs; //optional
+    List<SubGraph> graphs; // optional
 
-    boolean isManyToMany;
+    SubGraph top; // depend on builder
 
-    private SubGraph(Builder b) {
+    List<SubGraph> bottoms; // depend on builder
+
+    RelationType type;
+
+    private SubGraph(DefaultBuilder b) {
         this.rootType = b.rootType;
         this.currentType = b.currentType;
         this.rootFieldName = b.rootFieldName;
         this.currentFieldName = b.currentFieldName;
         this.collType = b.collType;
         this.graphs = b.graphs;
-        this.isManyToMany = b.isManyToMany;
     }
 
-    public static class Builder {
+    private SubGraph(ManyToManyBuilder b) {
+        this.top = b.top;
+        this.bottoms = b.bottoms;
+    }
+
+    public static class DefaultBuilder {
 
         Class<?> rootType;
 
@@ -48,34 +56,29 @@ public class SubGraph {
 
         List<SubGraph> graphs = new ArrayList<>(); //optional
 
-        boolean isManyToMany;
+        RelationType type;
 
-        public Builder isManyToMany() {
-            this.isManyToMany = Boolean.TRUE;
-            return this;
-        }
-
-        public Builder rootType(Class<?> rootType) {
+        public DefaultBuilder rootType(Class<?> rootType) {
             this.rootType = Objects.requireNonNull(rootType);
             return this;
         }
 
-        public Builder currentType(Class<?> currentType) {
+        public DefaultBuilder currentType(Class<?> currentType) {
             this.currentType = Objects.requireNonNull(currentType);
             return this;
         }
 
-        public Builder rootFieldName(String rootFieldName) {
+        public DefaultBuilder rootFieldName(String rootFieldName) {
             this.rootFieldName = rootFieldName;
             return this;
         }
 
-        public Builder currentFieldName(String currentFieldName) {
+        public DefaultBuilder currentFieldName(String currentFieldName) {
             this.currentFieldName = Objects.requireNonNull(currentFieldName);
             return this;
         }
 
-        public Builder collType(Class<?> collType) {
+        public DefaultBuilder collType(Class<?> collType) {
             if (!MapperUtils.isColl(collType)) {
                 throw new IllegalArgumentException(String.format("Is not collections -> %s", collType));
             }
@@ -83,12 +86,38 @@ public class SubGraph {
             return this;
         }
 
-        public Builder graphs(List<SubGraph> graphs) {
+        public DefaultBuilder graphs(List<SubGraph> graphs) {
             this.graphs = graphs;
             return this;
         }
 
         public SubGraph build() {
+            this.type = RelationType.def;
+            return new SubGraph(this);
+        }
+
+    }
+
+    public static class ManyToManyBuilder {
+
+        SubGraph top;
+
+        List<SubGraph> bottoms = new ArrayList<>();
+
+        RelationType type;
+
+        public ManyToManyBuilder top(SubGraph top) {
+            this.top = top;
+            return this;
+        }
+
+        public ManyToManyBuilder bottom(SubGraph bottom) {
+            this.bottoms.add(bottom);
+            return this;
+        }
+
+        public SubGraph build() {
+            this.type = RelationType.manyToMany;
             return new SubGraph(this);
         }
 
@@ -134,7 +163,7 @@ public class SubGraph {
                     }
                 }
             }
-            if (StringUtils.hasText(this.currentFieldName) && !this.isManyToMany) {
+            if (StringUtils.hasText(this.currentFieldName)) {
                 setFields(root, target, this.currentFieldName);
             }
         }

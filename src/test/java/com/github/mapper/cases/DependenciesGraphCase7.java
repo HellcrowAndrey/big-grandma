@@ -572,13 +572,13 @@ public class DependenciesGraphCase7 {
         DependenciesGraph.Root root = new DependenciesGraph.Root(
                 RootLvl.class,
                 List.of(
-                        new SubGraph.Builder()
+                        new SubGraph.DefaultBuilder()
                                 .rootType(RootLvl.class)
                                 .currentType(Round1Lvl1.class)
                                 .currentFieldName("rootLvl")
                                 .rootFieldName("round1Lvl1")
                                 .build(),
-                        new SubGraph.Builder()
+                        new SubGraph.DefaultBuilder()
                                 .rootType(RootLvl.class)
                                 .currentType(Round2Lvl1.class)
                                 .currentFieldName("rootLvl")

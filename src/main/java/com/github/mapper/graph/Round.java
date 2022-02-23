@@ -72,8 +72,8 @@ public class Round implements GeneralRounds {
     }
 
     @Override
-    public RoundType roundType() {
-        return RoundType.def;
+    public RelationType roundType() {
+        return RelationType.def;
     }
 
     @Override

@@ -104,7 +104,7 @@ public class DependenciesGraphCase4 {
         DependenciesGraph.Root root = new DependenciesGraph.Root(
                 RootLvl.class,
                 List.of(
-                        new SubGraph.Builder()
+                        new SubGraph.DefaultBuilder()
                                 .rootType(RootLvl.class)
                                 .currentType(Round1Lvl1.class)
                                 .currentFieldName("rootLvl")

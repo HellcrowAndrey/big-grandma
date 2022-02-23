@@ -18,47 +18,47 @@ public class DependenciesGraphCase2Test {
         DependenciesGraph.Root root = new DependenciesGraph.Root(
                 RootCase2.class, // 0
                 List.of(
-                        new SubGraph.Builder() // 1
+                        new SubGraph.DefaultBuilder() // 1
                                 .rootType(RootCase2.class)
                                 .currentType(Branch1Lvl1Case2.class)
                                 .rootFieldName("branch1Lvl1Case2s")
                                 .currentFieldName("rootCase2")
                                 .collType(List.class)
                                 .graphs(List.of(
-                                        new SubGraph.Builder() // 2
+                                        new SubGraph.DefaultBuilder() // 2
                                                 .rootType(Branch1Lvl1Case2.class)
                                                 .currentType(ABranch1Lvl2Case2.class)
                                                 .rootFieldName("aBranch1Lvl2Case2s")
                                                 .currentFieldName("branch1Lvl1Case2")
                                                 .collType(List.class)
                                                 .graphs(List.of(
-                                                        new SubGraph.Builder() // 3
+                                                        new SubGraph.DefaultBuilder() // 3
                                                                 .rootType(ABranch1Lvl2Case2.class)
                                                                 .currentType(ABranch1Lvl3Case2.class)
                                                                 .rootFieldName("bBranch1Lvl3Case2s")
                                                                 .collType(Set.class)
                                                                 .build(),
-                                                        new SubGraph.Builder()
+                                                        new SubGraph.DefaultBuilder()
                                                                 .rootType(ABranch1Lvl2Case2.class)
                                                                 .currentType(BBranch1Lvl3Case2.class)
                                                                 .rootFieldName("bBranch1Lvl3Case2s")
                                                                 .collType(Set.class)
                                                                 .build() // 3
                                                 )).build(),
-                                        new SubGraph.Builder() // 2
+                                        new SubGraph.DefaultBuilder() // 2
                                                 .rootType(Branch1Lvl1Case2.class)
                                                 .currentType(BBranch1Lvl2Case2.class)
                                                 .rootFieldName("branch1Lvl2Case2s")
                                                 .currentFieldName("branch1Lvl1Case2")
                                                 .collType(List.class)
                                                 .graphs(List.of(
-                                                        new SubGraph.Builder()  // 3
+                                                        new SubGraph.DefaultBuilder()  // 3
                                                                 .rootType(BBranch1Lvl2Case2.class)
                                                                 .currentType(HBranch1Lvl3Case2.class)
                                                                 .rootFieldName("hBranch1Lvl3Case2s")
                                                                 .collType(Set.class)
                                                                 .build(),
-                                                        new SubGraph.Builder()  // 3
+                                                        new SubGraph.DefaultBuilder()  // 3
                                                                 .rootType(BBranch1Lvl2Case2.class)
                                                                 .currentType(IBranch1Lvl3Case2.class)
                                                                 .rootFieldName("iBranch1Lvl3Case2")
@@ -66,20 +66,20 @@ public class DependenciesGraphCase2Test {
                                                 )).build()
                                 )).build(),
 
-                        new SubGraph.Builder() // 1
+                        new SubGraph.DefaultBuilder() // 1
                                 .rootType(RootCase2.class)
                                 .currentType(Branch2Lvl1Case2.class)
                                 .rootFieldName("branch2Lvl1Case2s")
                                 .currentFieldName("rootCase2")
                                 .collType(List.class)
                                 .graphs(List.of(
-                                        new SubGraph.Builder() // 2
+                                        new SubGraph.DefaultBuilder() // 2
                                                 .rootType(Branch2Lvl1Case2.class)
                                                 .currentType(ABranch2Lvl2Case2.class)
                                                 .rootFieldName("aBranch2Lvl2Case2s")
                                                 .collType(List.class)
                                                 .build(),
-                                        new SubGraph.Builder() // 2
+                                        new SubGraph.DefaultBuilder() // 2
                                                 .rootType(Branch2Lvl1Case2.class)
                                                 .currentType(BBranch2Lvl2Case2.class)
                                                 .rootFieldName("bBranch2Lvl2Case2s")

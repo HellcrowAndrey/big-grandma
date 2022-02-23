@@ -571,31 +571,30 @@ public class DependenciesGraphCase8 {
         DependenciesGraph.Root root = new DependenciesGraph.Root(
                 RootLvl.class,
                 List.of(
-                        new SubGraph.Builder()
+                        new SubGraph.DefaultBuilder()
                                 .rootType(RootLvl.class)
                                 .currentType(Round1Lvl1.class)
                                 .currentFieldName("rootLvl")
                                 .rootFieldName("round1Lvl1")
                                 .build(),
-                        new SubGraph.Builder()
+                        new SubGraph.DefaultBuilder()
                                 .rootType(RootLvl.class)
                                 .currentType(Round2Lvl1.class)
                                 .currentFieldName("rootLvl")
                                 .rootFieldName("round2Lvl1s")
                                 .collType(List.class)
                                 .build(),
-                        new SubGraph.Builder()
+                        new SubGraph.DefaultBuilder()
                                 .rootType(RootLvl.class)
                                 .currentType(Round3ManyToManyLvl1.class)
                                 .rootFieldName("round3ManyToManyLvl1s")
                                 .collType(List.class)
                                 .graphs(List.of(
-                                        new SubGraph.Builder()
+                                        new SubGraph.DefaultBuilder()
                                                 .rootType(Round3ManyToManyLvl1.class)
                                                 .currentType(Round4ManyToManyLvl2.class)
                                                 .rootFieldName("round4ManyToManyLvl2s")
                                                 .collType(List.class)
-                                                .isManyToMany()
                                                 .build()
                                 )).build()
                 )

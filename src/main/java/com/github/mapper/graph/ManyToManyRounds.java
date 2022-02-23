@@ -7,6 +7,6 @@ public interface ManyToManyRounds {
 
     void addRound(GeneralRounds top, GeneralRounds bottom);
 
-    Map<GeneralRounds, Map<GeneralRounds, Set<GeneralRounds>>> roundsManyToMany();
+    Map<GeneralRounds, Map<GeneralRounds, Set<Object>>> roundsManyToMany();
 
 }

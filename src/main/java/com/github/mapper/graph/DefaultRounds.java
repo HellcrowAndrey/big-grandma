@@ -5,7 +5,7 @@ import java.util.Set;
 
 public interface DefaultRounds {
 
-    RoundType roundType();
+    RelationType roundType();
 
     Class<?> type();
 
@@ -20,9 +20,5 @@ public interface DefaultRounds {
     int levels();
 
     List<GeneralRounds> findRoundByLvl(int lvl);
-
-    enum RoundType {
-        def, manyToMany;
-    }
 
 }
