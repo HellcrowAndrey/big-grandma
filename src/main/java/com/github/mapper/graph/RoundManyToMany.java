@@ -8,10 +8,25 @@ import java.util.Set;
 
 public class RoundManyToMany implements GeneralRounds {
 
+    Class<?> topType;
+
     Map<GeneralRounds, Map<GeneralRounds, Set<Object>>> rounds; // ?
 
-    public static GeneralRounds create() {
-        return new RoundManyToMany();
+    public RoundManyToMany() {
+    }
+
+    private RoundManyToMany(Class<?> topType) {
+        this.topType = topType;
+    }
+
+    public static GeneralRounds create(Class<?> topType) {
+        return new RoundManyToMany(topType);
+    }
+
+    public static GeneralRounds create(GeneralRounds top, GeneralRounds bottom) {
+        RoundManyToMany roundManyToMany = new RoundManyToMany();
+        roundManyToMany.putRounds(top, bottom);
+        return roundManyToMany;
     }
 
     @Override
@@ -20,7 +35,7 @@ public class RoundManyToMany implements GeneralRounds {
     }
 
     @Override
-    public void addRound(GeneralRounds top, GeneralRounds bottom) {
+    public void putRounds(GeneralRounds top, GeneralRounds bottom) {
         Map<GeneralRounds, Set<Object>> manyToMany =
                 this.rounds.getOrDefault(top, new HashMap<>());
         if (manyToMany.isEmpty()) {
@@ -59,6 +74,11 @@ public class RoundManyToMany implements GeneralRounds {
                 );
             }
         });
+    }
+
+    @Override
+    public Class<?> topType() {
+        return this.topType;
     }
 
 }

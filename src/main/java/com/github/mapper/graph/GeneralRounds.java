@@ -42,12 +42,17 @@ public interface GeneralRounds extends DefaultRounds, ManyToManyRounds {
     }
 
     @Override
-    default void addRound(GeneralRounds top, GeneralRounds bottom) {
+    default void putRounds(GeneralRounds top, GeneralRounds bottom) {
 
     }
 
     @Override
     default Map<GeneralRounds, Map<GeneralRounds, Set<Object>>> roundsManyToMany() {
+        return null;
+    }
+
+    @Override
+    default Class<?> topType() {
         return null;
     }
 
