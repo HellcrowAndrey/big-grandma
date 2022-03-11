@@ -5,8 +5,6 @@ import com.github.mapper.utils.MapperUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.github.mapper.utils.MapperUtils.*;
 
@@ -16,21 +14,17 @@ public class SubGraph {
 
     Class<?> currentType;
 
-    Class<?> collType;
+    Class<?> rootCollType;
 
-    Class<?> bottomCollType;
+    Class<?> currentCollType;
 
     String rootFieldName;
 
     String currentFieldName;
 
-    String bottomFieldName;
-
     List<SubGraph> graphs; // optional
 
-    SubGraph top; // depend on builder
-
-    Map<Class<?>, SubGraph> bottoms; // depend on builder
+    Map<Class<?>, SubGraph> relationship = new HashMap<>(); // optional
 
     RelationType type;
 
@@ -39,17 +33,19 @@ public class SubGraph {
         this.currentType = b.currentType;
         this.rootFieldName = b.rootFieldName;
         this.currentFieldName = b.currentFieldName;
-        this.collType = b.collType;
-        this.bottomCollType = b.bottomCollType;
+        this.rootCollType = b.rootCollType;
         this.graphs = b.graphs;
         this.type = b.type;
-        this.bottomFieldName = b.bottomFieldName;
     }
 
     private SubGraph(ManyToManyBuilder b) {
-        this.top = b.top;
-        this.bottoms = b.bottoms.stream()
-                .collect(Collectors.toMap(bottom -> bottom.currentType, Function.identity()));
+        this.rootType = b.rootType;
+        this.currentType = b.currentType;
+        this.rootFieldName = b.rootFieldName;
+        this.currentFieldName = b.currentFieldName;
+        this.currentCollType = b.currentCollType;
+        this.graphs = b.graphs;
+        this.relationship = b.relationship;
         this.type = b.type;
     }
 
@@ -59,15 +55,11 @@ public class SubGraph {
 
         Class<?> currentType;
 
-        Class<?> collType;
-
-        Class<?> bottomCollType;
+        Class<?> rootCollType;
 
         String rootFieldName;
 
         String currentFieldName;
-
-        String bottomFieldName;
 
         List<SubGraph> graphs = new ArrayList<>(); //optional
 
@@ -93,27 +85,20 @@ public class SubGraph {
             return this;
         }
 
-        public DefaultBuilder bottomFieldName(String bottomFieldName) {
-            this.bottomFieldName = Objects.requireNonNull(bottomFieldName);
-            return this;
-        }
-
-        public DefaultBuilder collType(Class<?> collType) {
-            if (!MapperUtils.isColl(collType)) {
-                throw new IllegalArgumentException(String.format("Is not collections -> %s", collType));
+        public DefaultBuilder rootCollType(Class<?> rootCollType) {
+            if (!MapperUtils.isColl(rootCollType)) {
+                throw new IllegalArgumentException(String.format("Is not collections -> %s", rootCollType));
             }
-            this.collType = MapperUtils.collTypeMapper(Objects.requireNonNull(collType));
+            this.rootCollType = MapperUtils.collTypeMapper(Objects.requireNonNull(rootCollType));
             return this;
         }
 
-        public DefaultBuilder bottomCollType(Class<?> bottomCollType) {
-            if (!MapperUtils.isColl(bottomCollType)) {
-                throw new IllegalArgumentException(String.format("Is not collections -> %s", bottomCollType));
-            }
-            this.bottomCollType = MapperUtils.collTypeMapper(Objects.requireNonNull(bottomCollType));
+        public DefaultBuilder node(SubGraph graph) {
+            this.graphs.add(graph);
             return this;
         }
 
+        @Deprecated
         public DefaultBuilder graphs(List<SubGraph> graphs) {
             this.graphs = graphs;
             return this;
@@ -128,19 +113,57 @@ public class SubGraph {
 
     public static class ManyToManyBuilder {
 
-        SubGraph top;
+        Class<?> rootType;
 
-        List<SubGraph> bottoms = new ArrayList<>();
+        Class<?> currentType;
+
+        Class<?> currentCollType;
+
+        String rootFieldName;
+
+        String currentFieldName;
+
+        List<SubGraph> graphs = new ArrayList<>(); //optional
+
+        Map<Class<?>, SubGraph> relationship = new HashMap<>(); //optional
 
         RelationType type;
 
-        public ManyToManyBuilder top(SubGraph top) {
-            this.top = top;
+        public ManyToManyBuilder rootType(Class<?> rootType) {
+            this.rootType = Objects.requireNonNull(rootType);
             return this;
         }
 
-        public ManyToManyBuilder bottom(SubGraph bottom) {
-            this.bottoms.add(bottom);
+        public ManyToManyBuilder currentType(Class<?> currentType) {
+            this.currentType = Objects.requireNonNull(currentType);
+            return this;
+        }
+
+        public ManyToManyBuilder rootFieldName(String rootFieldName) {
+            this.rootFieldName = rootFieldName;
+            return this;
+        }
+
+        public ManyToManyBuilder currentFieldName(String currentFieldName) {
+            this.currentFieldName = Objects.requireNonNull(currentFieldName);
+            return this;
+        }
+
+        public ManyToManyBuilder currentCollType(Class<?> collType) {
+            if (!MapperUtils.isColl(collType)) {
+                throw new IllegalArgumentException(String.format("Is not collections -> %s", collType));
+            }
+            this.currentCollType = MapperUtils.collTypeMapper(Objects.requireNonNull(collType));
+            return this;
+        }
+
+        public ManyToManyBuilder node(SubGraph graph) {
+            this.graphs.add(graph);
+            return this;
+        }
+
+        public ManyToManyBuilder outside(SubGraph outside) {
+            this.relationship.put(outside.currentType, outside);
             return this;
         }
 
@@ -174,12 +197,29 @@ public class SubGraph {
     }
 
     private GeneralRounds restoreManyToRound(Map<String, Object> values, int lvl) {
-        GeneralRounds resultResult = RoundManyToMany.create(this.top.currentType);
-        GeneralRounds top = Round.create(lvl + 1, this.currentType, EntityFactory.ofEntity(values, this.currentType));
-        if (!this.bottoms.isEmpty()) {
-            this.bottoms.values().forEach(bottom -> resultResult.putRounds(top, bottom.restoreDefRound(values, lvl)));
+        Object value = EntityFactory.ofEntity(values, this.currentType);
+        GeneralRounds right = Round.create(lvl + 1, this.currentType, value);
+        if (!this.graphs.isEmpty()) {
+            var defaultLvl = lvl + 1;
+            for (SubGraph graph : this.graphs) {
+                right.addRound(graph.restore(values, defaultLvl));
+            }
         }
-        return resultResult;
+        GeneralRounds result = RoundManyToMany.create(right);
+        if (!this.relationship.isEmpty()) {
+            var defaultLvl = lvl + 1;
+            this.relationship.values().forEach(left -> {
+                GeneralRounds round = left.restore(values, lvl);
+                List<SubGraph> leftGraphs = left.graphs;
+                if (!leftGraphs.isEmpty()) {
+                    for (SubGraph graph : leftGraphs) {
+                        round.addRound(graph.restore(values, defaultLvl));
+                    }
+                }
+                result.putLeft(round, value);
+            });
+        }
+        return result;
     }
 
     public void rounds(Object root, GeneralRounds round, Map<String, Object> values) {
@@ -195,22 +235,10 @@ public class SubGraph {
         }
     }
 
-    public void roundsDefault(Object root, GeneralRounds round, Map<String, Object> values) {
+    private void roundsDefault(Object root, GeneralRounds round, Map<String, Object> values) {
         Object target = round.value();
         if (round.type().equals(this.currentType)) {
-            if (Objects.isNull(this.collType)) {
-                values.put(this.rootFieldName, target);
-            } else {
-                Collection<Object> container = cast(
-                        values.getOrDefault(this.rootFieldName, collFactory(this.collType))
-                );
-                if (container.isEmpty()) {
-                    container.add(target);
-                    values.put(this.rootFieldName, container);
-                } else {
-                    container.add(target);
-                }
-            }
+            setRootValues(values, target);
             if (!this.graphs.isEmpty()) {
                 Map<String, Object> nexValues = new HashMap<>();
                 for (GeneralRounds nextRound : round.rounds()) {
@@ -231,63 +259,65 @@ public class SubGraph {
     }
 
     private void roundsManyToMany(Object root, GeneralRounds round, Map<String, Object> values) {
-        var cFN = this.top.currentFieldName;
-        var rFN = this.top.rootFieldName;
-        var bFN = this.top.bottomFieldName;
-        Class<?> tCT = this.top.collType;
-        Class<?> bCT = this.top.bottomCollType;
-        List<SubGraph> tGs = this.top.graphs;
-        Map<GeneralRounds, Map<GeneralRounds, Set<Object>>> rawRelations = round.roundsManyToMany();
-        if (Objects.nonNull(round.topType()) && Objects.nonNull(this.top) && round.topType().equals(this.top.currentType)) {
-            Set<GeneralRounds> keysOfRoundsTop = rawRelations.keySet();
-            for (GeneralRounds roundTop : keysOfRoundsTop) {
-                Object targetTop = roundTop.value();
-                Map<GeneralRounds, Set<Object>> tableOfBottoms = rawRelations.get(roundTop);
-                Set<GeneralRounds> keysOfBottomRounds = tableOfBottoms.keySet();
-                Collection<Object> containerTop = cast(collFactory(bCT));
-                for (GeneralRounds roundsBottom : keysOfBottomRounds) {
-                    Object targetBottom = roundsBottom.value();
-                    SubGraph bottomGraph = this.bottoms.get(roundsBottom.type());
-                    Collection<Object> containerBottom = cast(collFactory(bottomGraph.collType));
-                    containerBottom.addAll(tableOfBottoms.get(roundsBottom));
-                    Map<String, Object> nexValues = new HashMap<>();
-                    List<SubGraph> graphs = bottomGraph.graphs;
-                    setFields(containerBottom, targetBottom, bottomGraph.currentFieldName);
-                    roundsSecondLvl(roundsBottom, targetBottom, nexValues, graphs);
-                    containerTop.add(targetBottom);
+        GeneralRounds right = round.right();
+        Object rightTarget = right.value();
+        Map<String, Object> defaultRightFieldValues = new HashMap<>();
+        roundsDefault(rightTarget, right, defaultRightFieldValues);
+        MapperUtils.mapFields(defaultRightFieldValues, rightTarget);
+        setRootValues(values, rightTarget);
+        Map<GeneralRounds, Set<Object>> lefts = round.lefts();
+        Map<String, Object> manyToManyRightFields = new HashMap<>();
+        for (GeneralRounds leftKey : lefts.keySet()) {
+            SubGraph leftGraph = this.relationship.get(leftKey.type());
+            if (Objects.nonNull(leftGraph)) {
+                String cfn = leftGraph.currentFieldName;
+                Class<?> cct = leftGraph.currentCollType;
+                Object leftTarget = leftKey.value();
+                Set<Object> leftsValues = lefts.get(leftKey);
+                Map<String, Object> defaultLeftFieldValues = new HashMap<>();
+                leftGraph.roundsDefault(leftTarget, leftKey, defaultLeftFieldValues);
+                MapperUtils.mapFields(defaultLeftFieldValues, leftTarget);
+                if (StringUtils.hasText(cfn) && Objects.nonNull(cct)) {
+                    Collection<Object> leftContainer = cast(
+                            manyToManyRightFields.getOrDefault(cfn, collFactory(cct))
+                    );
+                    leftContainer.addAll(leftsValues);
+                    setFields(leftContainer, leftTarget, cfn);
                 }
-                setFields(containerTop, targetTop, bFN);
-                Map<String, Object> nexValues = new HashMap<>();
-                roundsSecondLvl(roundTop, targetTop, nexValues, tGs);
-                if (StringUtils.hasText(cFN)) {
-                    setFields(root, targetTop, cFN);
-                }
-                if (Objects.isNull(tCT)) {
-                    if (!values.containsKey(rFN)) {
-                        values.put(rFN, targetTop);
-                    }
+                Collection<Object> rightContainer = cast(
+                        manyToManyRightFields.getOrDefault(
+                                leftGraph.rootFieldName,
+                                collFactory(leftGraph.rootCollType)
+                        )
+                );
+                if (rightContainer.isEmpty()) {
+                    rightContainer.add(leftTarget);
+                    manyToManyRightFields.put(this.rootFieldName, rightContainer);
                 } else {
-                    Collection<Object> container = cast(values.getOrDefault(rFN, collFactory(tCT)));
-                    if (container.isEmpty()) {
-                        container.add(targetTop);
-                        values.put(rFN, container);
-                    } else {
-                        container.add(targetTop);
-                    }
+                    rightContainer.add(leftTarget);
                 }
             }
+        }
+        if (!manyToManyRightFields.isEmpty()) {
+            mapFields(manyToManyRightFields, rightTarget);
+        }
+        if (StringUtils.hasText(this.currentFieldName)) {
+            setFields(root, rightTarget, this.currentFieldName);
         }
     }
 
-    private void roundsSecondLvl(GeneralRounds roundsBottom, Object targetBottom, Map<String, Object> nexValues, List<SubGraph> graphs) {
-        for (GeneralRounds bottomRound : roundsBottom.rounds()) {
-            for (SubGraph graph : graphs) {
-                graph.rounds(targetBottom, bottomRound, nexValues);
-            }
-        }
-        for (String key : nexValues.keySet()) {
-            if (isFieldExist(key, targetBottom)) {
-                setFields(nexValues.get(key), targetBottom, key);
+    private void setRootValues(Map<String, Object> values, Object target) {
+        if (Objects.isNull(this.rootCollType)) {
+            values.put(this.rootFieldName, target);
+        } else {
+            Collection<Object> container = cast(
+                    values.getOrDefault(this.rootFieldName, collFactory(this.rootCollType))
+            );
+            if (container.isEmpty()) {
+                container.add(target);
+                values.put(this.rootFieldName, container);
+            } else {
+                container.add(target);
             }
         }
     }

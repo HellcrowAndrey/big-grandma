@@ -2,31 +2,20 @@ package com.github.mapper.graph;
 
 import com.github.mapper.utils.CollectionsUtils;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class RoundManyToMany implements GeneralRounds {
 
-    Class<?> topType;
+    GeneralRounds right;
 
-    Map<GeneralRounds, Map<GeneralRounds, Set<Object>>> rounds; // ?
+    Map<GeneralRounds, Set<Object>> lefts = new HashMap<>();
 
-    public RoundManyToMany() {
+    public RoundManyToMany(GeneralRounds right) {
+        this.right = right;
     }
 
-    private RoundManyToMany(Class<?> topType) {
-        this.topType = topType;
-    }
-
-    public static GeneralRounds create(Class<?> topType) {
-        return new RoundManyToMany(topType);
-    }
-
-    public static GeneralRounds create(GeneralRounds top, GeneralRounds bottom) {
-        RoundManyToMany roundManyToMany = new RoundManyToMany();
-        roundManyToMany.putRounds(top, bottom);
-        return roundManyToMany;
+    public static GeneralRounds create(GeneralRounds right) {
+        return new RoundManyToMany(right);
     }
 
     @Override
@@ -35,50 +24,61 @@ public class RoundManyToMany implements GeneralRounds {
     }
 
     @Override
-    public void putRounds(GeneralRounds top, GeneralRounds bottom) {
-        Map<GeneralRounds, Set<Object>> manyToMany =
-                this.rounds.getOrDefault(top, new HashMap<>());
-        if (manyToMany.isEmpty()) {
-            manyToMany.put(bottom, CollectionsUtils.singleSet(top.value()));
-        } else {
-            if (manyToMany.containsKey(bottom)) {
-                manyToMany.get(bottom).add(top);
+    public void putLeft(GeneralRounds left, Object value) {
+        this.lefts.put(left, CollectionsUtils.singleSet(value));
+    }
+
+    @Override
+    public void collectRounds(GeneralRounds rounds) {
+        this.right.collectRounds(rounds.right());
+        Map<GeneralRounds, Set<Object>> newLefts = rounds.lefts();
+        for (GeneralRounds left : newLefts.keySet()) {
+            if (this.lefts.containsKey(left)) {
+                this.lefts.get(left).addAll(newLefts.get(left));
+                findRound(this.lefts.keySet(), left)
+                        .ifPresent(left::collectRounds);
             } else {
-                manyToMany.put(bottom, CollectionsUtils.singleSet(top.value()));
+                this.lefts.put(left, newLefts.get(left));
             }
         }
-        this.rounds.put(top, manyToMany);
     }
 
     @Override
-    public Map<GeneralRounds, Map<GeneralRounds, Set<Object>>> roundsManyToMany() {
-        return this.rounds;
-    }
-
-    @Override
-    public void addRound(GeneralRounds rounds) {
-        Map<GeneralRounds, Map<GeneralRounds, Set<Object>>> roundsManyToMany =
-                rounds.roundsManyToMany();
-        Set<GeneralRounds> keys = roundsManyToMany.keySet();
-        keys.forEach(key -> {
-            if (!this.rounds.containsKey(key)) {
-                this.rounds.putAll(roundsManyToMany);
-            } else {
-                Map<GeneralRounds, Set<Object>> valuesExist = this.rounds.get(key);
-                Map<GeneralRounds, Set<Object>> valuesNew = roundsManyToMany.get(key);
-                Set<GeneralRounds> tmp = valuesNew.keySet();
-                tmp.forEach(k -> valuesExist.merge(k, valuesNew.get(k), (oldSet, newSet) -> {
-                            oldSet.addAll(newSet);
-                            return oldSet;
-                        })
-                );
+    public void collectRoundsLeft(Map<GeneralRounds, Set<Object>> newLefts) {
+        for (GeneralRounds left : newLefts.keySet()) {
+            if (this.lefts.containsKey(left)) {
+                this.lefts.get(left).addAll(newLefts.get(left));
+                findRound(this.lefts.keySet(), left)
+                        .ifPresent(left::collectRounds);
             }
-        });
+        }
+    }
+
+    private Optional<GeneralRounds> findRound(Set<GeneralRounds> keys, GeneralRounds newRound) {
+        return keys.stream().filter(key -> key.equals(newRound)).findFirst();
     }
 
     @Override
-    public Class<?> topType() {
-        return this.topType;
+    public GeneralRounds right() {
+        return this.right;
+    }
+
+    @Override
+    public Map<GeneralRounds, Set<Object>> lefts() {
+        return this.lefts;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof RoundManyToMany)) return false;
+        RoundManyToMany that = (RoundManyToMany) o;
+        return Objects.equals(right, that.right);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(right);
     }
 
 }

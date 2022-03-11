@@ -18,14 +18,14 @@ public class MainClass {
                                 .currentType(SubGraphLvl2Case1.class)
                                 .rootFieldName("subGraphLvl2Case1")
                                 .currentFieldName("rootCase1")
-                                .collType(List.class)
+                                .rootCollType(List.class)
                                 .graphs(List.of(
                                         new SubGraph.DefaultBuilder()
                                                 .rootType(SubGraphLvl2Case1.class)
                                                 .currentType(SubGraphLvl3Case1.class)
                                                 .rootFieldName("subGraphLvl3Case1s")
                                                 .currentFieldName("subGraphLvl2Case1")
-                                                .collType(Set.class)
+                                                .rootCollType(Set.class)
                                                 .build()
                                 )).build(),
                         // branch 1

@@ -5,10 +5,14 @@ import java.util.Set;
 
 public interface ManyToManyRounds {
 
-    void putRounds(GeneralRounds top, GeneralRounds bottom);
+    void putLeft(GeneralRounds left, Object value);
 
-    Map<GeneralRounds, Map<GeneralRounds, Set<Object>>> roundsManyToMany();
+    GeneralRounds right();
 
-    Class<?> topType();
+    Map<GeneralRounds, Set<Object>> lefts();
+
+    void collectRoundsLeft(Map<GeneralRounds, Set<Object>> newLefts);
+
+    Class<?> rightType();
 
 }

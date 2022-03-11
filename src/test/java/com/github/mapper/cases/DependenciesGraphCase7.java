@@ -583,7 +583,7 @@ public class DependenciesGraphCase7 {
                                 .currentType(Round2Lvl1.class)
                                 .currentFieldName("rootLvl")
                                 .rootFieldName("round2Lvl1s")
-                                .collType(List.class)
+                                .rootCollType(List.class)
                                 .build()
                 )
         );

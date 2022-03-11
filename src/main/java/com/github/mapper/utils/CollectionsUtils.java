@@ -26,4 +26,8 @@ public class CollectionsUtils {
         return Arrays.asList(rounds);
     }
 
+    public static Set<Object> emptySet() {
+        return new HashSet<>();
+    }
+
 }
