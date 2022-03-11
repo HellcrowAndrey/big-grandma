@@ -278,9 +278,7 @@ public class SubGraph {
                 leftGraph.roundsDefault(leftTarget, leftKey, defaultLeftFieldValues);
                 MapperUtils.mapFields(defaultLeftFieldValues, leftTarget);
                 if (StringUtils.hasText(cfn) && Objects.nonNull(cct)) {
-                    Collection<Object> leftContainer = cast(
-                            manyToManyRightFields.getOrDefault(cfn, collFactory(cct))
-                    );
+                    Collection<Object> leftContainer = cast(collFactory(cct));
                     leftContainer.addAll(leftsValues);
                     setFields(leftContainer, leftTarget, cfn);
                 }
