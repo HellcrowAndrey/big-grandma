@@ -2,6 +2,10 @@ package com.github.mapper.graph;
 
 public enum RelationType {
 
-    def, manyToMany
+    def, manyToMany;
+
+    public boolean isNotDefault() {
+        return !this.equals(def);
+    }
 
 }

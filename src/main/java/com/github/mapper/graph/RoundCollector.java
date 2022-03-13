@@ -36,6 +36,10 @@ public class RoundCollector implements Collector<GeneralRounds, List<GeneralRoun
                     }
                 } else {
                     if (Objects.nonNull(round.value())) {
+                        if (round.roundType().isNotDefault()) {
+                            list.stream().filter(r -> r.roundType().isNotDefault())
+                                    .forEach(r -> r.collectRoundsLeft(round.lefts()));
+                        }
                         list.add(round);
                     }
                 }
