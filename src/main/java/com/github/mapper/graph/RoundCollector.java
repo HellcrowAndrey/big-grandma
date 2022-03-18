@@ -1,5 +1,7 @@
 package com.github.mapper.graph;
 
+import com.github.mapper.utils.CollectionsUtils;
+
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
@@ -8,6 +10,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 public class RoundCollector implements Collector<GeneralRounds, List<GeneralRounds>, List<GeneralRounds>> {
+
+    private final Map<Class<?>, List<GeneralRounds>> manyToMany = new HashMap<>();
 
     private RoundCollector() {
     }
@@ -27,24 +31,37 @@ public class RoundCollector implements Collector<GeneralRounds, List<GeneralRoun
             if (list.isEmpty()) {
                 if (Objects.nonNull(round.value())) {
                     list.add(round);
+                    if (round.roundType().isNotDefault()) {
+                        this.manyToMany.put(round.type(), CollectionsUtils.singleList(round));
+                    }
                 }
             } else {
-                if (list.contains(round)) {
-                    if (Objects.nonNull(round.value())) {
+                if (Objects.nonNull(round.value())) {
+                    if (list.contains(round)) {
                         GeneralRounds containsRound = list.get(list.indexOf(round));
                         containsRound.collectRounds(round);
-                    }
-                } else {
-                    if (Objects.nonNull(round.value())) {
-                        if (round.roundType().isNotDefault()) {
-                            list.stream().filter(r -> r.roundType().isNotDefault())
-                                    .forEach(r -> r.collectRoundsLeft(round.lefts()));
-                        }
+                    } else {
                         list.add(round);
                     }
+                    updateIfManyToMany(round);
                 }
             }
         };
+    }
+
+    private void updateIfManyToMany(GeneralRounds round) {
+        if (round.roundType().isNotDefault()) {
+            Class<?> type = round.type();
+            List<GeneralRounds> manyToManyList = this.manyToMany.getOrDefault(type, new ArrayList<>());
+            if (!manyToManyList.isEmpty()) {
+                manyToManyList.stream()
+                        .filter(r -> r.roundType().isNotDefault())
+                        .forEach(r -> r.collectRoundsLeft(round.lefts()));
+            } else {
+                manyToManyList.add(round);
+                this.manyToMany.put(type, manyToManyList);
+            }
+        }
     }
 
     @Override

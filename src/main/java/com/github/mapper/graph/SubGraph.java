@@ -162,7 +162,7 @@ public class SubGraph {
             return this;
         }
 
-        public ManyToManyBuilder outside(SubGraph outside) {
+        public ManyToManyBuilder relationship(SubGraph outside) {
             this.relationship.put(outside.currentType, outside);
             return this;
         }
@@ -235,7 +235,7 @@ public class SubGraph {
         }
     }
 
-    private void roundsDefault(Object root, GeneralRounds round, Map<String, Object> values) {
+    public void roundsDefault(Object root, GeneralRounds round, Map<String, Object> values) {
         Object target = round.value();
         if (round.type().equals(this.currentType)) {
             setRootValues(values, target);
@@ -270,6 +270,7 @@ public class SubGraph {
         for (GeneralRounds leftKey : lefts.keySet()) {
             SubGraph leftGraph = this.relationship.get(leftKey.type());
             if (Objects.nonNull(leftGraph)) {
+                String rfn = leftGraph.rootFieldName;
                 String cfn = leftGraph.currentFieldName;
                 Class<?> cct = leftGraph.currentCollType;
                 Object leftTarget = leftKey.value();
@@ -283,14 +284,11 @@ public class SubGraph {
                     setFields(leftContainer, leftTarget, cfn);
                 }
                 Collection<Object> rightContainer = cast(
-                        manyToManyRightFields.getOrDefault(
-                                leftGraph.rootFieldName,
-                                collFactory(leftGraph.rootCollType)
-                        )
+                        manyToManyRightFields.getOrDefault(rfn, collFactory(leftGraph.rootCollType))
                 );
                 if (rightContainer.isEmpty()) {
                     rightContainer.add(leftTarget);
-                    manyToManyRightFields.put(this.rootFieldName, rightContainer);
+                    manyToManyRightFields.put(rfn, rightContainer);
                 } else {
                     rightContainer.add(leftTarget);
                 }
