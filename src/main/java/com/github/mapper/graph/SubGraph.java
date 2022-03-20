@@ -31,6 +31,7 @@ public class SubGraph {
     private SubGraph(DefaultBuilder b) {
         this.rootType = b.rootType;
         this.currentType = b.currentType;
+        this.currentCollType = b.currentCollType;
         this.rootFieldName = b.rootFieldName;
         this.currentFieldName = b.currentFieldName;
         this.rootCollType = b.rootCollType;
@@ -56,6 +57,8 @@ public class SubGraph {
         Class<?> currentType;
 
         Class<?> rootCollType;
+
+        Class<?> currentCollType;
 
         String rootFieldName;
 
@@ -90,6 +93,14 @@ public class SubGraph {
                 throw new IllegalArgumentException(String.format("Is not collections -> %s", rootCollType));
             }
             this.rootCollType = MapperUtils.collTypeMapper(Objects.requireNonNull(rootCollType));
+            return this;
+        }
+
+        public DefaultBuilder currentCollType(Class<?> collType) {
+            if (!MapperUtils.isColl(collType)) {
+                throw new IllegalArgumentException(String.format("Is not collections -> %s", collType));
+            }
+            this.currentCollType = MapperUtils.collTypeMapper(Objects.requireNonNull(collType));
             return this;
         }
 
@@ -275,6 +286,7 @@ public class SubGraph {
                 Class<?> cct = leftGraph.currentCollType;
                 Object leftTarget = leftKey.value();
                 Set<Object> leftsValues = lefts.get(leftKey);
+                // TODO: 20.03.22 bug leftGraph.roundsDefault
                 Map<String, Object> defaultLeftFieldValues = new HashMap<>();
                 leftGraph.roundsDefault(leftTarget, leftKey, defaultLeftFieldValues);
                 MapperUtils.mapFields(defaultLeftFieldValues, leftTarget);

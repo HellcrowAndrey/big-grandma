@@ -46,7 +46,7 @@ public class DependenciesGraph {
                         LinkedHashMap::new,
                         Collectors.flatMapping(source -> source.nonMappedValues.stream()
                                         .flatMap(tuple -> root.graphs.stream()
-                                        .map(subGraph -> subGraph.restore(tuple, START_POINT))),
+                                                .map(subGraph -> subGraph.restore(tuple, START_POINT))),
                                 RoundCollector.toListOfRounds()
                         )
                 ));
@@ -107,7 +107,7 @@ public class DependenciesGraph {
 
             Class<?> rootType;
 
-            List<SubGraph> graphs; //optional
+            List<SubGraph> graphs = new ArrayList<>(); //optional
 
             RelationType type;
 
@@ -133,7 +133,7 @@ public class DependenciesGraph {
 
             Map<Class<?>, SubGraph> relationship = new HashMap<>(); //optional
 
-            List<SubGraph> graphs; //optional
+            List<SubGraph> graphs = new ArrayList<>(); //optional
 
             RelationType type;
 
@@ -177,7 +177,7 @@ public class DependenciesGraph {
                 }
 
                 @Override
-                void collectRoundLeft(Map<GeneralRounds, Set<Object>> newLefts) {
+                void collectRoundLeft(Map<Object, Object> rightValues, Object roundRootVal, Map<GeneralRounds, Set<Object>> newLefts) {
                     throw new UnsupportedOperationException();
                 }
 
@@ -197,12 +197,19 @@ public class DependenciesGraph {
                 }
 
                 @Override
-                void collectRoundLeft(Map<GeneralRounds, Set<Object>> newLefts) {
+                void collectRoundLeft(Map<Object, Object> rightValues, Object roundRootVal, Map<GeneralRounds, Set<Object>> newLefts) {
                     for (GeneralRounds left : newLefts.keySet()) {
+                        Set<Object> objects = newLefts.get(left).stream()
+                                .map(rightValues::get)
+                                .collect(Collectors.toSet());
                         if (this.lefts.containsKey(left)) {
-                            this.lefts.get(left).addAll(newLefts.get(left));
+                            this.lefts.get(left).addAll(objects);
                             findRound(this.lefts.keySet(), left)
                                     .ifPresent(left::collectRounds);
+                        } else {
+                            if (this.value.equals(roundRootVal)) {
+                                this.lefts.put(left, objects);
+                            }
                         }
                     }
                 }
@@ -298,7 +305,7 @@ public class DependenciesGraph {
 
         Object value;
 
-        Map<GeneralRounds, Set<Object>> lefts;
+        Map<GeneralRounds, Set<Object>> lefts = new HashMap<>();
 
         List<Map<String, Object>> nonMappedValues = new ArrayList<>();
 
@@ -309,13 +316,12 @@ public class DependenciesGraph {
 
         abstract void putLeft(GeneralRounds left, Object value);
 
-        abstract void collectRoundLeft(Map<GeneralRounds, Set<Object>> newLefts);
+        abstract void collectRoundLeft(Map<Object, Object> rightValues, Object roundRootVal, Map<GeneralRounds, Set<Object>> newLefts);
 
         abstract boolean hashManyToMany();
 
-        public RootRound addAll(List<Map<String, Object>> nonMappedValues) {
+        public void addAll(List<Map<String, Object>> nonMappedValues) {
             this.nonMappedValues.addAll(nonMappedValues);
-            return this;
         }
 
         public Optional<GeneralRounds> findRound(Set<GeneralRounds> keys, GeneralRounds newRound) {

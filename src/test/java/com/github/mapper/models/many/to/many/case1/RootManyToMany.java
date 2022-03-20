@@ -7,7 +7,7 @@ import java.util.Objects;
 
 public class RootManyToMany {
 
-    private Long id;
+    private long id;
 
     private String firstName;
 

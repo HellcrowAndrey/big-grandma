@@ -1,9 +1,6 @@
 package com.github.mapper.graph;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -11,6 +8,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 public class RootRoundCollector implements Collector<DependenciesGraph.RootRound, List<DependenciesGraph.RootRound>, List<DependenciesGraph.RootRound>> {
+
+    private Map<Object, Object> rightValues  = new HashMap<>();
 
     private RootRoundCollector() {
     }
@@ -28,6 +27,9 @@ public class RootRoundCollector implements Collector<DependenciesGraph.RootRound
     public BiConsumer<List<DependenciesGraph.RootRound>, DependenciesGraph.RootRound> accumulator() {
         return (list, round) -> {
             if (list.isEmpty()) {
+                if (round.hashManyToMany()) {
+                    this.rightValues.put(round.value, round.value);
+                }
                 list.add(round);
             } else {
                 if (!round.hashManyToMany()) {
@@ -38,8 +40,15 @@ public class RootRoundCollector implements Collector<DependenciesGraph.RootRound
                         containsRound.addAll(round.nonMappedValues);
                     }
                 } else {
-                    if (Objects.nonNull(round.value)) {
-                        list.forEach(roundMTM -> roundMTM.collectRoundLeft(round.lefts));
+                    var val = round.value;
+                    if (Objects.nonNull(val)) {
+                        if (!this.rightValues.containsKey(val)) {
+                            this.rightValues.put(val, val);
+                        }
+                        list.forEach(roundMTM -> {
+                            roundMTM.collectRoundLeft(this.rightValues, round.value, round.lefts);
+                            round.collectRoundLeft(this.rightValues, roundMTM.value, roundMTM.lefts);
+                        });
                         if (!list.contains(round)) {
                             list.add(round);
                         } else {

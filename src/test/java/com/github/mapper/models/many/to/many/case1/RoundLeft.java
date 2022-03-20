@@ -9,15 +9,15 @@ public class RoundLeft {
 
     private String type;
 
-    private List<RootManyToMany> roundRight;
+    private List<RootManyToMany> roundRights;
 
     public RoundLeft() {
     }
 
-    public RoundLeft(Long id, String type, List<RootManyToMany> roundRight) {
+    public RoundLeft(Long id, String type, List<RootManyToMany> roundRights) {
         this.id = id;
         this.type = type;
-        this.roundRight = roundRight;
+        this.roundRights = roundRights;
     }
 
     public Long getId() {
@@ -28,8 +28,8 @@ public class RoundLeft {
         return type;
     }
 
-    public List<RootManyToMany> getRoundRight() {
-        return roundRight;
+    public List<RootManyToMany> getRoundRights() {
+        return roundRights;
     }
 
     @Override
