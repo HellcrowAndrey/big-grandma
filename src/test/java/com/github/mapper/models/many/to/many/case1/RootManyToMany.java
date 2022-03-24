@@ -15,6 +15,8 @@ public class RootManyToMany {
 
     private List<RoundLeft> roundLefts;
 
+    private List<Round1Lvl1MTM> round1Lvl1MTMS;
+
     public RootManyToMany() {
     }
 
@@ -39,6 +41,10 @@ public class RootManyToMany {
 
     public List<RoundLeft> getRoundLefts() {
         return roundLefts;
+    }
+
+    public List<Round1Lvl1MTM> getRound1Lvl1MTMS() {
+        return round1Lvl1MTMS;
     }
 
     @Override

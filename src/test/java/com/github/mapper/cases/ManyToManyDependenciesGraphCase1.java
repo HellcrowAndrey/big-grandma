@@ -3,6 +3,7 @@ package com.github.mapper.cases;
 import com.github.mapper.graph.DependenciesGraph;
 import com.github.mapper.graph.SubGraph;
 import com.github.mapper.models.many.to.many.case1.RootManyToMany;
+import com.github.mapper.models.many.to.many.case1.Round1Lvl1MTM;
 import com.github.mapper.models.many.to.many.case1.RoundLeft;
 
 import java.util.ArrayList;
@@ -24,6 +25,12 @@ public class ManyToManyDependenciesGraphCase1 {
                                 .currentFieldName("roundRights")
                                 .currentCollType(List.class)
                                 .build()
+                        ).graph(new SubGraph.DefaultBuilder()
+                                .rootType(RootManyToMany.class)
+                                .rootFieldName("round1Lvl1MTMS")
+                                .rootCollType(List.class)
+                                .currentType(Round1Lvl1MTM.class)
+                                .build()
                         ).build();
         return new DependenciesGraph(root);
     }
@@ -38,6 +45,10 @@ public class ManyToManyDependenciesGraphCase1 {
         entity_1_1.put("ROUNDLEFTID", 1L);
         entity_1_1.put("ROUNDLEFTTYPE", "t-1");
 
+        entity_1_1.put("ROUND1LVL1MTMID", 1L);
+        entity_1_1.put("ROUND1LVL1MTMNAME", "n-1");
+        entity_1_1.put("ROUND1LVL1MTMNUMBER", 1);
+
         Map<String, Object> entity_1_2 = new HashMap<>();
 
         entity_1_2.put("ROOTMANYTOMANYID", 1L);
@@ -46,6 +57,10 @@ public class ManyToManyDependenciesGraphCase1 {
 
         entity_1_2.put("ROUNDLEFTID", 2L);
         entity_1_2.put("ROUNDLEFTTYPE", "t-2");
+
+        entity_1_2.put("ROUND1LVL1MTMID", 2L);
+        entity_1_2.put("ROUND1LVL1MTMNAME", "n-2");
+        entity_1_2.put("ROUND1LVL1MTMNUMBER", 12);
 
         Map<String, Object> entity_1_3 = new HashMap<>();
 
@@ -56,6 +71,10 @@ public class ManyToManyDependenciesGraphCase1 {
         entity_1_3.put("ROUNDLEFTID", 3L);
         entity_1_3.put("ROUNDLEFTTYPE", "t-3");
 
+        entity_1_3.put("ROUND1LVL1MTMID", 3L);
+        entity_1_3.put("ROUND1LVL1MTMNAME", "n-3");
+        entity_1_3.put("ROUND1LVL1MTMNUMBER", 100);
+
         Map<String, Object> entity_1_4 = new HashMap<>();
 
         entity_1_4.put("ROOTMANYTOMANYID", 2L);
@@ -64,6 +83,10 @@ public class ManyToManyDependenciesGraphCase1 {
 
         entity_1_4.put("ROUNDLEFTID", 1L);
         entity_1_4.put("ROUNDLEFTTYPE", "t-1");
+
+        entity_1_4.put("ROUND1LVL1MTMID", 4L);
+        entity_1_4.put("ROUND1LVL1MTMNAME", "n-4");
+        entity_1_4.put("ROUND1LVL1MTMNUMBER", 200);
 
         Map<String, Object> entity_1_5 = new HashMap<>();
 
@@ -74,6 +97,10 @@ public class ManyToManyDependenciesGraphCase1 {
         entity_1_5.put("ROUNDLEFTID", 2L);
         entity_1_5.put("ROUNDLEFTTYPE", "t-2");
 
+        entity_1_5.put("ROUND1LVL1MTMID", 5L);
+        entity_1_5.put("ROUND1LVL1MTMNAME", "n-5");
+        entity_1_5.put("ROUND1LVL1MTMNUMBER", 400);
+
         Map<String, Object> entity_1_6 = new HashMap<>();
 
         entity_1_6.put("ROOTMANYTOMANYID", 3L);
@@ -83,6 +110,10 @@ public class ManyToManyDependenciesGraphCase1 {
         entity_1_6.put("ROUNDLEFTID", 3L);
         entity_1_6.put("ROUNDLEFTTYPE", "t-3");
 
+        entity_1_6.put("ROUND1LVL1MTMID", 6L);
+        entity_1_6.put("ROUND1LVL1MTMNAME", "n-6");
+        entity_1_6.put("ROUND1LVL1MTMNUMBER", 600);
+
         Map<String, Object> entity_1_7 = new HashMap<>();
 
         entity_1_7.put("ROOTMANYTOMANYID", 3L);
@@ -91,6 +122,10 @@ public class ManyToManyDependenciesGraphCase1 {
 
         entity_1_7.put("ROUNDLEFTID", 1L);
         entity_1_7.put("ROUNDLEFTTYPE", "t-1");
+
+        entity_1_7.put("ROUND1LVL1MTMID", 7L);
+        entity_1_7.put("ROUND1LVL1MTMNAME", "n-7");
+        entity_1_7.put("ROUND1LVL1MTMNUMBER", 1200);
 
         return List.of(
                 entity_1_1,

@@ -190,7 +190,25 @@ public class DependenciesGraph {
 
         private RootRound restoreWithManyToMany(Map<String, Object> nonMappedValues, int lvl) {
             Object value = EntityFactory.ofEntity(nonMappedValues, this.rootType);
-            RootRound result = new RootRound(value, nonMappedValues) {
+            RootRound result = manyToManyRoot(value, nonMappedValues);
+            if (!this.relationship.isEmpty()) {
+                var defaultLvl = lvl + 1;
+                this.relationship.values().forEach(left -> {
+                    GeneralRounds round = left.restore(nonMappedValues, lvl);
+                    List<SubGraph> leftGraphs = left.graphs;
+                    if (!leftGraphs.isEmpty()) {
+                        for (SubGraph graph : leftGraphs) {
+                            round.addRound(graph.restore(nonMappedValues, defaultLvl));
+                        }
+                    }
+                    result.putLeft(round, value);
+                });
+            }
+            return result;
+        }
+
+        private RootRound manyToManyRoot(Object value, Map<String, Object> nonMappedValues) {
+            return new RootRound(value, nonMappedValues) {
                 @Override
                 void putLeft(GeneralRounds left, Object value) {
                     this.lefts.put(left, CollectionsUtils.singleSet(value));
@@ -219,20 +237,6 @@ public class DependenciesGraph {
                     return true;
                 }
             };
-            if (!this.relationship.isEmpty()) {
-                var defaultLvl = lvl + 1;
-                this.relationship.values().forEach(left -> {
-                    GeneralRounds round = left.restore(nonMappedValues, lvl);
-                    List<SubGraph> leftGraphs = left.graphs;
-                    if (!leftGraphs.isEmpty()) {
-                        for (SubGraph graph : leftGraphs) {
-                            round.addRound(graph.restore(nonMappedValues, defaultLvl));
-                        }
-                    }
-                    result.putLeft(round, value);
-                });
-            }
-            return result;
         }
 
         public RootState rounds(RootRound round) {
@@ -260,10 +264,15 @@ public class DependenciesGraph {
                     String rfn = leftGraph.rootFieldName;
                     String cfn = leftGraph.currentFieldName;
                     Class<?> cct = leftGraph.currentCollType;
+                    List<SubGraph> children = leftGraph.graphs;
                     Object leftTarget = leftKey.value();
                     Set<Object> leftsValues = lefts.get(leftKey);
                     Map<String, Object> defaultLeftFieldValues = new HashMap<>();
-                    leftGraph.roundsDefault(leftTarget, leftKey, defaultLeftFieldValues);
+                    if (!children.isEmpty()) {
+                        for (SubGraph g : children) {
+                            g.rounds(leftTarget, leftKey, defaultLeftFieldValues);
+                        }
+                    }
                     MapperUtils.mapFields(defaultLeftFieldValues, leftTarget);
                     if (StringUtils.hasText(cfn) && Objects.nonNull(cct)) {
                         Collection<Object> leftContainer = cast(collFactory(cct));
