@@ -45,7 +45,7 @@ public class DependenciesGraph {
                         source -> source.root,
                         LinkedHashMap::new,
                         Collectors.flatMapping(source -> source.nonMappedValues.stream()
-                                        .flatMap(tuple -> root.graphs.stream()
+                                        .flatMap(tuple -> root.graphOneToEtc.stream()
                                                 .map(subGraph -> subGraph.restore(tuple, START_POINT))),
                                 RoundCollector.toListOfRounds()
                         )
@@ -58,7 +58,7 @@ public class DependenciesGraph {
                 .map(target -> {
                     Map<String, Object> values = new HashMap<>();
                     List<GeneralRounds> rounds = groupByRoot.get(target);
-                    List<SubGraph> graphs = root.graphs;
+                    List<SubGraph> graphs = root.graphOneToEtc;
                     rounds.forEach(round ->
                             graphs.forEach(graph ->
                                     graph.rounds(target, round, values)
@@ -77,29 +77,29 @@ public class DependenciesGraph {
 
         Class<?> rootType;
 
-        Map<Class<?>, SubGraph> relationship = new HashMap<>(); //optional
+        Map<Class<?>, SubGraph> graphsManyToMany = new HashMap<>(); //optional
 
-        List<SubGraph> graphs; //optional
+        List<SubGraph> graphOneToEtc; //optional
 
         RelationType type;
 
         @Deprecated
-        public Root(Class<?> rootType, List<SubGraph> graphs) {
+        public Root(Class<?> rootType, List<SubGraph> graphOneToEtc) {
             this.rootType = Objects.requireNonNull(rootType);
-            this.graphs = Objects.requireNonNullElse(graphs, new ArrayList<>());
+            this.graphOneToEtc = Objects.requireNonNullElse(graphOneToEtc, new ArrayList<>());
             this.type = RelationType.def;
         }
 
         private Root(RootBuilder b) {
             this.rootType = b.rootType;
-            this.graphs = b.graphs;
+            this.graphOneToEtc = b.graphOneToEtc;
             this.type = b.type;
         }
 
         private Root(RootManyToManyBuilder b) {
             this.rootType = b.rootType;
-            this.relationship = b.relationship;
-            this.graphs = b.graphs;
+            this.graphsManyToMany = b.graphsManyToMany;
+            this.graphOneToEtc = b.graphs;
             this.type = b.type;
         }
 
@@ -107,7 +107,7 @@ public class DependenciesGraph {
 
             Class<?> rootType;
 
-            List<SubGraph> graphs = new ArrayList<>(); //optional
+            List<SubGraph> graphOneToEtc = new ArrayList<>(); //optional
 
             RelationType type;
 
@@ -116,8 +116,8 @@ public class DependenciesGraph {
                 return this;
             }
 
-            public RootBuilder graph(SubGraph graph) {
-                this.graphs.add(graph);
+            public RootBuilder graphOneToEtc(SubGraph graph) {
+                this.graphOneToEtc.add(graph);
                 return this;
             }
 
@@ -131,7 +131,7 @@ public class DependenciesGraph {
 
             Class<?> rootType;
 
-            Map<Class<?>, SubGraph> relationship = new HashMap<>(); //optional
+            Map<Class<?>, SubGraph> graphsManyToMany = new HashMap<>(); //optional
 
             List<SubGraph> graphs = new ArrayList<>(); //optional
 
@@ -142,12 +142,12 @@ public class DependenciesGraph {
                 return this;
             }
 
-            public RootManyToManyBuilder relationship(SubGraph outside) {
-                this.relationship.put(outside.currentType, outside);
+            public RootManyToManyBuilder graphsManyToMany(SubGraph outside) {
+                this.graphsManyToMany.put(outside.currentType, outside);
                 return this;
             }
 
-            public RootManyToManyBuilder graph(SubGraph graph) {
+            public RootManyToManyBuilder graphOneToEtc(SubGraph graph) {
                 this.graphs.add(graph);
                 return this;
             }
@@ -191,11 +191,11 @@ public class DependenciesGraph {
         private RootRound restoreWithManyToMany(Map<String, Object> nonMappedValues, int lvl) {
             Object value = EntityFactory.ofEntity(nonMappedValues, this.rootType);
             RootRound result = manyToManyRoot(value, nonMappedValues);
-            if (!this.relationship.isEmpty()) {
+            if (!this.graphsManyToMany.isEmpty()) {
                 var defaultLvl = lvl + 1;
-                this.relationship.values().forEach(left -> {
+                this.graphsManyToMany.values().forEach(left -> {
                     GeneralRounds round = left.restore(nonMappedValues, lvl);
-                    List<SubGraph> leftGraphs = left.graphs;
+                    List<SubGraph> leftGraphs = left.graphsOneToEtc;
                     if (!leftGraphs.isEmpty()) {
                         for (SubGraph graph : leftGraphs) {
                             round.addRound(graph.restore(nonMappedValues, defaultLvl));
@@ -260,12 +260,12 @@ public class DependenciesGraph {
             Map<GeneralRounds, Set<Object>> lefts = round.lefts;
             Map<String, Object> manyToManyRightFields = new HashMap<>();
             for (GeneralRounds leftKey : lefts.keySet()) {
-                SubGraph leftGraph = this.relationship.get(leftKey.type());
+                SubGraph leftGraph = this.graphsManyToMany.get(leftKey.type());
                 if (Objects.nonNull(leftGraph)) {
                     String rfn = leftGraph.rootFieldName;
                     String cfn = leftGraph.currentFieldName;
                     Class<?> cct = leftGraph.currentCollType;
-                    List<SubGraph> children = leftGraph.graphs;
+                    List<SubGraph> children = leftGraph.graphsOneToEtc;
                     Object leftTarget = leftKey.value();
                     Set<Object> leftsValues = lefts.get(leftKey);
                     Map<String, Object> defaultLeftFieldValues = new HashMap<>();

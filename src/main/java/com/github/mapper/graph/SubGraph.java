@@ -22,9 +22,9 @@ public class SubGraph {
 
     String currentFieldName;
 
-    List<SubGraph> graphs; // optional
+    List<SubGraph> graphsOneToEtc; // optional
 
-    Map<Class<?>, SubGraph> relationship = new HashMap<>(); // optional
+    Map<Class<?>, SubGraph> graphsManyToMany = new HashMap<>(); // optional
 
     RelationType type;
 
@@ -35,7 +35,7 @@ public class SubGraph {
         this.rootFieldName = b.rootFieldName;
         this.currentFieldName = b.currentFieldName;
         this.rootCollType = b.rootCollType;
-        this.graphs = b.graphs;
+        this.graphsOneToEtc = b.graphsOneToEtc;
         this.type = b.type;
     }
 
@@ -45,8 +45,8 @@ public class SubGraph {
         this.rootFieldName = b.rootFieldName;
         this.currentFieldName = b.currentFieldName;
         this.currentCollType = b.currentCollType;
-        this.graphs = b.graphs;
-        this.relationship = b.relationship;
+        this.graphsOneToEtc = b.graphsOneToEtc;
+        this.graphsManyToMany = b.graphsManyToMany;
         this.type = b.type;
     }
 
@@ -64,7 +64,7 @@ public class SubGraph {
 
         String currentFieldName;
 
-        List<SubGraph> graphs = new ArrayList<>(); //optional
+        List<SubGraph> graphsOneToEtc = new ArrayList<>(); //optional
 
         RelationType type;
 
@@ -104,14 +104,14 @@ public class SubGraph {
             return this;
         }
 
-        public DefaultBuilder node(SubGraph graph) {
-            this.graphs.add(graph);
+        public DefaultBuilder graphOneToEtc(SubGraph graph) {
+            this.graphsOneToEtc.add(graph);
             return this;
         }
 
         @Deprecated
         public DefaultBuilder graphs(List<SubGraph> graphs) {
-            this.graphs = graphs;
+            this.graphsOneToEtc = graphs;
             return this;
         }
 
@@ -134,9 +134,9 @@ public class SubGraph {
 
         String currentFieldName;
 
-        List<SubGraph> graphs = new ArrayList<>(); //optional
+        List<SubGraph> graphsOneToEtc = new ArrayList<>(); //optional
 
-        Map<Class<?>, SubGraph> relationship = new HashMap<>(); //optional
+        Map<Class<?>, SubGraph> graphsManyToMany = new HashMap<>(); //optional
 
         RelationType type;
 
@@ -168,13 +168,13 @@ public class SubGraph {
             return this;
         }
 
-        public ManyToManyBuilder node(SubGraph graph) {
-            this.graphs.add(graph);
+        public ManyToManyBuilder graphOneToEtc(SubGraph graph) {
+            this.graphsOneToEtc.add(graph);
             return this;
         }
 
-        public ManyToManyBuilder relationship(SubGraph outside) {
-            this.relationship.put(outside.currentType, outside);
+        public ManyToManyBuilder graphManyToMany(SubGraph outside) {
+            this.graphsManyToMany.put(outside.currentType, outside);
             return this;
         }
 
@@ -199,8 +199,8 @@ public class SubGraph {
     private GeneralRounds restoreDefRound(Map<String, Object> values, int lvl) {
         GeneralRounds result = Round.create(lvl + 1, this.currentType, EntityFactory.ofEntity(values, this.currentType));
         lvl = lvl + 1;
-        if (!this.graphs.isEmpty()) {
-            for (SubGraph graph : this.graphs) {
+        if (!this.graphsOneToEtc.isEmpty()) {
+            for (SubGraph graph : this.graphsOneToEtc) {
                 result.addRound(graph.restore(values, lvl));
             }
         }
@@ -210,18 +210,18 @@ public class SubGraph {
     private GeneralRounds restoreManyToRound(Map<String, Object> values, int lvl) {
         Object value = EntityFactory.ofEntity(values, this.currentType);
         GeneralRounds right = Round.create(lvl + 1, this.currentType, value);
-        if (!this.graphs.isEmpty()) {
+        if (!this.graphsOneToEtc.isEmpty()) {
             var defaultLvl = lvl + 1;
-            for (SubGraph graph : this.graphs) {
+            for (SubGraph graph : this.graphsOneToEtc) {
                 right.addRound(graph.restore(values, defaultLvl));
             }
         }
         GeneralRounds result = RoundManyToMany.create(right);
-        if (!this.relationship.isEmpty()) {
+        if (!this.graphsManyToMany.isEmpty()) {
             var defaultLvl = lvl + 1;
-            this.relationship.values().forEach(left -> {
+            this.graphsManyToMany.values().forEach(left -> {
                 GeneralRounds round = left.restore(values, lvl);
-                List<SubGraph> leftGraphs = left.graphs;
+                List<SubGraph> leftGraphs = left.graphsOneToEtc;
                 if (!leftGraphs.isEmpty()) {
                     for (SubGraph graph : leftGraphs) {
                         round.addRound(graph.restore(values, defaultLvl));
@@ -250,10 +250,10 @@ public class SubGraph {
         Object target = round.value();
         if (round.type().equals(this.currentType)) {
             setRootValues(values, target);
-            if (!this.graphs.isEmpty()) {
+            if (!this.graphsOneToEtc.isEmpty()) {
                 Map<String, Object> nexValues = new HashMap<>();
                 for (GeneralRounds nextRound : round.rounds()) {
-                    for (SubGraph graph : this.graphs) {
+                    for (SubGraph graph : this.graphsOneToEtc) {
                         graph.rounds(target, nextRound, nexValues);
                     }
                 }
@@ -279,7 +279,7 @@ public class SubGraph {
         Map<GeneralRounds, Set<Object>> lefts = round.lefts();
         Map<String, Object> manyToManyRightFields = new HashMap<>();
         for (GeneralRounds leftKey : lefts.keySet()) {
-            SubGraph leftGraph = this.relationship.get(leftKey.type());
+            SubGraph leftGraph = this.graphsManyToMany.get(leftKey.type());
             if (Objects.nonNull(leftGraph)) {
                 String rfn = leftGraph.rootFieldName;
                 String cfn = leftGraph.currentFieldName;
