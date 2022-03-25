@@ -5,6 +5,7 @@ import com.github.mapper.utils.MapperUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.github.mapper.utils.MapperUtils.*;
 
@@ -185,7 +186,7 @@ public class SubGraph {
 
     }
 
-    public GeneralRounds restore(Map<String, Object> values, int lvl) {
+    public Round restore(Map<String, Object> values, int lvl) {
         switch (this.type) {
             case manyToMany:
                 return restoreManyToRound(values, lvl);
@@ -196,8 +197,8 @@ public class SubGraph {
         }
     }
 
-    private GeneralRounds restoreDefRound(Map<String, Object> values, int lvl) {
-        GeneralRounds result = Round.create(lvl + 1, this.currentType, EntityFactory.ofEntity(values, this.currentType));
+    private Round restoreDefRound(Map<String, Object> values, int lvl) {
+        Round result = Round.oneToEtc(lvl + 1, this.currentType, EntityFactory.ofEntity(values, this.currentType));
         lvl = lvl + 1;
         if (!this.graphsOneToEtc.isEmpty()) {
             for (SubGraph graph : this.graphsOneToEtc) {
@@ -207,33 +208,32 @@ public class SubGraph {
         return result;
     }
 
-    private GeneralRounds restoreManyToRound(Map<String, Object> values, int lvl) {
+    private Round restoreManyToRound(Map<String, Object> values, int lvl) {
         Object value = EntityFactory.ofEntity(values, this.currentType);
-        GeneralRounds right = Round.create(lvl + 1, this.currentType, value);
+        Round right = Round.manyToMany(lvl + 1, this.currentType, value);
         if (!this.graphsOneToEtc.isEmpty()) {
             var defaultLvl = lvl + 1;
             for (SubGraph graph : this.graphsOneToEtc) {
                 right.addRound(graph.restore(values, defaultLvl));
             }
         }
-        GeneralRounds result = RoundManyToMany.create(right);
         if (!this.graphsManyToMany.isEmpty()) {
             var defaultLvl = lvl + 1;
             this.graphsManyToMany.values().forEach(left -> {
-                GeneralRounds round = left.restore(values, lvl);
+                Round round = left.restore(values, lvl);
                 List<SubGraph> leftGraphs = left.graphsOneToEtc;
                 if (!leftGraphs.isEmpty()) {
                     for (SubGraph graph : leftGraphs) {
                         round.addRound(graph.restore(values, defaultLvl));
                     }
                 }
-                result.putLeft(round, value);
+                right.putLeft(round, right);
             });
         }
-        return result;
+        return right;
     }
 
-    public void rounds(Object root, GeneralRounds round, Map<String, Object> values) {
+    public void rounds(Object root, Round round, Map<String, Object> values) {
         switch (this.type) {
             case def:
                 roundsDefault(root, round, values);
@@ -246,13 +246,13 @@ public class SubGraph {
         }
     }
 
-    public void roundsDefault(Object root, GeneralRounds round, Map<String, Object> values) {
-        Object target = round.value();
-        if (round.type().equals(this.currentType)) {
+    public void roundsDefault(Object root, Round round, Map<String, Object> values) {
+        Object target = round.value;
+        if (round.type.equals(this.currentType)) {
             setRootValues(values, target);
             if (!this.graphsOneToEtc.isEmpty()) {
                 Map<String, Object> nexValues = new HashMap<>();
-                for (GeneralRounds nextRound : round.rounds()) {
+                for (Round nextRound : round.roundsOneToEtc) {
                     for (SubGraph graph : this.graphsOneToEtc) {
                         graph.rounds(target, nextRound, nexValues);
                     }
@@ -269,29 +269,38 @@ public class SubGraph {
         }
     }
 
-    private void roundsManyToMany(Object root, GeneralRounds round, Map<String, Object> values) {
-        GeneralRounds right = round.right();
-        Object rightTarget = right.value();
+    private void roundsManyToMany(Object root, Round right, Map<String, Object> values) {
+        Object rightTarget = right.value;
         Map<String, Object> defaultRightFieldValues = new HashMap<>();
         roundsDefault(rightTarget, right, defaultRightFieldValues);
         MapperUtils.mapFields(defaultRightFieldValues, rightTarget);
         setRootValues(values, rightTarget);
-        Map<GeneralRounds, Set<Object>> lefts = round.lefts();
+        Map<Round, Set<Round>> lefts = right.lefts;
         Map<String, Object> manyToManyRightFields = new HashMap<>();
-        for (GeneralRounds leftKey : lefts.keySet()) {
-            SubGraph leftGraph = this.graphsManyToMany.get(leftKey.type());
+        for (Round leftKey : lefts.keySet()) {
+            SubGraph leftGraph = this.graphsManyToMany.get(leftKey.type);
             if (Objects.nonNull(leftGraph)) {
                 String rfn = leftGraph.rootFieldName;
                 String cfn = leftGraph.currentFieldName;
                 Class<?> cct = leftGraph.currentCollType;
-                Object leftTarget = leftKey.value();
-                Set<Object> leftsValues = lefts.get(leftKey);
-                // TODO: 20.03.22 bug leftGraph.roundsDefault
+                Object leftTarget = leftKey.value;
+                List<SubGraph> children = leftGraph.graphsOneToEtc;
+                Set<Round> leftsRounds = lefts.getOrDefault(leftKey, new HashSet<>());
+                Set<Object> leftsValues = leftsRounds.stream()
+                        .map(r -> r.value)
+                        .collect(Collectors.toSet());
                 Map<String, Object> defaultLeftFieldValues = new HashMap<>();
-                leftGraph.roundsDefault(leftTarget, leftKey, defaultLeftFieldValues);
-                MapperUtils.mapFields(defaultLeftFieldValues, leftTarget);
+                if (!children.isEmpty()) {
+                    for (SubGraph g : children) {
+                        g.rounds(leftTarget, leftKey, defaultLeftFieldValues);
+                    }
+                }
+                if (!defaultLeftFieldValues.isEmpty()) {
+                    MapperUtils.mapFields(defaultLeftFieldValues, leftTarget);
+                }
                 if (StringUtils.hasText(cfn) && Objects.nonNull(cct)) {
                     Collection<Object> leftContainer = cast(collFactory(cct));
+
                     leftContainer.addAll(leftsValues);
                     setFields(leftContainer, leftTarget, cfn);
                 }

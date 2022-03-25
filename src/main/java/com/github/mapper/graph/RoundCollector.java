@@ -9,9 +9,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
-public class RoundCollector implements Collector<GeneralRounds, List<GeneralRounds>, List<GeneralRounds>> {
+public class RoundCollector implements Collector<Round, List<Round>, List<Round>> {
 
-    private final Map<Class<?>, List<GeneralRounds>> manyToMany = new HashMap<>();
+    private final Map<Class<?>, List<Round>> manyToMany = new HashMap<>();
 
     private RoundCollector() {
     }
@@ -21,24 +21,24 @@ public class RoundCollector implements Collector<GeneralRounds, List<GeneralRoun
     }
 
     @Override
-    public Supplier<List<GeneralRounds>> supplier() {
+    public Supplier<List<Round>> supplier() {
         return ArrayList::new;
     }
 
     @Override
-    public BiConsumer<List<GeneralRounds>, GeneralRounds> accumulator() {
+    public BiConsumer<List<Round>, Round> accumulator() {
         return (list, round) -> {
             if (list.isEmpty()) {
-                if (Objects.nonNull(round.value())) {
+                if (Objects.nonNull(round.value)) {
                     list.add(round);
-                    if (round.roundType().isNotDefault()) {
-                        this.manyToMany.put(round.type(), CollectionsUtils.singleList(round));
+                    if (round.hashManyToMany()) {
+                        this.manyToMany.put(round.type, CollectionsUtils.singleList(round));
                     }
                 }
             } else {
-                if (Objects.nonNull(round.value())) {
+                if (Objects.nonNull(round.value)) {
                     if (list.contains(round)) {
-                        GeneralRounds containsRound = list.get(list.indexOf(round));
+                        Round containsRound = list.get(list.indexOf(round));
                         containsRound.collectRounds(round);
                     } else {
                         list.add(round);
@@ -49,14 +49,14 @@ public class RoundCollector implements Collector<GeneralRounds, List<GeneralRoun
         };
     }
 
-    private void updateIfManyToMany(GeneralRounds round) {
-        if (round.roundType().isNotDefault()) {
-            Class<?> type = round.type();
-            List<GeneralRounds> manyToManyList = this.manyToMany.getOrDefault(type, new ArrayList<>());
+    private void updateIfManyToMany(Round round) {
+        if (round.hashManyToMany()) {
+            Class<?> type = round.type;
+            List<Round> manyToManyList = this.manyToMany.getOrDefault(type, new ArrayList<>());
             if (!manyToManyList.isEmpty()) {
                 manyToManyList.forEach(r -> {
-                            r.collectRoundsLeft(round.lefts());
-                            round.collectRoundsLeft(r.lefts());
+                            r.collectRoundsLeft(round.lefts);
+                            round.collectRoundsLeft(r.lefts);
                         });
                 if (!manyToManyList.contains(round)) {
                     manyToManyList.add(round);
@@ -69,7 +69,7 @@ public class RoundCollector implements Collector<GeneralRounds, List<GeneralRoun
     }
 
     @Override
-    public BinaryOperator<List<GeneralRounds>> combiner() {
+    public BinaryOperator<List<Round>> combiner() {
         return (first, second) -> {
             first.addAll(second);
             return first;
@@ -77,7 +77,7 @@ public class RoundCollector implements Collector<GeneralRounds, List<GeneralRoun
     }
 
     @Override
-    public Function<List<GeneralRounds>, List<GeneralRounds>> finisher() {
+    public Function<List<Round>, List<Round>> finisher() {
         return ArrayList::new;
     }
 

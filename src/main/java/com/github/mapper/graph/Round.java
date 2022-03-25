@@ -1,9 +1,11 @@
 package com.github.mapper.graph;
 
+import com.github.mapper.utils.CollectionsUtils;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Round implements GeneralRounds {
+public abstract class Round {
 
     int lvl;
 
@@ -11,40 +13,42 @@ public class Round implements GeneralRounds {
 
     Object value;
 
-    Set<GeneralRounds> rounds = new HashSet<>();
+    Set<Round> roundsOneToEtc = new HashSet<>();
 
-    private Round(int lvl, Class<?> type, Object value) {
+    Map<Round, Set<Round>> lefts = new HashMap<>();
+
+    public Round(int lvl, Class<?> type, Object value) {
         this.lvl = lvl;
         this.type = type;
         this.value = value;
     }
 
-    public static GeneralRounds create(int lvl, Class<?> type, Object value) {
-        return new Round(lvl, type, value);
-    }
+    abstract void collectRounds(Round round);
 
-    @Override
-    public void addRound(GeneralRounds round) {
-        this.rounds.add(round);
-    }
+    abstract void collectRoundsLeft(Map<Round, Set<Round>> newLefts);
 
-    public List<GeneralRounds> findRoundByLvl(int lvl) {
-        List<GeneralRounds> result = new ArrayList<>();
-        if (this.lvl < lvl) {
-            for (GeneralRounds round : this.rounds) {
-                result.addAll(round.findRoundByLvl(lvl));
+    abstract void putLeft(Round left, Round value);
+
+    abstract boolean hashManyToMany();
+
+    void collectRoundOneToEtc(Round round) {
+        int levels = round.levels();
+        for (int i = 1; i < levels; i++) {
+            List<Round> currentRounds = findRoundByLvl(i);
+            List<Round> newRounds = round.findRoundByLvl(i);
+            if (!currentRounds.containsAll(newRounds)) {
+                this.roundsOneToEtc.addAll(newRounds.stream()
+                        .filter(r -> Objects.nonNull(r.value))
+                        .collect(Collectors.toList())
+                );
             }
-        } else {
-            result.addAll(this.rounds);
         }
-        return result;
     }
 
-    @Override
-    public int levels() {
+    int levels() {
         int lvl = 0;
-        for (GeneralRounds r : this.rounds) {
-            if (r.rounds().size() == 0) {
+        for (Round r : this.roundsOneToEtc) {
+            if (r.roundsOneToEtc.size() == 0) {
                 if (r.levels() > lvl) {
                     lvl = r.levels();
                 }
@@ -56,52 +60,103 @@ public class Round implements GeneralRounds {
         return lvl;
     }
 
-    @Override
-    public void collectRounds(GeneralRounds round) {
-        int levels = round.levels();
-        for (int i = 1; i < levels; i++) {
-            List<GeneralRounds> currentRounds = findRoundByLvl(i);
-            List<GeneralRounds> newRounds = round.findRoundByLvl(i);
-            if (!currentRounds.containsAll(newRounds)) {
-                this.rounds.addAll(newRounds.stream()
-                        .filter(r -> Objects.nonNull(r.value()))
-                        .collect(Collectors.toList())
-                );
+    List<Round> findRoundByLvl(int lvl) {
+        List<Round> result = new ArrayList<>();
+        if (this.lvl < lvl) {
+            for (Round round : this.roundsOneToEtc) {
+                result.addAll(round.findRoundByLvl(lvl));
             }
+        } else {
+            result.addAll(this.roundsOneToEtc);
         }
+        return result;
     }
 
-    @Override
-    public RelationType roundType() {
-        return RelationType.def;
+    void addRound(Round round) {
+        this.roundsOneToEtc.add(round);
     }
 
-    @Override
-    public Class<?> type() {
-        return this.type;
+    public static Round oneToEtc(int lvl, Class<?> type, Object value) {
+        return new Round(lvl, type, value) {
+            @Override
+            void collectRounds(Round round) {
+                collectRoundOneToEtc(round);
+            }
+
+            @Override
+            void collectRoundsLeft(Map<Round, Set<Round>> newLefts) {
+                throw new UnsupportedOperationException("Not support in one to etc round");
+            }
+
+            @Override
+            void putLeft(Round left, Round value) {
+                throw new UnsupportedOperationException("Not support in one to etc round");
+            }
+
+            @Override
+            boolean hashManyToMany() {
+                return Boolean.FALSE;
+            }
+        };
     }
 
-    @Override
-    public Object value() {
-        return this.value;
+    public static Round manyToMany(int lvl, Class<?> type, Object value) {
+        return new Round(lvl, type, value) {
+            @Override
+            void collectRounds(Round round) {
+                collectRoundOneToEtc(round);
+                Map<Round, Set<Round>> newLefts = round.lefts;
+                for (Round left : newLefts.keySet()) {
+                    if (this.lefts.containsKey(left)) {
+                        this.lefts.get(left).addAll(newLefts.get(left));
+                        findRound(this.lefts.keySet(), left)
+                                .ifPresent(left::collectRounds);
+                    } else {
+                        this.lefts.put(left, newLefts.get(left));
+                    }
+                }
+            }
+
+            private Optional<Round> findRound(Set<Round> keys, Round newRound) {
+                return keys.stream().filter(key -> key.equals(newRound)).findFirst();
+            }
+
+            @Override
+            void collectRoundsLeft(Map<Round, Set<Round>> newLefts) {
+                for (Round left : newLefts.keySet()) {
+                    if (this.lefts.containsKey(left)) {
+                        this.lefts.get(left).addAll(newLefts.get(left));
+                        findRound(this.lefts.keySet(), left)
+                                .ifPresent(left::collectRounds);
+                    }
+                }
+            }
+
+            @Override
+            void putLeft(Round left, Round value) {
+                this.lefts.put(left, CollectionsUtils.setOfRounds(value));
+            }
+
+            @Override
+            boolean hashManyToMany() {
+                return Boolean.TRUE;
+            }
+        };
     }
 
-    @Override
-    public Set<GeneralRounds> rounds() {
-        return this.rounds;
-    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Round)) return false;
         Round round = (Round) o;
-        return Objects.equals(type, round.type) &&
+        return lvl == round.lvl &&
+                Objects.equals(type, round.type) &&
                 Objects.equals(value, round.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, value);
+        return Objects.hash(lvl, type, value);
     }
 }

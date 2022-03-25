@@ -34,7 +34,7 @@ public class DependenciesGraph {
                 .single();
     }
 
-    private Mono<LinkedHashMap<Object, List<GeneralRounds>>> intermediateState(List<Map<String, Object>> tuples) {
+    private Mono<LinkedHashMap<Object, List<Round>>> intermediateState(List<Map<String, Object>> tuples) {
         return Flux.fromStream(tuples.stream())
                 .filter(DependenciesGraph::isTupleEmpty)
                 .map(tuple -> root.restoreRootRound(tuple, START_POINT))
@@ -53,11 +53,11 @@ public class DependenciesGraph {
     }
 
     @SuppressWarnings(value = "unchecked")
-    private <T> Flux<T> toTarget(LinkedHashMap<?, List<GeneralRounds>> groupByRoot) {
+    private <T> Flux<T> toTarget(LinkedHashMap<?, List<Round>> groupByRoot) {
         return Flux.fromStream(groupByRoot.keySet().stream())
                 .map(target -> {
                     Map<String, Object> values = new HashMap<>();
-                    List<GeneralRounds> rounds = groupByRoot.get(target);
+                    List<Round> rounds = groupByRoot.get(target);
                     List<SubGraph> graphs = root.graphOneToEtc;
                     rounds.forEach(round ->
                             graphs.forEach(graph ->
@@ -172,12 +172,12 @@ public class DependenciesGraph {
         private RootRound restoreByDef(Map<String, Object> nonMappedValues) {
             return new RootRound(EntityFactory.ofEntity(nonMappedValues, this.rootType), nonMappedValues) {
                 @Override
-                void putLeft(GeneralRounds left, Object value) {
+                void putLeft(Round left, Object value) {
                     throw new UnsupportedOperationException();
                 }
 
                 @Override
-                void collectRoundLeft(Map<Object, Object> rightValues, Object roundRootVal, Map<GeneralRounds, Set<Object>> newLefts) {
+                void collectRoundLeft(Map<Object, Object> rightValues, Object roundRootVal, Map<Round, Set<Object>> newLefts) {
                     throw new UnsupportedOperationException();
                 }
 
@@ -194,7 +194,7 @@ public class DependenciesGraph {
             if (!this.graphsManyToMany.isEmpty()) {
                 var defaultLvl = lvl + 1;
                 this.graphsManyToMany.values().forEach(left -> {
-                    GeneralRounds round = left.restore(nonMappedValues, lvl);
+                    Round round = left.restore(nonMappedValues, lvl);
                     List<SubGraph> leftGraphs = left.graphsOneToEtc;
                     if (!leftGraphs.isEmpty()) {
                         for (SubGraph graph : leftGraphs) {
@@ -210,13 +210,13 @@ public class DependenciesGraph {
         private RootRound manyToManyRoot(Object value, Map<String, Object> nonMappedValues) {
             return new RootRound(value, nonMappedValues) {
                 @Override
-                void putLeft(GeneralRounds left, Object value) {
+                void putLeft(Round left, Object value) {
                     this.lefts.put(left, CollectionsUtils.singleSet(value));
                 }
 
                 @Override
-                void collectRoundLeft(Map<Object, Object> rightValues, Object roundRootVal, Map<GeneralRounds, Set<Object>> newLefts) {
-                    for (GeneralRounds left : newLefts.keySet()) {
+                void collectRoundLeft(Map<Object, Object> rightValues, Object roundRootVal, Map<Round, Set<Object>> newLefts) {
+                    for (Round left : newLefts.keySet()) {
                         Set<Object> objects = newLefts.get(left).stream()
                                 .map(rightValues::get)
                                 .collect(Collectors.toSet());
@@ -254,19 +254,19 @@ public class DependenciesGraph {
             return new RootState(round.value, round.nonMappedValues);
         }
 
-        // TODO: 24.03.22 add cash to this rounds
+        // TODO: 24.03.22 add cash to this rounds ??
         private RootState roundsManyToMany(RootRound round) {
             Object rightTarget = round.value;
-            Map<GeneralRounds, Set<Object>> lefts = round.lefts;
+            Map<Round, Set<Object>> lefts = round.lefts;
             Map<String, Object> manyToManyRightFields = new HashMap<>();
-            for (GeneralRounds leftKey : lefts.keySet()) {
-                SubGraph leftGraph = this.graphsManyToMany.get(leftKey.type());
+            for (Round leftKey : lefts.keySet()) {
+                SubGraph leftGraph = this.graphsManyToMany.get(leftKey.type);
                 if (Objects.nonNull(leftGraph)) {
                     String rfn = leftGraph.rootFieldName;
                     String cfn = leftGraph.currentFieldName;
                     Class<?> cct = leftGraph.currentCollType;
                     List<SubGraph> children = leftGraph.graphsOneToEtc;
-                    Object leftTarget = leftKey.value();
+                    Object leftTarget = leftKey.value;
                     Set<Object> leftsValues = lefts.get(leftKey);
                     Map<String, Object> defaultLeftFieldValues = new HashMap<>();
                     if (!children.isEmpty()) {
@@ -274,7 +274,9 @@ public class DependenciesGraph {
                             g.rounds(leftTarget, leftKey, defaultLeftFieldValues);
                         }
                     }
-                    MapperUtils.mapFields(defaultLeftFieldValues, leftTarget);
+                    if (!defaultLeftFieldValues.isEmpty()) {
+                        MapperUtils.mapFields(defaultLeftFieldValues, leftTarget);
+                    }
                     if (StringUtils.hasText(cfn) && Objects.nonNull(cct)) {
                         Collection<Object> leftContainer = cast(collFactory(cct));
                         leftContainer.addAll(leftsValues);
@@ -315,7 +317,7 @@ public class DependenciesGraph {
 
         Object value;
 
-        Map<GeneralRounds, Set<Object>> lefts = new HashMap<>();
+        Map<Round, Set<Object>> lefts = new HashMap<>();
 
         List<Map<String, Object>> nonMappedValues = new ArrayList<>();
 
@@ -324,9 +326,9 @@ public class DependenciesGraph {
             this.nonMappedValues.add(nonMappedValues);
         }
 
-        abstract void putLeft(GeneralRounds left, Object value);
+        abstract void putLeft(Round left, Object value);
 
-        abstract void collectRoundLeft(Map<Object, Object> rightValues, Object roundRootVal, Map<GeneralRounds, Set<Object>> newLefts);
+        abstract void collectRoundLeft(Map<Object, Object> rightValues, Object roundRootVal, Map<Round, Set<Object>> newLefts);
 
         abstract boolean hashManyToMany();
 
@@ -334,7 +336,7 @@ public class DependenciesGraph {
             this.nonMappedValues.addAll(nonMappedValues);
         }
 
-        public Optional<GeneralRounds> findRound(Set<GeneralRounds> keys, GeneralRounds newRound) {
+        public Optional<Round> findRound(Set<Round> keys, Round newRound) {
             return keys.stream().filter(key -> key.equals(newRound)).findFirst();
         }
 

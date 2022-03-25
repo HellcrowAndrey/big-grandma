@@ -1,7 +1,6 @@
 package com.github.mapper.utils;
 
-import com.github.mapper.graph.GeneralRounds;
-import com.github.mapper.graph.Round02;
+import com.github.mapper.graph.Round;
 
 import java.util.*;
 
@@ -13,17 +12,17 @@ public class CollectionsUtils {
         return result;
     }
 
-    public static Set<GeneralRounds> singleSet(GeneralRounds... rounds) {
+    public static Set<Round> singleSet(Round... rounds) {
         return new HashSet<>(Arrays.asList(rounds));
     }
 
-    public static List<GeneralRounds> singleList(GeneralRounds round) {
-        List<GeneralRounds> result = new ArrayList<>();
+    public static List<Round> singleList(Round round) {
+        List<Round> result = new ArrayList<>();
         result.add(round);
         return result;
     }
 
-    public static List<GeneralRounds> singleList(GeneralRounds... rounds) {
+    public static List<Round> singleList(Round... rounds) {
         return Arrays.asList(rounds);
     }
 
@@ -31,7 +30,7 @@ public class CollectionsUtils {
         return new HashSet<>();
     }
 
-    public static Set<Round02> setOfRounds(Round02... rounds) {
+    public static Set<Round> setOfRounds(Round... rounds) {
         return new HashSet<>(Arrays.asList(rounds));
     }
 
