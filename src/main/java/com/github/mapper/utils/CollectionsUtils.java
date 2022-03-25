@@ -1,6 +1,7 @@
 package com.github.mapper.utils;
 
 import com.github.mapper.graph.GeneralRounds;
+import com.github.mapper.graph.Round02;
 
 import java.util.*;
 
@@ -28,6 +29,10 @@ public class CollectionsUtils {
 
     public static Set<Object> emptySet() {
         return new HashSet<>();
+    }
+
+    public static Set<Round02> setOfRounds(Round02... rounds) {
+        return new HashSet<>(Arrays.asList(rounds));
     }
 
 }

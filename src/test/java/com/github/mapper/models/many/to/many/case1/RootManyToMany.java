@@ -15,6 +15,8 @@ public class RootManyToMany {
 
     private List<RoundLeft> roundLefts;
 
+    private List<RoundLeft2> roundLeft2s;
+
     private List<Round1Lvl1MTM> round1Lvl1MTMS;
 
     public RootManyToMany() {
@@ -47,6 +49,10 @@ public class RootManyToMany {
         return round1Lvl1MTMS;
     }
 
+    public List<RoundLeft2> getRoundLeft2s() {
+        return roundLeft2s;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -67,6 +73,8 @@ public class RootManyToMany {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", roundLefts=" + roundLefts +
+                ", roundLeft2s=" + roundLeft2s +
+                ", round1Lvl1MTMS=" + round1Lvl1MTMS +
                 '}';
     }
 }
