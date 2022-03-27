@@ -11,7 +11,7 @@ import java.util.stream.Collector;
 
 public class RoundCollector implements Collector<Round, List<Round>, List<Round>> {
 
-    private final Map<Class<?>, List<Round>> manyToMany = new HashMap<>();
+    private final Map<Class<?>, List<Round>> rightValues = new HashMap<>();
 
     private RoundCollector() {
     }
@@ -32,7 +32,7 @@ public class RoundCollector implements Collector<Round, List<Round>, List<Round>
                 if (Objects.nonNull(round.value)) {
                     list.add(round);
                     if (round.hashManyToMany()) {
-                        this.manyToMany.put(round.type, CollectionsUtils.singleList(round));
+                        this.rightValues.put(round.type, CollectionsUtils.singleList(round));
                     }
                 }
             } else {
@@ -52,7 +52,7 @@ public class RoundCollector implements Collector<Round, List<Round>, List<Round>
     private void updateIfManyToMany(Round round) {
         if (round.hashManyToMany()) {
             Class<?> type = round.type;
-            List<Round> manyToManyList = this.manyToMany.getOrDefault(type, new ArrayList<>());
+            List<Round> manyToManyList = this.rightValues.getOrDefault(type, new ArrayList<>());
             if (!manyToManyList.isEmpty()) {
                 manyToManyList.forEach(r -> {
                             r.collectRoundsLeft(round.lefts);
@@ -63,7 +63,7 @@ public class RoundCollector implements Collector<Round, List<Round>, List<Round>
                 }
             } else {
                 manyToManyList.add(round);
-                this.manyToMany.put(type, manyToManyList);
+                this.rightValues.put(type, manyToManyList);
             }
         }
     }
