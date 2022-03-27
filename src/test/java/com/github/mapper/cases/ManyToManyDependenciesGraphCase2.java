@@ -23,7 +23,7 @@ public class ManyToManyDependenciesGraphCase2 {
                                         .currentFieldName("rootMTMCase2")
                                         .currentCollType(List.class)
                                         .graphManyToMany(
-                                                new SubGraph.DefaultBuilder()
+                                                new SubGraph.OneToEtcBuilder()
                                                         .rootType(Round1Lvl1.class)
                                                         .rootFieldName("round2Lvl1s")
                                                         .rootCollType(List.class)

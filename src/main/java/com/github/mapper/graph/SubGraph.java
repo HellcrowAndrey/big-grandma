@@ -29,7 +29,7 @@ public class SubGraph {
 
     RelationType type;
 
-    private SubGraph(DefaultBuilder b) {
+    private SubGraph(OneToEtcBuilder b) {
         this.rootType = b.rootType;
         this.currentType = b.currentType;
         this.currentCollType = b.currentCollType;
@@ -52,7 +52,7 @@ public class SubGraph {
         this.type = b.type;
     }
 
-    public static class DefaultBuilder {
+    public static class OneToEtcBuilder {
 
         Class<?> rootType;
 
@@ -70,27 +70,27 @@ public class SubGraph {
 
         RelationType type;
 
-        public DefaultBuilder rootType(Class<?> rootType) {
+        public OneToEtcBuilder rootType(Class<?> rootType) {
             this.rootType = Objects.requireNonNull(rootType);
             return this;
         }
 
-        public DefaultBuilder currentType(Class<?> currentType) {
+        public OneToEtcBuilder currentType(Class<?> currentType) {
             this.currentType = Objects.requireNonNull(currentType);
             return this;
         }
 
-        public DefaultBuilder rootFieldName(String rootFieldName) {
+        public OneToEtcBuilder rootFieldName(String rootFieldName) {
             this.rootFieldName = rootFieldName;
             return this;
         }
 
-        public DefaultBuilder currentFieldName(String currentFieldName) {
+        public OneToEtcBuilder currentFieldName(String currentFieldName) {
             this.currentFieldName = Objects.requireNonNull(currentFieldName);
             return this;
         }
 
-        public DefaultBuilder rootCollType(Class<?> rootCollType) {
+        public OneToEtcBuilder rootCollType(Class<?> rootCollType) {
             if (!MapperUtils.isColl(rootCollType)) {
                 throw new IllegalArgumentException(String.format("Is not collections -> %s", rootCollType));
             }
@@ -98,7 +98,7 @@ public class SubGraph {
             return this;
         }
 
-        public DefaultBuilder currentCollType(Class<?> collType) {
+        public OneToEtcBuilder currentCollType(Class<?> collType) {
             if (!MapperUtils.isColl(collType)) {
                 throw new IllegalArgumentException(String.format("Is not collections -> %s", collType));
             }
@@ -106,13 +106,13 @@ public class SubGraph {
             return this;
         }
 
-        public DefaultBuilder graphOneToEtc(SubGraph graph) {
+        public OneToEtcBuilder graphOneToEtc(SubGraph graph) {
             this.graphsOneToEtc.add(graph);
             return this;
         }
 
         @Deprecated
-        public DefaultBuilder graphs(List<SubGraph> graphs) {
+        public OneToEtcBuilder graphs(List<SubGraph> graphs) {
             this.graphsOneToEtc = graphs;
             return this;
         }

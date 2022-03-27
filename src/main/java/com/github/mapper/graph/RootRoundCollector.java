@@ -9,7 +9,7 @@ import java.util.stream.Collector;
 
 public class RootRoundCollector implements Collector<DependenciesGraph.RootRound, List<DependenciesGraph.RootRound>, List<DependenciesGraph.RootRound>> {
 
-    private final Map<DependenciesGraph.RootRound, DependenciesGraph.RootRound> rightValues  = new HashMap<>();
+    private final Map<DependenciesGraph.RootRound, DependenciesGraph.RootRound> rightValues  = new LinkedHashMap<>();
 
     private RootRoundCollector() {
     }
