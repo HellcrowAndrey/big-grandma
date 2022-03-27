@@ -43,6 +43,7 @@ public class SubGraph {
     private SubGraph(ManyToManyBuilder b) {
         this.rootType = b.rootType;
         this.currentType = b.currentType;
+        this.rootCollType = b.rootCollType;
         this.rootFieldName = b.rootFieldName;
         this.currentFieldName = b.currentFieldName;
         this.currentCollType = b.currentCollType;
@@ -129,6 +130,8 @@ public class SubGraph {
 
         Class<?> currentType;
 
+        Class<?> rootCollType;
+
         Class<?> currentCollType;
 
         String rootFieldName;
@@ -148,6 +151,14 @@ public class SubGraph {
 
         public ManyToManyBuilder currentType(Class<?> currentType) {
             this.currentType = Objects.requireNonNull(currentType);
+            return this;
+        }
+
+        public ManyToManyBuilder rootCollType(Class<?> rootCollType) {
+            if (!MapperUtils.isColl(rootCollType)) {
+                throw new IllegalArgumentException(String.format("Is not collections -> %s", rootCollType));
+            }
+            this.rootCollType = MapperUtils.collTypeMapper(Objects.requireNonNull(rootCollType));
             return this;
         }
 
