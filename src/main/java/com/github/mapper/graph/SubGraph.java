@@ -118,7 +118,7 @@ public class SubGraph {
         }
 
         public SubGraph build() {
-            this.type = RelationType.def;
+            this.type = RelationType.oneToEtc;
             return new SubGraph(this);
         }
 
@@ -201,7 +201,7 @@ public class SubGraph {
         switch (this.type) {
             case manyToMany:
                 return restoreManyToRound(values, lvl);
-            case def:
+            case oneToEtc:
                 return restoreDefRound(values, lvl);
             default:
                 throw new IllegalArgumentException("Unsupported Relation type");
@@ -246,7 +246,7 @@ public class SubGraph {
 
     public void rounds(Object root, Round round, Map<String, Object> values) {
         switch (this.type) {
-            case def:
+            case oneToEtc:
                 roundsDefault(root, round, values);
                 break;
             case manyToMany:

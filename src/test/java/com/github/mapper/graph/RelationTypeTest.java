@@ -8,7 +8,7 @@ class RelationTypeTest {
 
     @Test
     void givenEnumRelationType_whenIsNotDefault_thenReturnFalse() {
-        assertFalse(RelationType.def.isNotDefault(), "u should check method isNotDefault");
+        assertFalse(RelationType.oneToEtc.isNotDefault(), "u should check method isNotDefault");
     }
 
     @Test

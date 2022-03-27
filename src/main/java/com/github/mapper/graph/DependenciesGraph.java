@@ -87,7 +87,7 @@ public class DependenciesGraph {
         public Root(Class<?> rootType, List<SubGraph> graphOneToEtc) {
             this.rootType = Objects.requireNonNull(rootType);
             this.graphOneToEtc = Objects.requireNonNullElse(graphOneToEtc, new ArrayList<>());
-            this.type = RelationType.def;
+            this.type = RelationType.oneToEtc;
         }
 
         private Root(RootBuilder b) {
@@ -122,7 +122,7 @@ public class DependenciesGraph {
             }
 
             public Root build() {
-                this.type = RelationType.def;
+                this.type = RelationType.oneToEtc;
                 return new Root(this);
             }
         }
@@ -160,7 +160,7 @@ public class DependenciesGraph {
 
         public RootRound restoreRootRound(Map<String, Object> nonMappedValues, int lvl) {
             switch (this.type) {
-                case def:
+                case oneToEtc:
                     return restoreByDef(nonMappedValues);
                 case manyToMany:
                     return restoreWithManyToMany(nonMappedValues, lvl);
@@ -241,7 +241,7 @@ public class DependenciesGraph {
 
         public RootState rounds(RootRound round) {
             switch (this.type) {
-                case def:
+                case oneToEtc:
                     return roundsDefault(round);
                 case manyToMany:
                     return roundsManyToMany(round);
