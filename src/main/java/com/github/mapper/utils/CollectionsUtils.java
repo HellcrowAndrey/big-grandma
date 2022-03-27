@@ -34,4 +34,8 @@ public class CollectionsUtils {
         return new HashSet<>(Arrays.asList(rounds));
     }
 
+    public static <T> Set<T> genericSet(T ... rounds) {
+        return new HashSet<>(Arrays.asList(rounds));
+    }
+
 }
