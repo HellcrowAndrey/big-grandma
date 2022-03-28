@@ -24,25 +24,24 @@ public class DependenciesGraph {
 
     public <T> Flux<T> many(List<Map<String, Object>> tuples) {
         return intermediateState(tuples)
-                .flatMapMany(this::toTarget);
+                .flatMapMany(this::toTargets);
     }
 
     @SuppressWarnings(value = "unchecked")
     public <T> Mono<T> single(List<Map<String, Object>> tuples) {
         return (Mono<T>) intermediateState(tuples)
-                .flatMapMany(groupBy -> this.toTarget(groupBy).take(1))
+                .flatMapMany(groupBy -> this.toTargets(groupBy).take(1))
                 .single();
     }
 
-    private Mono<LinkedHashMap<Object, List<Round>>> intermediateState(List<Map<String, Object>> tuples) {
+    private Mono<LinkedHashMap<RootRound, List<Round>>> intermediateState(List<Map<String, Object>> tuples) {
         return Flux.fromStream(tuples.stream())
                 .filter(DependenciesGraph::isTupleEmpty)
                 .map(tuple -> root.restoreRootRound(tuple, START_POINT))
                 .collect(RootRoundCollector.toListOfRootRounds())
                 .flatMapMany(source -> Flux.fromStream(source.stream()))
-                .map(root::rounds)
                 .collect(Collectors.groupingBy(
-                        source -> source.root,
+                        source -> source,
                         LinkedHashMap::new,
                         Collectors.flatMapping(source -> source.nonMappedValues.stream()
                                         .flatMap(tuple -> root.graphOneToEtc.stream()
@@ -53,20 +52,55 @@ public class DependenciesGraph {
     }
 
     @SuppressWarnings(value = "unchecked")
-    private <T> Flux<T> toTarget(LinkedHashMap<?, List<Round>> groupByRoot) {
+    private <T> Flux<T> toTargetManyToMany(LinkedHashMap<RootRound, List<Round>> groupByRoot) {
+        return (Flux<T>) Mono.just(groupByRoot.keySet())
+                .flatMapMany(rootRounds -> {
+                    rootRounds.forEach(rootRound -> {
+                        Object target = rootRound.value;
+                        Map<String, Object> values = new HashMap<>();
+                        List<Round> rounds = groupByRoot.get(rootRound);
+                        List<SubGraph> graphs = root.graphOneToEtc;
+                        rounds.forEach(round ->
+                                graphs.forEach(graph ->
+                                        graph.rounds(target, round, values)
+                                )
+                        );
+                        mapFields(values, target);
+                        root.roundsManyToMany(rootRound);
+                    });
+                    return Flux.fromStream(rootRounds.stream())
+                            .map(rootRound -> rootRound.value);
+                });
+    }
+
+    @SuppressWarnings(value = "unchecked")
+    private <T> Flux<T> toTargetOneToEtc(LinkedHashMap<RootRound, List<Round>> groupByRoot) {
         return Flux.fromStream(groupByRoot.keySet().stream())
-                .map(target -> {
+                .map(rootRound -> {
+                    Object target = rootRound.value;
                     Map<String, Object> values = new HashMap<>();
-                    List<Round> rounds = groupByRoot.get(target);
+                    List<Round> rounds = groupByRoot.get(rootRound);
                     List<SubGraph> graphs = root.graphOneToEtc;
                     rounds.forEach(round ->
                             graphs.forEach(graph ->
                                     graph.rounds(target, round, values)
                             )
                     );
-                    MapperUtils.mapFields(values, target);
+                    mapFields(values, target);
                     return (T) target;
                 });
+
+    }
+
+    private <T> Flux<T> toTargets(LinkedHashMap<RootRound, List<Round>> groupByRoot) {
+        switch (this.root.type) {
+            case oneToEtc:
+                return toTargetOneToEtc(groupByRoot);
+            case manyToMany:
+                return toTargetManyToMany(groupByRoot);
+            default:
+                throw new IllegalArgumentException("Unsupported Relation type");
+        }
     }
 
     private static boolean isTupleEmpty(Map<String, Object> values) {
@@ -239,23 +273,7 @@ public class DependenciesGraph {
             };
         }
 
-        public RootState rounds(RootRound round) {
-            switch (this.type) {
-                case oneToEtc:
-                    return roundsDefault(round);
-                case manyToMany:
-                    return roundsManyToMany(round);
-                default:
-                    throw new IllegalArgumentException("Unsupported Relation type");
-            }
-        }
-
-        private RootState roundsDefault(RootRound round) {
-            return new RootState(round.value, round.nonMappedValues);
-        }
-
-        // TODO: 24.03.22 add cash to this rounds ??
-        private RootState roundsManyToMany(RootRound round) {
+        public void roundsManyToMany(RootRound round) {
             Object rightTarget = round.value;
             Map<Round, Set<RootRound>> lefts = round.lefts;
             Map<String, Object> manyToManyRightFields = new HashMap<>();
@@ -299,7 +317,7 @@ public class DependenciesGraph {
             if (!manyToManyRightFields.isEmpty()) {
                 mapFields(manyToManyRightFields, rightTarget);
             }
-            return new RootState(rightTarget, round.nonMappedValues);
+//            return new RootState(rightTarget, round.nonMappedValues);
         }
 
         @Override
