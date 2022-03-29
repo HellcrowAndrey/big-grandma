@@ -51,45 +51,36 @@ public class DependenciesGraph {
                 ));
     }
 
-    @SuppressWarnings(value = "unchecked")
     private <T> Flux<T> toTargetManyToMany(LinkedHashMap<RootRound, List<Round>> groupByRoot) {
-        return (Flux<T>) Mono.just(groupByRoot.keySet())
+        return Mono.just(groupByRoot.keySet())
                 .flatMapMany(rootRounds -> {
-                    rootRounds.forEach(rootRound -> {
-                        Object target = rootRound.value;
-                        Map<String, Object> values = new HashMap<>();
-                        List<Round> rounds = groupByRoot.get(rootRound);
-                        List<SubGraph> graphs = root.graphOneToEtc;
-                        rounds.forEach(round ->
-                                graphs.forEach(graph ->
-                                        graph.rounds(target, round, values)
-                                )
-                        );
-                        mapFields(values, target);
-                        root.roundsManyToMany(rootRound);
-                    });
-                    return Flux.fromStream(rootRounds.stream())
-                            .map(rootRound -> rootRound.value);
+                    List<T> result = rootRounds.stream().map(rootRound -> {
+                        T target = ofTarget(rootRound, groupByRoot);
+                        this.root.roundsManyToMany(rootRound);
+                        return target;
+                    }).collect(Collectors.toList());
+                    return Flux.fromStream(result.stream());
                 });
     }
 
-    @SuppressWarnings(value = "unchecked")
     private <T> Flux<T> toTargetOneToEtc(LinkedHashMap<RootRound, List<Round>> groupByRoot) {
         return Flux.fromStream(groupByRoot.keySet().stream())
-                .map(rootRound -> {
-                    Object target = rootRound.value;
-                    Map<String, Object> values = new HashMap<>();
-                    List<Round> rounds = groupByRoot.get(rootRound);
-                    List<SubGraph> graphs = root.graphOneToEtc;
-                    rounds.forEach(round ->
-                            graphs.forEach(graph ->
-                                    graph.rounds(target, round, values)
-                            )
-                    );
-                    mapFields(values, target);
-                    return (T) target;
-                });
+                .map(rootRound -> ofTarget(rootRound, groupByRoot));
+    }
 
+    @SuppressWarnings(value = "unchecked")
+    private <T> T ofTarget(RootRound rootRound, LinkedHashMap<RootRound, List<Round>> groupByRoot) {
+        Object target = rootRound.value;
+        Map<String, Object> values = new HashMap<>();
+        List<Round> rounds = groupByRoot.get(rootRound);
+        List<SubGraph> graphs = root.graphOneToEtc;
+        rounds.forEach(round ->
+                graphs.forEach(graph ->
+                        graph.rounds(target, round, values)
+                )
+        );
+        mapFields(values, target);
+        return (T) target;
     }
 
     private <T> Flux<T> toTargets(LinkedHashMap<RootRound, List<Round>> groupByRoot) {
