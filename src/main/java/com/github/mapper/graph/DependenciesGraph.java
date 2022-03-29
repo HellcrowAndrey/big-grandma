@@ -317,7 +317,6 @@ public class DependenciesGraph {
             if (!manyToManyRightFields.isEmpty()) {
                 mapFields(manyToManyRightFields, rightTarget);
             }
-//            return new RootState(rightTarget, round.nonMappedValues);
         }
 
         @Override
@@ -373,19 +372,6 @@ public class DependenciesGraph {
         public int hashCode() {
             return Objects.hash(value);
         }
-    }
-
-    private static class RootState {
-
-        Object root;
-
-        List<Map<String, Object>> nonMappedValues;
-
-        public RootState(Object root, List<Map<String, Object>> nonMappedValues) {
-            this.root = root;
-            this.nonMappedValues = nonMappedValues;
-        }
-
     }
 
 }

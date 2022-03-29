@@ -111,7 +111,6 @@ public class SubGraph {
             return this;
         }
 
-        @Deprecated
         public OneToEtcBuilder graphs(List<SubGraph> graphs) {
             this.graphsOneToEtc = graphs;
             return this;
@@ -185,8 +184,18 @@ public class SubGraph {
             return this;
         }
 
+        public ManyToManyBuilder graphsOneToEtc(List<SubGraph> graphs) {
+            this.graphsOneToEtc = graphs;
+            return this;
+        }
+
         public ManyToManyBuilder graphManyToMany(SubGraph outside) {
             this.graphsManyToMany.put(outside.currentType, outside);
+            return this;
+        }
+
+        public ManyToManyBuilder graphsManyToMany(Map<Class<?>, SubGraph> graphsManyToMany) {
+            this.graphsManyToMany.putAll(graphsManyToMany);
             return this;
         }
 
@@ -202,13 +211,13 @@ public class SubGraph {
             case manyToMany:
                 return restoreManyToRound(values, lvl);
             case oneToEtc:
-                return restoreDefRound(values, lvl);
+                return restoreOneToEtc(values, lvl);
             default:
                 throw new IllegalArgumentException("Unsupported Relation type");
         }
     }
 
-    private Round restoreDefRound(Map<String, Object> values, int lvl) {
+    private Round restoreOneToEtc(Map<String, Object> values, int lvl) {
         Round result = Round.oneToEtc(lvl + 1, this.currentType, EntityFactory.ofEntity(values, this.currentType));
         lvl = lvl + 1;
         if (!this.graphsOneToEtc.isEmpty()) {
@@ -247,7 +256,7 @@ public class SubGraph {
     public void rounds(Object root, Round round, Map<String, Object> values) {
         switch (this.type) {
             case oneToEtc:
-                roundsDefault(root, round, values);
+                roundsOneToEtc(root, round, values);
                 break;
             case manyToMany:
                 roundsManyToMany(root, round, values);
@@ -257,7 +266,7 @@ public class SubGraph {
         }
     }
 
-    public void roundsDefault(Object root, Round round, Map<String, Object> values) {
+    public void roundsOneToEtc(Object root, Round round, Map<String, Object> values) {
         Object target = round.value;
         if (round.type.equals(this.currentType)) {
             setRootValues(values, target);
@@ -282,9 +291,6 @@ public class SubGraph {
 
     private void roundsManyToMany(Object root, Round right, Map<String, Object> values) {
         Object rightTarget = right.value;
-        Map<String, Object> defaultRightFieldValues = new HashMap<>();
-        roundsDefault(rightTarget, right, defaultRightFieldValues);
-        MapperUtils.mapFields(defaultRightFieldValues, rightTarget);
         setRootValues(values, rightTarget);
         Map<Round, Set<Round>> lefts = right.lefts;
         Map<String, Object> manyToManyRightFields = new HashMap<>();
