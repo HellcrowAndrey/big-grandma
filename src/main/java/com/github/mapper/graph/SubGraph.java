@@ -4,6 +4,7 @@ import com.github.mapper.factories.EntityFactory;
 import com.github.mapper.utils.MapperUtils;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,6 +28,8 @@ public class SubGraph {
 
     Map<Class<?>, SubGraph> graphsManyToMany = new HashMap<>(); // optional
 
+    Map<String, Field> fields; // required
+
     RelationType type;
 
     private SubGraph(OneToEtcBuilder b) {
@@ -37,6 +40,7 @@ public class SubGraph {
         this.currentFieldName = b.currentFieldName;
         this.rootCollType = b.rootCollType;
         this.graphsOneToEtc = b.graphsOneToEtc;
+        this.fields = b.fields;
         this.type = b.type;
     }
 
@@ -49,6 +53,7 @@ public class SubGraph {
         this.currentCollType = b.currentCollType;
         this.graphsOneToEtc = b.graphsOneToEtc;
         this.graphsManyToMany = b.graphsManyToMany;
+        this.fields = b.fields;
         this.type = b.type;
     }
 
@@ -67,6 +72,8 @@ public class SubGraph {
         String currentFieldName;
 
         List<SubGraph> graphsOneToEtc = new ArrayList<>(); //optional
+
+        Map<String, Field> fields; // required
 
         RelationType type;
 
@@ -116,8 +123,15 @@ public class SubGraph {
             return this;
         }
 
+        @Deprecated
         public SubGraph build() {
             this.type = RelationType.oneToEtc;
+            return new SubGraph(this);
+        }
+
+        public SubGraph build(Map<String, String> aliases) {
+            this.type = RelationType.oneToEtc;
+            this.fields = MapperUtils.fields(aliases, this.rootType);
             return new SubGraph(this);
         }
 
@@ -140,6 +154,8 @@ public class SubGraph {
         List<SubGraph> graphsOneToEtc = new ArrayList<>(); //optional
 
         Map<Class<?>, SubGraph> graphsManyToMany = new HashMap<>(); //optional
+
+        Map<String, Field> fields; // required
 
         RelationType type;
 
@@ -199,8 +215,15 @@ public class SubGraph {
             return this;
         }
 
+        @Deprecated
         public SubGraph build() {
             this.type = RelationType.manyToMany;
+            return new SubGraph(this);
+        }
+
+        public SubGraph build(Map<String, String> aliases) {
+            this.type = RelationType.manyToMany;
+            this.fields = MapperUtils.fields(aliases, this.rootType);
             return new SubGraph(this);
         }
 

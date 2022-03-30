@@ -7,6 +7,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -106,6 +107,8 @@ public class DependenciesGraph {
 
         List<SubGraph> graphOneToEtc; //optional
 
+        Map<String, Field> fields; // required
+
         RelationType type;
 
         @Deprecated
@@ -118,6 +121,7 @@ public class DependenciesGraph {
         private Root(RootBuilder b) {
             this.rootType = b.rootType;
             this.graphOneToEtc = b.graphOneToEtc;
+            this.fields = b.fields;
             this.type = b.type;
         }
 
@@ -125,6 +129,7 @@ public class DependenciesGraph {
             this.rootType = b.rootType;
             this.graphsManyToMany = b.graphsManyToMany;
             this.graphOneToEtc = b.graphs;
+            this.fields = b.fields;
             this.type = b.type;
         }
 
@@ -133,6 +138,8 @@ public class DependenciesGraph {
             Class<?> rootType;
 
             List<SubGraph> graphOneToEtc = new ArrayList<>(); //optional
+
+            Map<String, Field> fields; // required
 
             RelationType type;
 
@@ -146,10 +153,18 @@ public class DependenciesGraph {
                 return this;
             }
 
+            @Deprecated
             public Root build() {
                 this.type = RelationType.oneToEtc;
                 return new Root(this);
             }
+
+            public Root build(Map<String, String> aliases) {
+                this.type = RelationType.oneToEtc;
+                this.fields = MapperUtils.fields(aliases, this.rootType);
+                return new Root(this);
+            }
+
         }
 
         public static class RootManyToManyBuilder {
@@ -159,6 +174,8 @@ public class DependenciesGraph {
             Map<Class<?>, SubGraph> graphsManyToMany = new HashMap<>(); //optional
 
             List<SubGraph> graphs = new ArrayList<>(); //optional
+
+            Map<String, Field> fields; // required
 
             RelationType type;
 
@@ -177,10 +194,18 @@ public class DependenciesGraph {
                 return this;
             }
 
+            @Deprecated
             public Root build() {
                 this.type = RelationType.manyToMany;
                 return new Root(this);
             }
+
+            public Root build(Map<String, String> aliases) {
+                this.type = RelationType.manyToMany;
+                this.fields = MapperUtils.fields(aliases, this.rootType);
+                return new Root(this);
+            }
+
         }
 
         public RootRound restoreRootRound(Map<String, Object> nonMappedValues, int lvl) {
