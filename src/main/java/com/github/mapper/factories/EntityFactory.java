@@ -16,6 +16,7 @@ public class EntityFactory {
 
     private static final Logger log = LoggerFactory.getLogger(EntityFactory.class);
 
+    @Deprecated
     @SuppressWarnings(value = "unchecked")
     public static <T> T ofEntity(Map<String, Object> sources, Class<T> clz) {
         try {
