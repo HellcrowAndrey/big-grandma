@@ -270,7 +270,7 @@ public class SubGraph {
                         round.addRound(graph.restore(values, defaultLvl));
                     }
                 }
-                right.putLeft(round, right);
+                right.putLeft(round, right.value);
             });
         }
         return right;
@@ -315,7 +315,7 @@ public class SubGraph {
     private void roundsManyToMany(Object root, Round right, Map<String, Object> values) {
         Object rightTarget = right.value;
         setRootValues(values, rightTarget);
-        Map<Round, Set<Round>> lefts = right.lefts;
+        Map<Round, Set<Object>> lefts = right.lefts;
         Map<String, Object> manyToManyRightFields = new HashMap<>();
         for (Round leftKey : lefts.keySet()) {
             SubGraph leftGraph = this.graphsManyToMany.get(leftKey.type);
@@ -325,14 +325,11 @@ public class SubGraph {
                 Class<?> cct = leftGraph.currentCollType;
                 Object leftTarget = leftKey.value;
                 List<SubGraph> children = leftGraph.graphsOneToEtc;
-                Set<Round> leftsRounds = lefts.getOrDefault(leftKey, new HashSet<>());
-                Set<Object> leftsValues = leftsRounds.stream()
-                        .map(r -> r.value)
-                        .collect(Collectors.toSet());
+                Set<Object> leftsValues = lefts.getOrDefault(leftKey, new HashSet<>());
                 Map<String, Object> defaultLeftFieldValues = new HashMap<>();
                 if (!children.isEmpty()) {
-                    for (SubGraph g : children) {
-                        g.rounds(leftTarget, leftKey, defaultLeftFieldValues);
+                    for (SubGraph child : children) {
+                        child.rounds(leftTarget, leftKey, defaultLeftFieldValues);
                     }
                 }
                 if (!defaultLeftFieldValues.isEmpty()) {

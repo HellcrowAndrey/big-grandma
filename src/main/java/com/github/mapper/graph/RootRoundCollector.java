@@ -9,7 +9,7 @@ import java.util.stream.Collector;
 
 public class RootRoundCollector implements Collector<DependenciesGraph.RootRound, List<DependenciesGraph.RootRound>, List<DependenciesGraph.RootRound>> {
 
-    private final Map<DependenciesGraph.RootRound, DependenciesGraph.RootRound> rightValues  = new LinkedHashMap<>();
+    private final Map<Object, Object> rightValues  = new HashMap<>();
 
     private RootRoundCollector() {
     }
@@ -28,7 +28,7 @@ public class RootRoundCollector implements Collector<DependenciesGraph.RootRound
         return (list, round) -> {
             if (list.isEmpty()) {
                 if (round.hashManyToMany()) {
-                    this.rightValues.put(round, round);
+                    this.rightValues.put(round.value, round.value);
                 }
                 list.add(round);
             } else {
@@ -40,9 +40,10 @@ public class RootRoundCollector implements Collector<DependenciesGraph.RootRound
                         containsRound.addAll(round.nonMappedValues);
                     }
                 } else {
-                    if (Objects.nonNull(round.value)) {
-                        if (!this.rightValues.containsKey(round)) {
-                            this.rightValues.put(round, round);
+                    var val = round.value;
+                    if (Objects.nonNull(val)) {
+                        if (!this.rightValues.containsKey(val)) {
+                            this.rightValues.put(val, val);
                         }
                         list.forEach(roundMTM -> {
                             roundMTM.collectRoundLeft(this.rightValues, round.value, round.lefts);

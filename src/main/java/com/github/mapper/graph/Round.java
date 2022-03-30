@@ -15,7 +15,7 @@ public abstract class Round {
 
     Set<Round> roundsOneToEtc = new HashSet<>();
 
-    Map<Round, Set<Round>> lefts = new HashMap<>();
+    Map<Round, Set<Object>> lefts = new HashMap<>();
 
     public Round(int lvl, Class<?> type, Object value) {
         this.lvl = lvl;
@@ -25,9 +25,9 @@ public abstract class Round {
 
     abstract void collectRounds(Round round);
 
-    abstract void collectRoundsLeft(Map<Round, Set<Round>> newLefts);
+    abstract void collectRoundsLeft(Map<Round, Set<Object>> newLefts);
 
-    abstract void putLeft(Round left, Round value);
+    abstract void putLeft(Round left, Object value);
 
     abstract boolean hashManyToMany();
 
@@ -84,12 +84,12 @@ public abstract class Round {
             }
 
             @Override
-            void collectRoundsLeft(Map<Round, Set<Round>> newLefts) {
+            void collectRoundsLeft(Map<Round, Set<Object>> newLefts) {
                 throw new UnsupportedOperationException("Not support in one to etc round");
             }
 
             @Override
-            void putLeft(Round left, Round value) {
+            void putLeft(Round left, Object value) {
                 throw new UnsupportedOperationException("Not support in one to etc round");
             }
 
@@ -105,7 +105,7 @@ public abstract class Round {
             @Override
             void collectRounds(Round round) {
                 collectRoundOneToEtc(round);
-                Map<Round, Set<Round>> newLefts = round.lefts;
+                Map<Round, Set<Object>> newLefts = round.lefts;
                 for (Round left : newLefts.keySet()) {
                     if (this.lefts.containsKey(left)) {
                         this.lefts.get(left).addAll(newLefts.get(left));
@@ -122,7 +122,7 @@ public abstract class Round {
             }
 
             @Override
-            void collectRoundsLeft(Map<Round, Set<Round>> newLefts) {
+            void collectRoundsLeft(Map<Round, Set<Object>> newLefts) {
                 for (Round left : newLefts.keySet()) {
                     if (this.lefts.containsKey(left)) {
                         this.lefts.get(left).addAll(newLefts.get(left));
@@ -133,8 +133,8 @@ public abstract class Round {
             }
 
             @Override
-            void putLeft(Round left, Round value) {
-                this.lefts.put(left, CollectionsUtils.setOfRounds(value));
+            void putLeft(Round left, Object value) {
+                this.lefts.put(left, CollectionsUtils.singleSet(value));
             }
 
             @Override
