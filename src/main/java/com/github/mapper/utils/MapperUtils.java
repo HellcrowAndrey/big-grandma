@@ -104,6 +104,8 @@ public class MapperUtils {
             return ArrayList.class;
         } else if (clz.getTypeName().equals(Set.class.getTypeName())) {
             return HashSet.class;
+        } else if (clz.getTypeName().equals(Collection.class.getTypeName())) {
+            return ArrayList.class;
         }
         return clz;
     }
@@ -128,6 +130,8 @@ public class MapperUtils {
         } else if (Objects.equals(coll, LinkedHashSet.class)) {
             result = true;
         } else if (Objects.equals(coll, TreeSet.class)) {
+            result = true;
+        } else if (Objects.equals(coll, Collection.class)) {
             result = true;
         }
         return result;
