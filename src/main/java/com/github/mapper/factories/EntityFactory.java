@@ -41,4 +41,25 @@ public class EntityFactory {
         }
     }
 
+    @SuppressWarnings(value = "unchecked")
+    public static <T> T ofEntity(Map<String, Object> sources, Map<String, Field> fields, Class<T> clz) {
+        try {
+            Constructor<?> constructor = MapperUtils.requiredEmptyConstructor(clz);
+            Object target = constructor.newInstance();
+            fields.keySet().forEach(alias -> {
+                Field field = fields.get(alias);
+                Object value = sources.get(alias);
+                field.setAccessible(Boolean.TRUE);
+                if (Objects.nonNull(value)) {
+                    MapperUtils.setField(field, target, value);
+                }
+            });
+            Object isEmpty = constructor.newInstance();
+            return isEmpty.equals(target) ? null : (T) target;
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            log.error("Enter: Can not construct {}", clz);
+            throw new RuntimeException(String.format("Can not construct -> %s", clz));
+        }
+    }
+
 }

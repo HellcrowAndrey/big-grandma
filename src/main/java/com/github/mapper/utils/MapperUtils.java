@@ -9,6 +9,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class MapperUtils {
 
@@ -146,6 +148,19 @@ public class MapperUtils {
         return source.keySet().stream()
                 .filter(key -> requiredFieldName.toUpperCase(Locale.ROOT).equalsIgnoreCase(key))
                 .findFirst().orElse(null);
+    }
+
+    public static Map<String, Field> fields(Map<String, String> aliases, Class<?> clz) {
+        Field[] fields = clz.getDeclaredFields();
+        return aliases.keySet().stream().collect(Collectors.toMap(
+                Function.identity(),
+                alias -> {
+                    String fieldName = aliases.get(alias);
+                    return Arrays.stream(fields)
+                            .filter(field -> field.getName().equals(fieldName))
+                            .findFirst().orElseThrow();
+                }
+        ));
     }
 
 }
