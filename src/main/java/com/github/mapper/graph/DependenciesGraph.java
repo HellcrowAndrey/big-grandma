@@ -9,6 +9,7 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.github.mapper.utils.MapperUtils.*;
@@ -139,12 +140,20 @@ public class DependenciesGraph {
 
             List<SubGraph> graphOneToEtc = new ArrayList<>(); //optional
 
+            Map<String, Field> fieldNames = new HashMap<>();
+
             Map<String, Field> fields; // required
 
             RelationType type;
 
+            public RootBuilder() {
+                this.type = RelationType.oneToEtc;
+            }
+
             public RootBuilder rootType(Class<?> rootType) {
                 this.rootType = Objects.requireNonNull(rootType);
+                this.fieldNames.putAll(Arrays.stream(rootType.getDeclaredFields())
+                        .collect(Collectors.toMap(Field::getName, Function.identity())));
                 return this;
             }
 
@@ -153,15 +162,21 @@ public class DependenciesGraph {
                 return this;
             }
 
-            @Deprecated
-            public Root build() {
-                this.type = RelationType.oneToEtc;
-                return new Root(this);
+            public RootBuilder aliases(Map<String, String> aliases) {
+                this.fields.putAll(MapperUtils.fields(aliases, this.rootType));
+                return this;
             }
 
-            public Root build(Map<String, String> aliases) {
-                this.type = RelationType.oneToEtc;
-                this.fields = MapperUtils.fields(aliases, this.rootType);
+            public RootBuilder alias(String alias, String fieldName) {
+                Field field = this.fieldNames.get(fieldName);
+                this.fields.put(alias, field);
+                return this;
+            }
+
+            public Root build() {
+                if (this.fields.isEmpty()) {
+                    throw new IllegalArgumentException("Fields is empty pleas add fields to this class");
+                }
                 return new Root(this);
             }
 
@@ -175,12 +190,20 @@ public class DependenciesGraph {
 
             List<SubGraph> graphs = new ArrayList<>(); //optional
 
+            Map<String, Field> fieldNames = new HashMap<>();
+
             Map<String, Field> fields; // required
 
             RelationType type;
 
+            public RootManyToManyBuilder() {
+                this.type = RelationType.manyToMany;
+            }
+
             public RootManyToManyBuilder rootType(Class<?> rootType) {
                 this.rootType = Objects.requireNonNull(rootType);
+                this.fieldNames.putAll(Arrays.stream(rootType.getDeclaredFields())
+                        .collect(Collectors.toMap(Field::getName, Function.identity())));
                 return this;
             }
 
@@ -194,15 +217,24 @@ public class DependenciesGraph {
                 return this;
             }
 
-            @Deprecated
-            public Root build() {
-                this.type = RelationType.manyToMany;
-                return new Root(this);
+            public RootManyToManyBuilder aliases(Map<String, String> aliases) {
+                this.fields.putAll(MapperUtils.fields(aliases, this.rootType));
+                return this;
             }
 
-            public Root build(Map<String, String> aliases) {
-                this.type = RelationType.manyToMany;
-                this.fields = MapperUtils.fields(aliases, this.rootType);
+            public RootManyToManyBuilder alias(String alias, String fieldName) {
+                if (!StringUtils.hasText(alias) || !StringUtils.hasText(fieldName)) {
+                    throw new IllegalArgumentException(String.format("Alias -> %s or field name -> %s", alias, fieldName));
+                }
+                Field field = this.fieldNames.get(fieldName);
+                this.fields.put(alias, field);
+                return this;
+            }
+
+            public Root build() {
+                if (this.fields.isEmpty()) {
+                    throw new IllegalArgumentException("Fields is empty pleas add fields to this class");
+                }
                 return new Root(this);
             }
 
@@ -220,7 +252,7 @@ public class DependenciesGraph {
         }
 
         private RootRound restoreByDef(Map<String, Object> nonMappedValues) {
-            return new RootRound(EntityFactory.ofEntity(nonMappedValues, this.rootType), nonMappedValues) {
+            return new RootRound(EntityFactory.ofEntity(nonMappedValues, this.fields, this.rootType), nonMappedValues) {
                 @Override
                 void putLeft(Round left, Object value) {
                     throw new UnsupportedOperationException();
@@ -239,7 +271,7 @@ public class DependenciesGraph {
         }
 
         private RootRound restoreWithManyToMany(Map<String, Object> nonMappedValues, int lvl) {
-            Object value = EntityFactory.ofEntity(nonMappedValues, this.rootType);
+            Object value = EntityFactory.ofEntity(nonMappedValues, this.fields, this.rootType);
             RootRound right = manyToManyRoot(value, nonMappedValues);
             if (!this.graphsManyToMany.isEmpty()) {
                 var defaultLvl = lvl + 1;

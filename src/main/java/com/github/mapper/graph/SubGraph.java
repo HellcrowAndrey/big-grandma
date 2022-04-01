@@ -6,31 +6,32 @@ import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.github.mapper.utils.MapperUtils.*;
 
 public class SubGraph {
 
-    Class<?> rootType;
+    final Class<?> rootType;
 
-    Class<?> currentType;
+    final Class<?> currentType;
 
-    Class<?> rootCollType;
+    final Class<?> rootCollType;
 
-    Class<?> currentCollType;
+    final Class<?> currentCollType;
 
-    String rootFieldName;
+    final String rootFieldName;
 
-    String currentFieldName;
+    final String currentFieldName;
 
-    List<SubGraph> graphsOneToEtc; // optional
+    final List<SubGraph> graphsOneToEtc; // optional
 
-    Map<Class<?>, SubGraph> graphsManyToMany = new HashMap<>(); // optional
+    final Map<Class<?>, SubGraph> graphsManyToMany; // optional
 
-    Map<String, Field> fields; // required
+    final Map<String, Field> fields; // required
 
-    RelationType type;
+    final RelationType type;
 
     private SubGraph(OneToEtcBuilder b) {
         this.rootType = b.rootType;
@@ -40,6 +41,7 @@ public class SubGraph {
         this.currentFieldName = b.currentFieldName;
         this.rootCollType = b.rootCollType;
         this.graphsOneToEtc = b.graphsOneToEtc;
+        this.graphsManyToMany = new HashMap<>();
         this.fields = b.fields;
         this.type = b.type;
     }
@@ -73,9 +75,15 @@ public class SubGraph {
 
         List<SubGraph> graphsOneToEtc = new ArrayList<>(); //optional
 
-        Map<String, Field> fields; // required
+        Map<String, Field> fieldNames = new HashMap<>(); // required
+
+        Map<String, Field> fields = new HashMap<>(); // required
 
         RelationType type;
+
+        public OneToEtcBuilder() {
+            this.type = RelationType.oneToEtc;
+        }
 
         public OneToEtcBuilder rootType(Class<?> rootType) {
             this.rootType = Objects.requireNonNull(rootType);
@@ -84,6 +92,8 @@ public class SubGraph {
 
         public OneToEtcBuilder currentType(Class<?> currentType) {
             this.currentType = Objects.requireNonNull(currentType);
+            this.fieldNames.putAll(Arrays.stream(currentType.getDeclaredFields())
+                    .collect(Collectors.toMap(Field::getName, Function.identity())));
             return this;
         }
 
@@ -123,15 +133,21 @@ public class SubGraph {
             return this;
         }
 
-        @Deprecated
-        public SubGraph build() {
-            this.type = RelationType.oneToEtc;
-            return new SubGraph(this);
+        public OneToEtcBuilder aliases(Map<String, String> aliases) {
+            this.fields.putAll(MapperUtils.fields(aliases, this.rootType));
+            return this;
         }
 
-        public SubGraph build(Map<String, String> aliases) {
-            this.type = RelationType.oneToEtc;
-            this.fields = MapperUtils.fields(aliases, this.rootType);
+        public OneToEtcBuilder alias(String alias, String fieldName) {
+            Field field = this.fieldNames.get(fieldName);
+            this.fields.put(alias, field);
+            return this;
+        }
+
+        public SubGraph build() {
+            if (this.fields.isEmpty()) {
+                throw new IllegalArgumentException("Fields is empty pleas add fields to this class");
+            }
             return new SubGraph(this);
         }
 
@@ -155,9 +171,15 @@ public class SubGraph {
 
         Map<Class<?>, SubGraph> graphsManyToMany = new HashMap<>(); //optional
 
-        Map<String, Field> fields; // required
+        Map<String, Field> fieldNames = new HashMap<>();
+
+        Map<String, Field> fields = new HashMap<>(); // required
 
         RelationType type;
+
+        public ManyToManyBuilder() {
+            this.type = RelationType.manyToMany;
+        }
 
         public ManyToManyBuilder rootType(Class<?> rootType) {
             this.rootType = Objects.requireNonNull(rootType);
@@ -166,6 +188,8 @@ public class SubGraph {
 
         public ManyToManyBuilder currentType(Class<?> currentType) {
             this.currentType = Objects.requireNonNull(currentType);
+            this.fieldNames.putAll(Arrays.stream(currentType.getDeclaredFields())
+                    .collect(Collectors.toMap(Field::getName, Function.identity())));
             return this;
         }
 
@@ -215,15 +239,21 @@ public class SubGraph {
             return this;
         }
 
-        @Deprecated
-        public SubGraph build() {
-            this.type = RelationType.manyToMany;
-            return new SubGraph(this);
+        public ManyToManyBuilder aliases(Map<String, String> aliases) {
+            this.fields.putAll(MapperUtils.fields(aliases, this.rootType));
+            return this;
         }
 
-        public SubGraph build(Map<String, String> aliases) {
-            this.type = RelationType.manyToMany;
-            this.fields = MapperUtils.fields(aliases, this.rootType);
+        public ManyToManyBuilder alias(String alias, String fieldName) {
+            Field field = this.fieldNames.get(fieldName);
+            this.fields.put(alias, field);
+            return this;
+        }
+
+        public SubGraph build() {
+            if (this.fields.isEmpty()) {
+                throw new IllegalArgumentException("Fields is empty pleas add fields to this class");
+            }
             return new SubGraph(this);
         }
 
@@ -241,7 +271,7 @@ public class SubGraph {
     }
 
     private Round restoreOneToEtc(Map<String, Object> values, int lvl) {
-        Round result = Round.oneToEtc(lvl + 1, this.currentType, EntityFactory.ofEntity(values, this.currentType));
+        Round result = Round.oneToEtc(lvl + 1, this.currentType, EntityFactory.ofEntity(values, this.fields, this.currentType));
         lvl = lvl + 1;
         if (!this.graphsOneToEtc.isEmpty()) {
             for (SubGraph graph : this.graphsOneToEtc) {
@@ -252,7 +282,7 @@ public class SubGraph {
     }
 
     private Round restoreManyToRound(Map<String, Object> values, int lvl) {
-        Object value = EntityFactory.ofEntity(values, this.currentType);
+        Object value = EntityFactory.ofEntity(values, this.fields, this.currentType);
         Round right = Round.manyToMany(lvl + 1, this.currentType, value);
         if (!this.graphsOneToEtc.isEmpty()) {
             var defaultLvl = lvl + 1;
