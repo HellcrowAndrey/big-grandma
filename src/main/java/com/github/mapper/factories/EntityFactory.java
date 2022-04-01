@@ -49,9 +49,16 @@ public class EntityFactory {
             Object target = constructor.newInstance();
             fields.keySet().forEach(alias -> {
                 Field field = fields.get(alias);
+                Class<?> type = field.getType();
                 Object value = sources.get(alias);
                 field.setAccessible(Boolean.TRUE);
                 if (Objects.nonNull(value)) {
+                    if (BigTypes.isBigDecimal(type)) {
+                        value = BigTypes.toBigDecimal(value);
+                    }
+                    if (BigTypes.isBigInteger(type)) {
+                        value = BigTypes.toBigInteger(value);
+                    }
                     MapperUtils.setField(field, target, value);
                 }
             });
