@@ -2,6 +2,7 @@ package com.github.mapper.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.lang.Nullable;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -16,7 +17,7 @@ public class MapperUtils {
 
     public static void setField(Field field, Object target, Object value) {
         try {
-            ReflectionUtils.setField(field, target, value);
+            Reflections.setField(field, target, value);
         } catch (Throwable e) {
             var message = String.format(
                     "Field type miss match in target: %s, field: [name: %s, type: %s], source: %s",
@@ -45,7 +46,7 @@ public class MapperUtils {
     public static void setFields(Object source, Object target, String fieldName) {
         if (StringUtils.hasText(fieldName)) {
             Class<?> clz = target.getClass();
-            Field field = ReflectionUtils.findField(clz, fieldName);
+            Field field = Reflections.findField(clz, fieldName);
             if (Objects.nonNull(field)) {
                 Objects.requireNonNull(field).setAccessible(Boolean.TRUE);
                 setField(field, target, source);
@@ -60,7 +61,7 @@ public class MapperUtils {
     @SuppressWarnings("unchecked")
     public static Collection<Object> getCollections(String fieldName, Class<?> collectionType, Object target) {
         try {
-            Field field = ReflectionUtils.findField(collectionType, fieldName);
+            Field field = Reflections.findField(collectionType, fieldName);
             if (Objects.isNull(field)) {
                 throw new IllegalArgumentException("Can't find field " + fieldName + " in " + target);
             }
@@ -85,7 +86,7 @@ public class MapperUtils {
     }
 
     public static boolean isFieldExist(String name, Class<?> target) {
-        return StringUtils.hasText(name) && Objects.nonNull(ReflectionUtils.findField(target, name));
+        return StringUtils.hasText(name) && Objects.nonNull(Reflections.findField(target, name));
     }
 
     public static Collection<?> collFactory(Class<?> collType) {
