@@ -243,15 +243,15 @@ public class DependenciesGraph {
         public RootRound restoreRootRound(Map<String, Object> nonMappedValues, int lvl) {
             switch (this.type) {
                 case oneToEtc:
-                    return restoreByDef(nonMappedValues);
+                    return restoreOneToEtc(nonMappedValues);
                 case manyToMany:
-                    return restoreWithManyToMany(nonMappedValues, lvl);
+                    return restoreManyToMany(nonMappedValues, lvl);
                 default:
                     throw new IllegalArgumentException("Unsupported Relation type");
             }
         }
 
-        private RootRound restoreByDef(Map<String, Object> nonMappedValues) {
+        private RootRound restoreOneToEtc(Map<String, Object> nonMappedValues) {
             return new RootRound(EntityFactory.ofEntity(nonMappedValues, this.fields, this.rootType), nonMappedValues) {
                 @Override
                 void putLeft(Round left, Object value) {
@@ -270,7 +270,7 @@ public class DependenciesGraph {
             };
         }
 
-        private RootRound restoreWithManyToMany(Map<String, Object> nonMappedValues, int lvl) {
+        private RootRound restoreManyToMany(Map<String, Object> nonMappedValues, int lvl) {
             Object value = EntityFactory.ofEntity(nonMappedValues, this.fields, this.rootType);
             RootRound right = manyToManyRoot(value, nonMappedValues);
             if (!this.graphsManyToMany.isEmpty()) {
@@ -316,7 +316,7 @@ public class DependenciesGraph {
 
                 @Override
                 boolean hashManyToMany() {
-                    return true;
+                    return Boolean.TRUE;
                 }
             };
         }
