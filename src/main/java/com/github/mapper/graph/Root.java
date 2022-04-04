@@ -15,7 +15,6 @@ import static com.github.mapper.utils.MapperUtils.mapFields;
 
 public class Root {
 
-
     Class<?> rootType;
 
     Map<Class<?>, SubGraph> graphsManyToMany = new HashMap<>(); //optional
@@ -105,7 +104,7 @@ public class Root {
 
         Class<?> rootType;
 
-        Map<Class<?>, SubGraph> graphsManyToMany = new HashMap<>(); //optional
+        Map<Class<?>, SubGraph> graphsManyToMany = new HashMap<>();
 
         List<SubGraph> graphOneToEtc = new ArrayList<>(); //optional
 
