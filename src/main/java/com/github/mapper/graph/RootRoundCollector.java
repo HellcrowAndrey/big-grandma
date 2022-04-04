@@ -7,7 +7,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
-public class RootRoundCollector implements Collector<DependenciesGraph.RootRound, List<DependenciesGraph.RootRound>, List<DependenciesGraph.RootRound>> {
+public class RootRoundCollector implements Collector<RootRound, List<RootRound>, List<RootRound>> {
 
     private final Map<Object, Object> rightValues  = new HashMap<>();
 
@@ -19,12 +19,12 @@ public class RootRoundCollector implements Collector<DependenciesGraph.RootRound
     }
 
     @Override
-    public Supplier<List<DependenciesGraph.RootRound>> supplier() {
+    public Supplier<List<RootRound>> supplier() {
         return ArrayList::new;
     }
 
     @Override
-    public BiConsumer<List<DependenciesGraph.RootRound>, DependenciesGraph.RootRound> accumulator() {
+    public BiConsumer<List<RootRound>, RootRound> accumulator() {
         return (list, round) -> {
             if (list.isEmpty()) {
                 if (round.hashManyToMany()) {
@@ -36,7 +36,7 @@ public class RootRoundCollector implements Collector<DependenciesGraph.RootRound
                     if (!list.contains(round)) {
                         list.add(round);
                     } else {
-                        DependenciesGraph.RootRound containsRound = list.get(list.indexOf(round));
+                        RootRound containsRound = list.get(list.indexOf(round));
                         containsRound.addAll(round.nonMappedValues);
                     }
                 } else {
@@ -52,7 +52,7 @@ public class RootRoundCollector implements Collector<DependenciesGraph.RootRound
                         if (!list.contains(round)) {
                             list.add(round);
                         } else {
-                            DependenciesGraph.RootRound containsRound = list.get(list.indexOf(round));
+                            RootRound containsRound = list.get(list.indexOf(round));
                             containsRound.addAll(round.nonMappedValues);
                         }
                     }
@@ -62,7 +62,7 @@ public class RootRoundCollector implements Collector<DependenciesGraph.RootRound
     }
 
     @Override
-    public BinaryOperator<List<DependenciesGraph.RootRound>> combiner() {
+    public BinaryOperator<List<RootRound>> combiner() {
         return (first, second) -> {
             first.addAll(second);
             return first;
@@ -70,7 +70,7 @@ public class RootRoundCollector implements Collector<DependenciesGraph.RootRound
     }
 
     @Override
-    public Function<List<DependenciesGraph.RootRound>, List<DependenciesGraph.RootRound>> finisher() {
+    public Function<List<RootRound>, List<RootRound>> finisher() {
         return ArrayList::new;
     }
 

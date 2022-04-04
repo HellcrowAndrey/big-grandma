@@ -1,6 +1,7 @@
 package com.github.mapper.cases;
 
 import com.github.mapper.graph.DependenciesGraph;
+import com.github.mapper.graph.Root;
 import com.github.mapper.graph.SubGraph;
 import com.github.mapper.models.RootLvl;
 import com.github.mapper.models.Round1Lvl1;
@@ -479,7 +480,7 @@ public class DependenciesGraphCase5 {
     }
 
     public static DependenciesGraph graph() {
-        DependenciesGraph.Root root = new DependenciesGraph.Root(
+        Root root = new Root(
                 RootLvl.class,
                 List.of(
                         new SubGraph.OneToEtcBuilder()

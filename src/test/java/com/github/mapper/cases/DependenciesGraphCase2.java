@@ -1,6 +1,7 @@
 package com.github.mapper.cases;
 
 import com.github.mapper.graph.DependenciesGraph;
+import com.github.mapper.graph.Root;
 import com.github.mapper.graph.SubGraph;
 import com.github.mapper.models.RootLvl;
 import com.github.mapper.models.Round1Lvl1;
@@ -89,16 +90,22 @@ public class DependenciesGraphCase2 {
     }
 
     public static DependenciesGraph graph() {
-        DependenciesGraph.Root root = new DependenciesGraph.Root(
-                RootLvl.class,
-                List.of(
+        Root root = new Root.RootBuilder()
+                .rootType(RootLvl.class)
+                .graphsOneToEtc(List.of(
                         new SubGraph.OneToEtcBuilder()
                                 .rootType(RootLvl.class)
                                 .currentType(Round1Lvl1.class)
                                 .rootFieldName("round1Lvl1")
+                                .alias("ROUND1LVL1ID", "id")
                                 .build()
-                )
-        );
+                ))
+                .alias("ROOTLVLID", "id")
+                .alias("ROOTLVLVINCODE", "vinCode")
+                .alias("ROOTLVLNAME", "name")
+                .alias("ROOTLVLFIRSTNAME", "firstName")
+                .alias("ROOTLVLLASTNAME", "lastName")
+                .build();
         return new DependenciesGraph(root);
     }
 

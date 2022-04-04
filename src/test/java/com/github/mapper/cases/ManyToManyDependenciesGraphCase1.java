@@ -1,6 +1,7 @@
 package com.github.mapper.cases;
 
 import com.github.mapper.graph.DependenciesGraph;
+import com.github.mapper.graph.Root;
 import com.github.mapper.graph.SubGraph;
 import com.github.mapper.models.many.to.many.case1.RootManyToMany;
 import com.github.mapper.models.many.to.many.case1.Round1Lvl1MTM;
@@ -12,8 +13,8 @@ import java.util.*;
 public class ManyToManyDependenciesGraphCase1 {
 
     public static DependenciesGraph graph() {
-        DependenciesGraph.Root root =
-                new DependenciesGraph.Root.RootManyToManyBuilder()
+        Root root =
+                new Root.RootManyToManyBuilder()
                         .rootType(RootManyToMany.class)
                         .graphsManyToMany(new SubGraph.OneToEtcBuilder()
                                 .rootType(RootManyToMany.class)

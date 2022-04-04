@@ -1,6 +1,7 @@
 package com.github.mapper.cases;
 
 import com.github.mapper.graph.DependenciesGraph;
+import com.github.mapper.graph.Root;
 import com.github.mapper.models.RootLvl;
 
 import java.util.HashMap;
@@ -75,10 +76,15 @@ public class DependenciesGraphCase1 {
     }
 
     public static DependenciesGraph graph() {
-        DependenciesGraph.Root root = new DependenciesGraph.Root(
-                RootLvl.class,
-                List.of()
-        );
+        Root root = new Root.RootBuilder()
+                .rootType(RootLvl.class)
+                .graphsOneToEtc(List.of())
+                .alias("ROOTLVLID", "id")
+                .alias("ROOTLVLVINCODE", "vinCode")
+                .alias("ROOTLVLNAME", "name")
+                .alias("ROOTLVLFIRSTNAME", "firstName")
+                .alias("ROOTLVLLASTNAME", "lastName")
+                .build();
         return new DependenciesGraph(root);
     }
 
