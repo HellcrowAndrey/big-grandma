@@ -9,6 +9,14 @@ import java.lang.reflect.UndeclaredThrowableException;
 
 public class Reflections {
 
+    public static Object getValue(Field field, Object src) {
+        try {
+            return field.get(src);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     public static void setField(Field field, Object target, Object value) {
         try {
             field.set(target, value);

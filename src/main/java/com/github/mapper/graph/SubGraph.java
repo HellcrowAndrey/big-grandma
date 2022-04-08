@@ -347,7 +347,8 @@ public class SubGraph {
         setRootValues(values, rightTarget);
         Map<Round, Set<Object>> lefts = right.lefts;
         Map<String, Object> manyToManyRightFields = new HashMap<>();
-        for (Round leftKey : lefts.keySet()) {
+        lefts.forEach((leftKey, leftsValues) -> {
+            leftsValues = MapperUtils.sameOrDefault(leftsValues, new HashSet<>());
             SubGraph leftGraph = this.graphsManyToMany.get(leftKey.type);
             if (Objects.nonNull(leftGraph)) {
                 String rfn = leftGraph.rootFieldName;
@@ -355,7 +356,6 @@ public class SubGraph {
                 Class<?> cct = leftGraph.currentCollType;
                 Object leftTarget = leftKey.value;
                 List<SubGraph> children = leftGraph.graphsOneToEtc;
-                Set<Object> leftsValues = lefts.getOrDefault(leftKey, new HashSet<>());
                 Map<String, Object> defaultLeftFieldValues = new HashMap<>();
                 if (!children.isEmpty()) {
                     for (SubGraph child : children) {
@@ -366,12 +366,12 @@ public class SubGraph {
                     MapperUtils.mapFields(defaultLeftFieldValues, leftTarget);
                 }
                 if (StringUtils.hasText(cfn) && Objects.nonNull(cct)) {
-                    Collection<Object> leftContainer = cast(collFactory(cct));
+                    Collection<Object> leftContainer = castToCollection(collFactory(cct));
 
                     leftContainer.addAll(leftsValues);
                     setFields(leftContainer, leftTarget, cfn);
                 }
-                Collection<Object> rightContainer = cast(
+                Collection<Object> rightContainer = castToCollection(
                         manyToManyRightFields.getOrDefault(rfn, collFactory(leftGraph.rootCollType))
                 );
                 if (rightContainer.isEmpty()) {
@@ -381,7 +381,7 @@ public class SubGraph {
                     rightContainer.add(leftTarget);
                 }
             }
-        }
+        });
         if (!manyToManyRightFields.isEmpty()) {
             mapFields(manyToManyRightFields, rightTarget);
         }
@@ -394,7 +394,7 @@ public class SubGraph {
         if (Objects.isNull(this.rootCollType)) {
             values.put(this.rootFieldName, target);
         } else {
-            Collection<Object> container = cast(
+            Collection<Object> container = castToCollection(
                     values.getOrDefault(this.rootFieldName, collFactory(this.rootCollType))
             );
             if (container.isEmpty()) {

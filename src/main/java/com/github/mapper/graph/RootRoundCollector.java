@@ -20,7 +20,7 @@ public class RootRoundCollector implements Collector<RootRound, List<RootRound>,
 
     @Override
     public Supplier<List<RootRound>> supplier() {
-        return ArrayList::new;
+        return LinkedList::new;
     }
 
     @Override

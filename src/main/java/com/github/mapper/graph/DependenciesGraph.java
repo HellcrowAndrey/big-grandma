@@ -4,6 +4,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.github.mapper.utils.MapperUtils.*;
@@ -33,11 +34,11 @@ public class DependenciesGraph {
     private Mono<LinkedHashMap<RootRound, List<Round>>> intermediateState(List<Map<String, Object>> tuples) {
         return Flux.fromStream(tuples.stream())
                 .filter(DependenciesGraph::isTupleEmpty)
-                .map(tuple -> root.restoreRootRound(tuple, START_POINT))
+                .map(tuple -> root.toRootRound(tuple, START_POINT))
                 .collect(RootRoundCollector.toListOfRootRounds())
                 .flatMapMany(source -> Flux.fromStream(source.stream()))
                 .collect(Collectors.groupingBy(
-                        source -> source,
+                        Function.identity(),
                         LinkedHashMap::new,
                         Collectors.flatMapping(source -> source.nonMappedValues.stream()
                                         .flatMap(tuple -> root.graphOneToEtc.stream()

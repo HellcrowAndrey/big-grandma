@@ -11,30 +11,32 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.github.mapper.utils.MapperUtils.*;
-import static com.github.mapper.utils.MapperUtils.mapFields;
 
 public class Root {
 
-    Class<?> rootType;
+    final Class<?> rootType;
 
-    Map<Class<?>, SubGraph> graphsManyToMany = new HashMap<>(); //optional
+    final Map<Class<?>, SubGraph> graphsManyToMany; //optional
 
-    List<SubGraph> graphOneToEtc; //optional
+    final List<SubGraph> graphOneToEtc; //optional
 
-    Map<String, Field> fields; // required
+    final Map<String, Field> fields; // required
 
-    RelationType type;
+    final RelationType type;
 
     @Deprecated
     public Root(Class<?> rootType, List<SubGraph> graphOneToEtc) {
         this.rootType = Objects.requireNonNull(rootType);
         this.graphOneToEtc = Objects.requireNonNullElse(graphOneToEtc, new ArrayList<>());
         this.type = RelationType.oneToEtc;
+        this.graphsManyToMany = new HashMap<>();
+        this.fields = new HashMap<>();
     }
 
     private Root(RootBuilder b) {
         this.rootType = b.rootType;
         this.graphOneToEtc = b.graphOneToEtc;
+        this.graphsManyToMany = new HashMap<>();
         this.fields = b.fields;
         this.type = b.type;
     }
@@ -163,7 +165,7 @@ public class Root {
 
     }
 
-    public RootRound restoreRootRound(Map<String, Object> nonMappedValues, int lvl) {
+    public RootRound toRootRound(Map<String, Object> nonMappedValues, int lvl) {
         switch (this.type) {
             case oneToEtc:
                 return restoreOneToEtc(nonMappedValues);
@@ -248,7 +250,8 @@ public class Root {
         Object rightTarget = round.value;
         Map<Round, Set<Object>> lefts = round.lefts;
         Map<String, Object> manyToManyRightFields = new HashMap<>();
-        for (Round leftKey : lefts.keySet()) {
+        lefts.forEach((leftKey, leftsValues) -> {
+            leftsValues = MapperUtils.sameOrDefault(leftsValues, new HashSet<>());
             SubGraph leftGraph = this.graphsManyToMany.get(leftKey.type);
             if (Objects.nonNull(leftGraph)) {
                 String rfn = leftGraph.rootFieldName;
@@ -256,7 +259,6 @@ public class Root {
                 Class<?> cct = leftGraph.currentCollType;
                 List<SubGraph> children = leftGraph.graphsOneToEtc;
                 Object leftTarget = leftKey.value;
-                Set<Object> leftsValues = lefts.getOrDefault(leftKey, new HashSet<>());
                 Map<String, Object> defaultLeftFieldValues = new HashMap<>();
                 if (!children.isEmpty()) {
                     for (SubGraph child : children) {
@@ -267,11 +269,11 @@ public class Root {
                     MapperUtils.mapFields(defaultLeftFieldValues, leftTarget);
                 }
                 if (StringUtils.hasText(cfn) && Objects.nonNull(cct)) {
-                    Collection<Object> leftContainer = cast(collFactory(cct));
+                    Collection<Object> leftContainer = castToCollection(collFactory(cct));
                     leftContainer.addAll(leftsValues);
                     setFields(leftContainer, leftTarget, cfn);
                 }
-                Collection<Object> rightContainer = cast(
+                Collection<Object> rightContainer = castToCollection(
                         manyToManyRightFields.getOrDefault(rfn, collFactory(leftGraph.rootCollType))
                 );
                 if (rightContainer.isEmpty()) {
@@ -281,7 +283,7 @@ public class Root {
                     rightContainer.add(leftTarget);
                 }
             }
-        }
+        });
         if (!manyToManyRightFields.isEmpty()) {
             mapFields(manyToManyRightFields, rightTarget);
         }

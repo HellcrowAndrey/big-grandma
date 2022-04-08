@@ -112,7 +112,7 @@ public class MapperUtils {
     }
 
     @SuppressWarnings(value = "unchecked")
-    public static Collection<Object> cast(Object val) {
+    public static Collection<Object> castToCollection(Object val) {
         return (Collection<Object>) val;
     }
 
@@ -174,6 +174,10 @@ public class MapperUtils {
 
     private static boolean hasGeneric(Type[] array) {
         return !(array.length == 0);
+    }
+
+    public static <T> T sameOrDefault(T obj, T def) {
+        return Objects.isNull(obj) ? def : obj;
     }
 
 }
