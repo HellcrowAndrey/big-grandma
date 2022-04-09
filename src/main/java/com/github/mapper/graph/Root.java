@@ -10,6 +10,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.github.mapper.graph.RelationType.manyToMany;
+import static com.github.mapper.graph.RelationType.oneToEtc;
 import static com.github.mapper.utils.MapperUtils.*;
 
 public class Root {
@@ -28,7 +30,7 @@ public class Root {
     public Root(Class<?> rootType, List<SubGraph> graphOneToEtc) {
         this.rootType = Objects.requireNonNull(rootType);
         this.graphOneToEtc = Objects.requireNonNullElse(graphOneToEtc, new ArrayList<>());
-        this.type = RelationType.oneToEtc;
+        this.type = oneToEtc;
         this.graphsManyToMany = new HashMap<>();
         this.fields = new HashMap<>();
     }
@@ -62,7 +64,7 @@ public class Root {
         RelationType type;
 
         public RootBuilder() {
-            this.type = RelationType.oneToEtc;
+            this.type = oneToEtc;
         }
 
         public RootBuilder rootType(Class<?> rootType) {
@@ -117,7 +119,7 @@ public class Root {
         RelationType type;
 
         public RootManyToManyBuilder() {
-            this.type = RelationType.manyToMany;
+            this.type = manyToMany;
         }
 
         public RootManyToManyBuilder rootType(Class<?> rootType) {
