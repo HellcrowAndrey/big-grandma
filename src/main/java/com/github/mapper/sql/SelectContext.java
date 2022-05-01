@@ -1,4 +1,8 @@
-package com.github.mapper;
+package com.github.mapper.sql;
+
+import com.github.mapper.StringSqlUtils;
+import com.github.mapper.sql.SQLCondition;
+import com.github.mapper.sql.SQLHaving;
 
 import java.util.Objects;
 

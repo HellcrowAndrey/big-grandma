@@ -1,39 +1,16 @@
-package com.github.mapper;
+package com.github.mapper.sql;
+
+import com.github.mapper.StringSqlUtils;
 
 import java.util.Objects;
 
-public interface SQLHaving {
+final class HavingDefault {
 
-    String asString();
-
-    static ComparisonOperator count(String column) {
-        return Having.newInstance().count(column);
+    public static Having newInstance() {
+        return new Having();
     }
 
-    static ComparisonOperator min(String column) {
-        return Having.newInstance().min(column);
-    }
-
-    static ComparisonOperator max(String column) {
-        return Having.newInstance().max(column);
-    }
-
-    static ComparisonOperator avg(String column) {
-        return Having.newInstance().avg(column);
-    }
-
-    static ComparisonOperator sum(String column) {
-        return Having.newInstance().sum(column);
-    }
-
-    class Having extends NodeNext {
-
-        private Having() {
-        }
-
-        public static Having newInstance() {
-            return new Having();
-        }
+    static class Having extends NodeNext {
 
         public ComparisonOperator count(String column) {
             this.next = new ComparisonOperator() {
@@ -142,7 +119,7 @@ public interface SQLHaving {
 
     }
 
-    abstract class IntermediateHaving extends Having {
+    static abstract class IntermediateHaving extends Having {
 
         public IntermediateHaving() {
         }
@@ -158,9 +135,10 @@ public interface SQLHaving {
         }
     }
 
-    abstract class TerminalHaving extends NodeNext {
+    static abstract class TerminalHaving extends NodeNext {
         public TerminalHaving() {
         }
+
         @Override
         public StringBuilder asString() {
             if (Objects.nonNull(this.prev)) {
@@ -177,7 +155,7 @@ public interface SQLHaving {
 
     }
 
-    abstract class ComparisonOperator extends NodeNext {
+    static abstract class ComparisonOperator extends NodeNext {
 
         public LogicalOperator eq(Object value) {
             this.next = new LogicalOperator() {
@@ -343,7 +321,7 @@ public interface SQLHaving {
 
     }
 
-    abstract class LogicalOperator extends NodeNext {
+    static abstract class LogicalOperator extends NodeNext {
 
         public IntermediateHaving and() {
             this.next = new IntermediateHaving() {
@@ -383,7 +361,7 @@ public interface SQLHaving {
 
     }
 
-    abstract class AfterBetweenOperator extends NodeNext {
+    static abstract class AfterBetweenOperator extends NodeNext {
 
         public TerminalHaving and(Object value) {
             this.next = new TerminalHaving() {
@@ -404,11 +382,12 @@ public interface SQLHaving {
         }
     }
 
-    abstract class NodeNext {
+    static abstract class NodeNext {
         protected NodeNext next;
         protected NodeNext prev;
 
         public abstract StringBuilder asString();
     }
+
 
 }

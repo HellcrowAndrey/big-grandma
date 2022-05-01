@@ -1,4 +1,6 @@
-package com.github.mapper;
+package com.github.mapper.sql;
+
+import com.github.mapper.StringSqlUtils;
 
 import java.util.Objects;
 import java.util.function.Supplier;
