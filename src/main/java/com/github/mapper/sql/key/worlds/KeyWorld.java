@@ -1,4 +1,4 @@
-package com.github.mapper.sql;
+package com.github.mapper.sql.key.worlds;
 
 public abstract class KeyWorld {
 

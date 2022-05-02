@@ -1,5 +1,6 @@
 package com.github.mapper;
 
+import com.github.mapper.sql.SelectTemplate;
 import org.springframework.r2dbc.core.DatabaseClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,6 +20,8 @@ public interface ReactiveEntityTemplate {
     <T> Flux<T> selectAllWhereOrderBy(String query, String orderBy, Map<String, Object> params);
 
     <T> Mono<T> selectOneWhere(String query, Map<String, Object> params);
+
+    SelectTemplate select(String... columns);
 
     static ReactiveEntityTemplate
     defaultReactiveEntityTemplate(DatabaseClient client, SqlDependenciesMapper sqlDependenciesMapper) {

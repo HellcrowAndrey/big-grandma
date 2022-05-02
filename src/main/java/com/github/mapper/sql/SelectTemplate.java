@@ -1,13 +1,17 @@
 package com.github.mapper.sql;
 
+import com.github.mapper.sql.key.worlds.Distinct;
+import com.github.mapper.sql.key.worlds.From;
+import com.github.mapper.sql.key.worlds.TopDefault;
+
 public interface SelectTemplate {
 
-    SelectDefault.Distinct distinct();
+    Distinct distinct();
 
-    SelectDefault.TopDefault top(int number);
+    TopDefault top(int number);
 
-    SelectDefault.From from(String tableName);
+    From from(String tableName);
 
-    SelectDefault.From from(Class<?> clz);
+    From from(Class<?> clz);
 
 }

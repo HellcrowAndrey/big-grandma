@@ -1,5 +1,7 @@
 package com.github.mapper;
 
+import com.github.mapper.sql.SQLSelect;
+import com.github.mapper.sql.SelectTemplate;
 import org.springframework.r2dbc.core.DatabaseClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -63,6 +65,11 @@ public class DefaultReactiveEntityTemplate implements ReactiveEntityTemplate {
                 .fetch().all()
                 .collectList()
                 .flatMap(this.sqlDependenciesMapper::single);
+    }
+
+    @Override
+    public SelectTemplate select(String... columns) {
+        return SQLSelect.select(columns);
     }
 
     private DatabaseClient.GenericExecuteSpec sqlWithParametersByIndex(String query, Object... params) {
