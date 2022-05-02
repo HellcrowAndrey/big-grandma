@@ -8,4 +8,6 @@ public interface SelectClaim {
 
     SelectDefault.From from(String tableName);
 
+    SelectDefault.From from(Class<?> clz);
+
 }

@@ -1,12 +1,14 @@
 package com.github.mapper.sql;
 
 import com.github.mapper.StringSqlUtils;
+import com.github.mapper.utils.MapperUtils;
 
-import java.util.Objects;
+import java.util.*;
 
 public final class SelectDefault extends KeyWorld implements SelectClaim {
 
     private static final String SELECT = "select";
+
     private final String[] columns;
 
     private SelectDefault(String[] columns) {
@@ -38,32 +40,45 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
         return sb.toString();
     }
 
+    @Override
     public Distinct distinct() {
         this.next = new DistinctDefault();
         this.next.prev = this;
         return (DistinctDefault) this.next;
     }
 
+    @Override
     public TopDefault top(int number) {
         this.next = new TopDefault(number);
         this.next.prev = this;
         return (TopDefault) this.next;
     }
 
+    @Override
     public From from(String tableName) {
         this.next = new FromDefault(tableName);
         this.next.prev = this;
         return (FromDefault) this.next;
     }
 
+    @Override
+    public From from(Class<?> clz) {
+        this.next = new FromDefault(clz);
+        this.next.prev = this;
+        return (FromDefault) this.next;
+    }
 
     interface Distinct {
+
         From from(String tableName);
+
+        From from(Class<?> clz);
     }
 
     public static class DistinctDefault extends KeyWorld implements Distinct {
 
         private static final String DISTINCT = "distinct";
+
         private final String columns;
 
         public DistinctDefault() {
@@ -73,6 +88,13 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
         @Override
         public From from(String tableName) {
             this.next = new FromDefault(tableName);
+            this.next.prev = this;
+            return (FromDefault) this.next;
+        }
+
+        @Override
+        public From from(Class<?> clz) {
+            this.next = new FromDefault(clz);
             this.next.prev = this;
             return (FromDefault) this.next;
         }
@@ -90,11 +112,14 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
 
     interface Top {
         From from(String tableName);
+
+        From from(Class<?> clz);
     }
 
     public static class TopDefault extends KeyWorld implements Top {
 
         private static final String TOP = "top %d";
+
         private final String operator;
 
         public TopDefault(int number) {
@@ -104,6 +129,13 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
         @Override
         public From from(String tableName) {
             this.next = new FromDefault(tableName);
+            this.next.prev = this;
+            return (FromDefault) this.next;
+        }
+
+        @Override
+        public From from(Class<?> clz) {
+            this.next = new FromDefault(clz);
             this.next.prev = this;
             return (FromDefault) this.next;
         }
@@ -120,23 +152,42 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
     }
 
     interface From {
+
         Where where(SQLCondition condition);
 
         OrderBy orderBy(SortedType sortedType, String... columns);
 
         Limit limit(int number);
 
+        Join join(String tableName, ColumnName leftCol, ColumnName rightCol);
+
         Join join(String tableName, String leftCol, String rightCol);
 
-        LeftJoinDefault leftJoin(String tableName, String leftCol, String rightCol);
+        Join join(Class<?> fromTable, String to, String from);
+
+        Join join(Class<?> toTable, Class<?> fromTable, String to, String from);
+
+        LeftJoin leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol);
+
+        LeftJoin leftJoin(String tableName, String leftCol, String rightCol);
+
+        LeftJoin leftJoin(Class<?> fromTable, String to, String from);
+
+        LeftJoin leftJoin(Class<?> toTable, Class<?> fromTable, String to, String from);
 
         SQLSelect toSelect();
+
     }
 
     public static class FromDefault extends KeyWorld implements From {
 
         private static final String FROM = "from %s";
+
         private final String tableName;
+
+        public FromDefault(Class<?> clz) {
+            this.tableName = MapperUtils.findTableName(clz);
+        }
 
         public FromDefault(String tableName) {
             this.tableName = tableName;
@@ -164,6 +215,13 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
         }
 
         @Override
+        public Join join(String tableName, ColumnName leftCol, ColumnName rightCol) {
+            this.next = new JoinDefault(tableName, leftCol.get(), rightCol.get());
+            this.next.prev = this;
+            return (JoinDefault) this.next;
+        }
+
+        @Override
         public Join join(String tableName, String leftCol, String rightCol) {
             this.next = new JoinDefault(tableName, leftCol, rightCol);
             this.next.prev = this;
@@ -171,8 +229,43 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
         }
 
         @Override
-        public LeftJoinDefault leftJoin(String tableName, String leftCol, String rightCol) {
+        public Join join(Class<?> fromTable, String to, String from) {
+            this.next = new JoinDefault(this.tableName, fromTable, to, from);
+            this.next.prev = this;
+            return (JoinDefault) this.next;
+        }
+
+        @Override
+        public Join join(Class<?> toTable, Class<?> fromTable, String to, String from) {
+            this.next = new JoinDefault(toTable, fromTable, to, from);
+            this.next.prev = this;
+            return (JoinDefault) this.next;
+        }
+
+        @Override
+        public LeftJoin leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol) {
+            this.next = new LeftJoinDefault(tableName, leftCol.get(), rightCol.get());
+            this.next.prev = this;
+            return (LeftJoinDefault) this.next;
+        }
+
+        @Override
+        public LeftJoin leftJoin(String tableName, String leftCol, String rightCol) {
             this.next = new LeftJoinDefault(tableName, leftCol, rightCol);
+            this.next.prev = this;
+            return (LeftJoinDefault) this.next;
+        }
+
+        @Override
+        public LeftJoin leftJoin(Class<?> fromTable, String to, String from) {
+            this.next = new LeftJoinDefault(this.tableName, fromTable, to, from);
+            this.next.prev = this;
+            return (LeftJoinDefault) this.next;
+        }
+
+        @Override
+        public LeftJoin leftJoin(Class<?> toTable, Class<?> fromTable, String to, String from) {
+            this.next = new LeftJoinDefault(toTable, fromTable, to, from);
             this.next.prev = this;
             return (LeftJoinDefault) this.next;
         }
@@ -206,7 +299,9 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
     }
 
     public static class WhereDefault extends KeyWorld implements Where {
+
         private static final String WHERE_PATTERN = "where %s";
+
         private final String operator;
 
         private WhereDefault(String condition) {
@@ -268,9 +363,13 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
     }
 
     public static class OrderByDefault extends KeyWorld implements OrderBy {
+
         private static final String ORDER_BY = "order by %s %s";
+
         private static final String COMA_BY = "%s, %s %s";
+
         private int count = 0;
+
         private String operator;
 
         @Override
@@ -333,7 +432,9 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
     }
 
     public static class GroupByDefault extends KeyWorld implements GroupBy {
+
         private static final String GROUP_BY = "group by %s";
+
         private final String operator;
 
         public GroupByDefault(String... columns) {
@@ -370,7 +471,9 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
     }
 
     public static class HavingDefault extends KeyWorld implements Having {
+
         private static final String HAVING = "having %s";
+
         private final String operator;
 
         public HavingDefault(String function) {
@@ -400,7 +503,9 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
     }
 
     public static class LimitDefault extends KeyWorld implements Limit {
+
         private static final String LIMIT = "limit %d";
+
         private final String operator;
 
         public LimitDefault(int number) {
@@ -430,7 +535,9 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
     }
 
     public static class OffsetDefault extends KeyWorld implements Offset {
+
         private static final String OFFSET = "offset %d";
+
         private final String operator;
 
         public OffsetDefault(Integer number) {
@@ -455,9 +562,17 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
 
     interface Join {
 
+        Join join(String tableName, ColumnName leftCol, ColumnName rightCol);
+
         Join join(String tableName, String leftCol, String rightCol);
 
+        Join join(Class<?> toTable, Class<?> fromTable, String to, String from);
+
+        LeftJoin leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol);
+
         LeftJoin leftJoin(String tableName, String leftCol, String rightCol);
+
+        LeftJoin leftJoin(Class<?> toTable, Class<?> fromTable, String to, String from);
 
         Where where(SQLCondition condition);
 
@@ -466,11 +581,41 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
     }
 
     public static class JoinDefault extends KeyWorld implements Join {
+
         private static final String JOIN = "inner join %s on %s = %s";
+
         private final String operator;
 
-        public JoinDefault(String tableName, String leftCol, String rightCol) {
-            this.operator = String.format(JOIN, tableName, leftCol, rightCol);
+        public JoinDefault(String tableName, String leftColName, String rightColName) {
+            this.operator = String.format(JOIN, tableName, leftColName, rightColName);
+        }
+
+        public JoinDefault(Class<?> toTable, Class<?> fromTable, String to, String from) {
+            var toTableName = MapperUtils.findTableName(toTable);
+            var fromTableName = MapperUtils.findTableName(fromTable);
+            this.operator = String.format(
+                    JOIN,
+                    fromTableName,
+                    String.format("%s.%s", toTableName, to),
+                    String.format("%s.%s", fromTableName, from)
+            );
+        }
+
+        public JoinDefault(String toTable, Class<?> fromTable, String to, String from) {
+            var fromTableName = MapperUtils.findTableName(fromTable);
+            this.operator = String.format(
+                    JOIN,
+                    fromTableName,
+                    String.format("%s.%s", toTable, to),
+                    String.format("%s.%s", fromTableName, from)
+            );
+        }
+
+        @Override
+        public Join join(String tableName, ColumnName leftCol, ColumnName rightCol) {
+            this.next = new JoinDefault(tableName, leftCol.get(), rightCol.get());
+            this.next.prev = this;
+            return (JoinDefault) this.next;
         }
 
         @Override
@@ -481,8 +626,29 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
         }
 
         @Override
+        public Join join(Class<?> toTable, Class<?> fromTable, String to, String from) {
+            this.next = new JoinDefault(toTable, fromTable,to, from);
+            this.next.prev = this;
+            return (JoinDefault) this.next;
+        }
+
+        @Override
+        public LeftJoin leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol) {
+            this.next = new LeftJoinDefault(tableName, leftCol.get(), rightCol.get());
+            this.next.prev = this;
+            return (LeftJoinDefault) this.next;
+        }
+
+        @Override
         public LeftJoin leftJoin(String tableName, String leftCol, String rightCol) {
             this.next = new LeftJoinDefault(tableName, leftCol, rightCol);
+            this.next.prev = this;
+            return (LeftJoinDefault) this.next;
+        }
+
+        @Override
+        public LeftJoin leftJoin(Class<?> toTable, Class<?> fromTable, String to, String from) {
+            this.next = new LeftJoinDefault(toTable, fromTable, to, from);
             this.next.prev = this;
             return (LeftJoinDefault) this.next;
         }
@@ -512,9 +678,17 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
 
     interface LeftJoin {
 
+        LeftJoin leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol);
+
         LeftJoin leftJoin(String tableName, String leftCol, String rightCol);
 
+        LeftJoin leftJoin(Class<?> toTable, Class<?> fromTable, String to, String from);
+
+        Join join(String tableName, ColumnName leftCol, ColumnName rightCol);
+
         Join join(String tableName, String leftCol, String rightCol);
+
+        Join join(Class<?> toTable, Class<?> fromTable, String to, String from);
 
         Where where(SQLCondition condition);
 
@@ -523,11 +697,41 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
     }
 
     public static class LeftJoinDefault extends KeyWorld implements LeftJoin {
+
         private static final String LEFT_JOIN = "left join %s on %s = %s";
+
         private final String operator;
 
         public LeftJoinDefault(String tableName, String leftCol, String rightCol) {
             this.operator = String.format(LEFT_JOIN, tableName, leftCol, rightCol);
+        }
+
+        public LeftJoinDefault(Class<?> toTable, Class<?> fromTable, String to, String from) {
+            var toTableName = MapperUtils.findTableName(toTable);
+            var fromTableName = MapperUtils.findTableName(fromTable);
+            this.operator = String.format(
+                    LEFT_JOIN,
+                    fromTableName,
+                    String.format("%s.%s", toTableName, to),
+                    String.format("%s.%s", fromTableName, from)
+            );
+        }
+
+        public LeftJoinDefault(String toTable, Class<?> fromTable, String to, String from) {
+            var fromTableName = MapperUtils.findTableName(fromTable);
+            this.operator = String.format(
+                    LEFT_JOIN,
+                    fromTableName,
+                    String.format("%s.%s", toTable, to),
+                    String.format("%s.%s", fromTableName, from)
+            );
+        }
+
+        @Override
+        public LeftJoin leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol) {
+            this.next = new LeftJoinDefault(tableName, leftCol.get(), rightCol.get());
+            this.next.prev = this;
+            return (LeftJoinDefault) this.next;
         }
 
         @Override
@@ -538,8 +742,29 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
         }
 
         @Override
+        public LeftJoin leftJoin(Class<?> toTable, Class<?> fromTable, String to, String from) {
+            this.next = new LeftJoinDefault(toTable, fromTable, to, from);
+            this.next.prev = this;
+            return (LeftJoinDefault) this.next;
+        }
+
+        @Override
+        public Join join(String tableName, ColumnName leftCol, ColumnName rightCol) {
+            this.next = new JoinDefault(tableName, leftCol.get(), rightCol.get());
+            this.next.prev = this;
+            return (JoinDefault) this.next;
+        }
+
+        @Override
         public Join join(String tableName, String leftCol, String rightCol) {
             this.next = new JoinDefault(tableName, leftCol, rightCol);
+            this.next.prev = this;
+            return (JoinDefault) this.next;
+        }
+
+        @Override
+        public Join join(Class<?> toTable, Class<?> fromTable, String to, String from) {
+            this.next = new JoinDefault(toTable, fromTable, to, from);
             this.next.prev = this;
             return (JoinDefault) this.next;
         }

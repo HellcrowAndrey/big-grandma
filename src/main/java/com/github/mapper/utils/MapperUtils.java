@@ -2,6 +2,7 @@ package com.github.mapper.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -178,6 +179,13 @@ public class MapperUtils {
 
     public static <T> T sameOrDefault(T obj, T def) {
         return Objects.isNull(obj) ? def : obj;
+    }
+
+    public static String findTableName(Class<?> clz) {
+        if (!clz.isAnnotationPresent(Table.class)) {
+            throw new RuntimeException("Entity has not Table annotation");
+        }
+        return clz.getAnnotation(Table.class).value();
     }
 
 }

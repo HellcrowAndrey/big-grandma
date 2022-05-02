@@ -28,9 +28,13 @@ class SelectTest {
         System.out.println(result3.asString());
         SQLSelect result4 = SQLSelect.select(columns)
                 .from("testTable")
-                .join("testTable_2", "testTable.t_2_id", "testTable_2.t_2_id")
-                .join("testTable_3", "testTable.t_3_id", "testTable_3.t_3_id")
-                .where(SQLCondition.column("age")
+                .join("testTable_2",
+                        ColumnName.columnName("t_2_id"),
+                        ColumnName.columnName("t_2_id")
+                ).join("testTable_3",
+                        ColumnName.columnName("t_3_id"),
+                        ColumnName.columnName("t_3_id")
+                ).where(SQLCondition.column("age")
                         .greaterThan(1)
                         .get()
                 ).groupBy("firstName")
@@ -55,8 +59,8 @@ class SelectTest {
         System.out.println("SQL -> " + result5.asString());
         SQLSelect result6 = SQLSelect.select(columns)
                 .from("testTable")
-                .leftJoin("testTable_2", "testTable.t_2_id", "testTable_2.t_2_id")
-                .leftJoin("testTable_3", "testTable.t_3_id", "testTable_3.t_3_id")
+                .leftJoin("testTable_2", ColumnName.columnName("t_2_id"), ColumnName.columnName("t_2_id"))
+                .leftJoin("testTable_3", ColumnName.columnName("t_3_id"), ColumnName.columnName("t_3_id"))
                 .where(SQLCondition.column("age")
                         .greaterThan(1)
                         .get()
