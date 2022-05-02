@@ -1,6 +1,6 @@
 package com.github.mapper.sql;
 
-public interface SelectClaim {
+public interface SelectTemplate {
 
     SelectDefault.Distinct distinct();
 

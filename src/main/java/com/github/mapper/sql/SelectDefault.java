@@ -5,7 +5,7 @@ import com.github.mapper.utils.MapperUtils;
 
 import java.util.*;
 
-public final class SelectDefault extends KeyWorld implements SelectClaim {
+public final class SelectDefault extends KeyWorld implements SelectTemplate {
 
     private static final String SELECT = "select";
 
@@ -15,7 +15,7 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
         this.columns = columns;
     }
 
-    public static SelectClaim select(String... columns) {
+    public static SelectTemplate select(String... columns) {
         return new SelectDefault(columns);
     }
 
@@ -69,9 +69,7 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
     }
 
     interface Distinct {
-
         From from(String tableName);
-
         From from(Class<?> clz);
     }
 
@@ -112,7 +110,6 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
 
     interface Top {
         From from(String tableName);
-
         From from(Class<?> clz);
     }
 
@@ -152,31 +149,18 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
     }
 
     interface From {
-
         Where where(SQLCondition condition);
-
         OrderBy orderBy(SortedType sortedType, String... columns);
-
         Limit limit(int number);
-
         Join join(String tableName, ColumnName leftCol, ColumnName rightCol);
-
         Join join(String tableName, String leftCol, String rightCol);
-
         Join join(Class<?> fromTable, String to, String from);
-
         Join join(Class<?> toTable, Class<?> fromTable, String to, String from);
-
         LeftJoin leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol);
-
         LeftJoin leftJoin(String tableName, String leftCol, String rightCol);
-
         LeftJoin leftJoin(Class<?> fromTable, String to, String from);
-
         LeftJoin leftJoin(Class<?> toTable, Class<?> fromTable, String to, String from);
-
         SQLSelect toSelect();
-
     }
 
     public static class FromDefault extends KeyWorld implements From {
@@ -284,18 +268,14 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
         public SQLSelect toSelect() {
             return this::asString;
         }
+
     }
 
     interface Where {
-
         GroupBy groupBy(String... columns);
-
         OrderBy orderBy(SortedType sortedType, String... columns);
-
         Limit limit(int number);
-
         SQLSelect toSelect();
-
     }
 
     public static class WhereDefault extends KeyWorld implements Where {
@@ -351,15 +331,10 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
     }
 
     interface OrderBy {
-
         OrderBy orderBy(SortedType sortedType, String... columns);
-
         OrderBy orderBy(String column, SortedType type);
-
         Limit limit(int number);
-
         SQLSelect toSelect();
-
     }
 
     public static class OrderByDefault extends KeyWorld implements OrderBy {
@@ -421,14 +396,12 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
             }
             return this.operator;
         }
+
     }
 
     interface GroupBy {
-
         Having having(SQLHaving condition);
-
         OrderBy orderBy(SortedType sortedType, String... columns);
-
     }
 
     public static class GroupByDefault extends KeyWorld implements GroupBy {
@@ -464,6 +437,7 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
             }
             return this.operator;
         }
+
     }
 
     interface Having {
@@ -496,6 +470,7 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
             }
             return this.operator;
         }
+
     }
 
     interface Limit {
@@ -561,23 +536,14 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
     }
 
     interface Join {
-
         Join join(String tableName, ColumnName leftCol, ColumnName rightCol);
-
         Join join(String tableName, String leftCol, String rightCol);
-
         Join join(Class<?> toTable, Class<?> fromTable, String to, String from);
-
         LeftJoin leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol);
-
         LeftJoin leftJoin(String tableName, String leftCol, String rightCol);
-
         LeftJoin leftJoin(Class<?> toTable, Class<?> fromTable, String to, String from);
-
         Where where(SQLCondition condition);
-
         SQLSelect toSelect();
-
     }
 
     public static class JoinDefault extends KeyWorld implements Join {
@@ -677,23 +643,14 @@ public final class SelectDefault extends KeyWorld implements SelectClaim {
     }
 
     interface LeftJoin {
-
         LeftJoin leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol);
-
         LeftJoin leftJoin(String tableName, String leftCol, String rightCol);
-
         LeftJoin leftJoin(Class<?> toTable, Class<?> fromTable, String to, String from);
-
         Join join(String tableName, ColumnName leftCol, ColumnName rightCol);
-
         Join join(String tableName, String leftCol, String rightCol);
-
         Join join(Class<?> toTable, Class<?> fromTable, String to, String from);
-
         Where where(SQLCondition condition);
-
         SQLSelect toSelect();
-
     }
 
     public static class LeftJoinDefault extends KeyWorld implements LeftJoin {

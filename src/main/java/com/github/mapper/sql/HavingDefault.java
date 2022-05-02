@@ -383,11 +383,13 @@ final class HavingDefault {
     }
 
     static abstract class NodeNext {
+
         protected NodeNext next;
+
         protected NodeNext prev;
 
         public abstract StringBuilder asString();
-    }
 
+    }
 
 }
