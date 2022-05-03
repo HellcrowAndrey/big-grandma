@@ -200,7 +200,7 @@ public class MapperUtils {
 
     public static String findTableName(Class<?> clz) {
         if (!clz.isAnnotationPresent(Table.class)) {
-            return clz.getSimpleName();
+            return clz.getSimpleName().toLowerCase(Locale.ROOT);
         }
         return clz.getAnnotation(Table.class).value();
     }

@@ -5,7 +5,7 @@ import com.github.mapper.utils.MapperUtils;
 
 import java.util.Objects;
 
-public class FromDefault  extends KeyWorld implements From {
+public class FromDefault extends KeyWorld implements From {
 
     private static final String FROM = "from %s";
 
@@ -107,6 +107,16 @@ public class FromDefault  extends KeyWorld implements From {
             return tmp.asString();
         }
         return String.format(FROM, this.tableName);
+    }
+
+    @Override
+    public KeyWorld toFirst() {
+        if (Objects.nonNull(this.prev)) {
+            KeyWorld tmp = this.prev;
+            this.prev = null;
+            return tmp.toFirst();
+        }
+        return this;
     }
 
     @Override

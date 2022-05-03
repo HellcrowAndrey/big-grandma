@@ -2,7 +2,7 @@ package com.github.mapper.sql.key.worlds;
 
 import java.util.Objects;
 
-public class TopDefault  extends KeyWorld implements Top  {
+public class TopDefault extends KeyWorld implements Top  {
 
     private static final String TOP = "top %d";
 
@@ -34,6 +34,16 @@ public class TopDefault  extends KeyWorld implements Top  {
             return tmp.asString();
         }
         return this.operator;
+    }
+
+    @Override
+    public KeyWorld toFirst() {
+        if (Objects.nonNull(this.prev)) {
+            KeyWorld tmp = this.prev;
+            this.prev = null;
+            return tmp;
+        }
+        return this;
     }
 
 }

@@ -8,7 +8,6 @@ import java.util.Objects;
 
 public class OrderByDefault extends KeyWorld implements OrderBy {
 
-
     private static final String ORDER_BY = "order by %s %s";
 
     private static final String COMA_BY = "%s, %s %s";
@@ -65,6 +64,16 @@ public class OrderByDefault extends KeyWorld implements OrderBy {
             return tmp.asString();
         }
         return this.operator;
+    }
+
+    @Override
+    public KeyWorld toFirst() {
+        if (Objects.nonNull(this.prev)) {
+            KeyWorld tmp = this.prev;
+            this.prev = null;
+            return tmp.toFirst();
+        }
+        return this;
     }
 
 }

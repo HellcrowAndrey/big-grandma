@@ -36,4 +36,14 @@ public class DistinctDefault extends KeyWorld implements Distinct {
         return this.columns;
     }
 
+    @Override
+    public KeyWorld toFirst() {
+        if (Objects.nonNull(this.prev)) {
+            KeyWorld tmp = this.prev;
+            this.prev = null;
+            return tmp.toFirst();
+        }
+        return this;
+    }
+
 }

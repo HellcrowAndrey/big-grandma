@@ -7,4 +7,6 @@ public abstract class KeyWorld {
 
     public abstract String asString();
 
+    public abstract KeyWorld toFirst();
+
 }

@@ -4,12 +4,14 @@ import com.github.mapper.graph.Root;
 import com.github.mapper.models.RootLvl;
 import com.github.mapper.models.Round1Lvl1;
 import com.github.mapper.models.Round2Lvl1;
+import com.github.mapper.sql.key.worlds.KeyWorld;
+import com.github.mapper.sql.key.worlds.SelectDefault;
 import org.junit.jupiter.api.Test;
 
 class SelectTest {
 
     @Test
-    public void mainTest() {
+    public void mainTest() throws CloneNotSupportedException {
 //        String[] columns = {
 //                "firstName as fn",
 //                "lastName as ln",
@@ -173,7 +175,9 @@ class SelectTest {
                 .from(RootLvl.class)
                 .join(Round1Lvl1.class, "id", "root_lvl_id")
                 .leftJoin(RootLvl.class, Round2Lvl1.class, "id", "root_lvl_id")
+                .where(SQLCondition.column("name").eq("vasia").get())
                 .toSelect();
+
         System.out.println("New Select -> " + select.asString());
     }
 

@@ -40,4 +40,14 @@ public class GroupByDefault extends KeyWorld implements GroupBy {
         return this.operator;
     }
 
+    @Override
+    public KeyWorld toFirst() {
+        if (Objects.nonNull(this.prev)) {
+            KeyWorld tmp = this.prev;
+            this.prev = null;
+            return tmp.toFirst();
+        }
+        return this;
+    }
+
 }

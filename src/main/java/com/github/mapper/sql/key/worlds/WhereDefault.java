@@ -50,6 +50,16 @@ public class WhereDefault extends KeyWorld implements Where {
     }
 
     @Override
+    public KeyWorld toFirst() {
+        if (Objects.nonNull(this.prev)) {
+            KeyWorld tmp = this.prev;
+            this.prev = null;
+            return tmp.toFirst();
+        }
+        return this;
+    }
+
+    @Override
     public SQLSelect toSelect() {
         return this::asString;
     }

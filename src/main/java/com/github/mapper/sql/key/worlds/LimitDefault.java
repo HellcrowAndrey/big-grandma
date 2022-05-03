@@ -29,4 +29,14 @@ public class LimitDefault extends KeyWorld implements Limit {
         return this.operator;
     }
 
+    @Override
+    public KeyWorld toFirst() {
+        if (Objects.nonNull(this.prev)) {
+            KeyWorld tmp = this.prev;
+            this.prev = null;
+            return tmp.toFirst();
+        }
+        return this;
+    }
+
 }

@@ -31,4 +31,14 @@ public class HavingDefault extends KeyWorld implements Having {
         return this.operator;
     }
 
+    @Override
+    public KeyWorld toFirst() {
+        if (Objects.nonNull(this.prev)) {
+            KeyWorld tmp = this.prev;
+            this.prev = null;
+            return tmp.toFirst();
+        }
+        return this;
+    }
+
 }
