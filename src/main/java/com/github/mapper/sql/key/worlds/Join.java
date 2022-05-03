@@ -1,8 +1,7 @@
 package com.github.mapper.sql.key.worlds;
 
-import com.github.mapper.sql.ColumnName;
-import com.github.mapper.sql.SQLCondition;
-import com.github.mapper.sql.SQLSelect;
+import com.github.mapper.sql.*;
+import org.springframework.r2dbc.core.DatabaseClient;
 
 public interface Join {
 
@@ -14,5 +13,5 @@ public interface Join {
     LeftJoin leftJoin(Class<?> toTable, Class<?> fromTable, String to, String from);
     Where where(SQLCondition condition);
     SQLSelect toSelect();
-
+    ReactiveSelect toReactiveSelect(DatabaseClient client);
 }

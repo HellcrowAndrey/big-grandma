@@ -1,6 +1,7 @@
 package com.github.mapper.sql.key.worlds;
 
 import com.github.mapper.sql.*;
+import org.springframework.r2dbc.core.DatabaseClient;
 
 import java.util.Objects;
 
@@ -62,6 +63,16 @@ public class WhereDefault extends KeyWorld implements Where {
     @Override
     public SQLSelect toSelect() {
         return this::asString;
+    }
+
+    @Override
+    public ReactiveSelect toReactiveSelect(DatabaseClient client) {
+        return new ReactiveSelectDefault(client) {
+            @Override
+            protected KeyWorld collect() {
+                return WhereDefault.this.toFirst();
+            }
+        };
     }
 
 }

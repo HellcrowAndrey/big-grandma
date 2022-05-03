@@ -2,6 +2,7 @@ package com.github.mapper.sql.key.worlds;
 
 import com.github.mapper.sql.*;
 import com.github.mapper.utils.MapperUtils;
+import org.springframework.r2dbc.core.DatabaseClient;
 
 import java.util.Objects;
 
@@ -11,7 +12,7 @@ public class FromDefault extends KeyWorld implements From {
 
     private final String tableName;
 
-    Class<?> pojoType;
+    private Class<?> pojoType;
 
     public FromDefault(Class<?> pojoType) {
         this.tableName = MapperUtils.findTableName(pojoType);
@@ -124,4 +125,17 @@ public class FromDefault extends KeyWorld implements From {
         return this::asString;
     }
 
+    @Override
+    public ReactiveSelect toReactiveSelect(DatabaseClient client) {
+        return new ReactiveSelectDefault(client) {
+            @Override
+            protected KeyWorld collect() {
+                return FromDefault.this.toFirst();
+            }
+        };
+    }
+
+    public Class<?> getPojoType() {
+        return pojoType;
+    }
 }

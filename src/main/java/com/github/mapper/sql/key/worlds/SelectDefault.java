@@ -38,14 +38,14 @@ public final class SelectDefault extends KeyWorld implements Select {
         while (iter != null) {
             if (this.columns.length == 0) {
                 if (iter instanceof FromDefault) {
-                    Class<?> type = ((FromDefault) iter).pojoType;
+                    Class<?> type = ((FromDefault) iter).getPojoType();
                     if (Objects.nonNull(type)) {
                         fields.putAll(fieldNames(type));
                     }
                 }
                 if (iter instanceof JoinDefault) {
-                    Class<?> toPojo = ((JoinDefault) iter).toPojoType;
-                    Class<?> fromPojo = ((JoinDefault) iter).fromPojoType;
+                    Class<?> toPojo = ((JoinDefault) iter).getToPojoType();
+                    Class<?> fromPojo = ((JoinDefault) iter).getFromPojoType();
                     if (Objects.nonNull(toPojo)) {
                         fields.putAll(fieldNames(toPojo));
                     }
@@ -54,8 +54,8 @@ public final class SelectDefault extends KeyWorld implements Select {
                     }
                 }
                 if (iter instanceof LeftJoinDefault) {
-                    Class<?> toPojo = ((LeftJoinDefault) iter).toPojoType;
-                    Class<?> fromPojo = ((LeftJoinDefault) iter).fromPojoType;
+                    Class<?> toPojo = ((LeftJoinDefault) iter).getToPojoType();
+                    Class<?> fromPojo = ((LeftJoinDefault) iter).getFromPojoType();
                     if (Objects.nonNull(toPojo)) {
                         fields.putAll(fieldNames(toPojo));
                     }

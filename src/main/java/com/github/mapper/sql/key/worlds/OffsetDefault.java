@@ -1,6 +1,9 @@
 package com.github.mapper.sql.key.worlds;
 
+import com.github.mapper.sql.ReactiveSelect;
+import com.github.mapper.sql.ReactiveSelectDefault;
 import com.github.mapper.sql.SQLSelect;
+import org.springframework.r2dbc.core.DatabaseClient;
 
 import java.util.Objects;
 
@@ -17,6 +20,16 @@ public class OffsetDefault extends KeyWorld implements Offset {
     @Override
     public SQLSelect toSelect() {
         return this::asString;
+    }
+
+    @Override
+    public ReactiveSelect toReactiveSelect(DatabaseClient client) {
+        return new ReactiveSelectDefault(client) {
+            @Override
+            protected KeyWorld collect() {
+                return OffsetDefault.this.toFirst();
+            }
+        };
     }
 
     @Override

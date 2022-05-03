@@ -1,9 +1,8 @@
 package com.github.mapper.sql.key.worlds;
 
-import com.github.mapper.sql.ColumnName;
-import com.github.mapper.sql.SQLCondition;
-import com.github.mapper.sql.SQLSelect;
+import com.github.mapper.sql.*;
 import com.github.mapper.utils.MapperUtils;
+import org.springframework.r2dbc.core.DatabaseClient;
 
 import java.util.Objects;
 
@@ -13,9 +12,9 @@ public class LeftJoinDefault extends KeyWorld implements LeftJoin {
 
     private final String operator;
 
-    Class<?> toPojoType;
+    private Class<?> toPojoType;
 
-    Class<?> fromPojoType;
+    private Class<?> fromPojoType;
 
     public LeftJoinDefault(String tableName, String leftCol, String rightCol) {
         this.operator = String.format(LEFT_JOIN, tableName, leftCol, rightCol);
@@ -100,6 +99,16 @@ public class LeftJoinDefault extends KeyWorld implements LeftJoin {
     }
 
     @Override
+    public ReactiveSelect toReactiveSelect(DatabaseClient client) {
+        return new ReactiveSelectDefault(client) {
+            @Override
+            protected KeyWorld collect() {
+                return LeftJoinDefault.this.toFirst();
+            }
+        };
+    }
+
+    @Override
     public String asString() {
         if (Objects.nonNull(this.prev)) {
             KeyWorld tmp = this.prev;
@@ -119,4 +128,11 @@ public class LeftJoinDefault extends KeyWorld implements LeftJoin {
         return this;
     }
 
+    public Class<?> getToPojoType() {
+        return toPojoType;
+    }
+
+    public Class<?> getFromPojoType() {
+        return fromPojoType;
+    }
 }

@@ -1,8 +1,11 @@
 package com.github.mapper.sql.key.worlds;
 
 import com.github.mapper.StringSqlUtils;
+import com.github.mapper.sql.ReactiveSelect;
+import com.github.mapper.sql.ReactiveSelectDefault;
 import com.github.mapper.sql.SQLSelect;
 import com.github.mapper.sql.SortedType;
+import org.springframework.r2dbc.core.DatabaseClient;
 
 import java.util.Objects;
 
@@ -54,6 +57,16 @@ public class OrderByDefault extends KeyWorld implements OrderBy {
     @Override
     public SQLSelect toSelect() {
         return this::asString;
+    }
+
+    @Override
+    public ReactiveSelect toReactiveSelect(DatabaseClient client) {
+        return new ReactiveSelectDefault(client) {
+            @Override
+            protected KeyWorld collect() {
+                return OrderByDefault.this.toFirst();
+            }
+        };
     }
 
     @Override

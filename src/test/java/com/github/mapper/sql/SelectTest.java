@@ -7,6 +7,7 @@ import com.github.mapper.models.Round2Lvl1;
 import com.github.mapper.sql.key.worlds.KeyWorld;
 import com.github.mapper.sql.key.worlds.SelectDefault;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
 
 class SelectTest {
 
@@ -179,6 +180,15 @@ class SelectTest {
                 .toSelect();
 
         System.out.println("New Select -> " + select.asString());
+
+        ReactiveSelect select1 = SQLSelect.select()
+                .from(RootLvl.class)
+                .join(Round1Lvl1.class, "id", "root_lvl_id")
+                .leftJoin(RootLvl.class, Round2Lvl1.class, "id", "root_lvl_id")
+                .where(SQLCondition.column("name").eq("vasia").get())
+                .toReactiveSelect(null);
+        Mono<Object> r = select1.one();
+        System.out.println(r);
     }
 
 }
