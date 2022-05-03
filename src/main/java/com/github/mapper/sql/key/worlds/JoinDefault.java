@@ -13,6 +13,10 @@ public class JoinDefault extends KeyWorld implements Join {
 
     private final String operator;
 
+    Class<?> toPojoType;
+
+    Class<?> fromPojoType;
+
     public JoinDefault(String tableName, String leftColName, String rightColName) {
         this.operator = String.format(JOIN, tableName, leftColName, rightColName);
     }
@@ -26,6 +30,8 @@ public class JoinDefault extends KeyWorld implements Join {
                 String.format("%s.%s", toTableName, to),
                 String.format("%s.%s", fromTableName, from)
         );
+        this.toPojoType = toTable;
+        this.fromPojoType = fromTable;
     }
 
     public JoinDefault(String toTable, Class<?> fromTable, String to, String from) {
@@ -36,6 +42,7 @@ public class JoinDefault extends KeyWorld implements Join {
                 String.format("%s.%s", toTable, to),
                 String.format("%s.%s", fromTableName, from)
         );
+        this.fromPojoType = fromTable;
     }
 
     @Override

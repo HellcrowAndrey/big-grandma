@@ -9,10 +9,13 @@ import java.util.Objects;
 
 public class LeftJoinDefault extends KeyWorld implements LeftJoin {
 
-
     private static final String LEFT_JOIN = "left join %s on %s = %s";
 
     private final String operator;
+
+    Class<?> toPojoType;
+
+    Class<?> fromPojoType;
 
     public LeftJoinDefault(String tableName, String leftCol, String rightCol) {
         this.operator = String.format(LEFT_JOIN, tableName, leftCol, rightCol);
@@ -27,6 +30,8 @@ public class LeftJoinDefault extends KeyWorld implements LeftJoin {
                 String.format("%s.%s", toTableName, to),
                 String.format("%s.%s", fromTableName, from)
         );
+        this.toPojoType = toTable;
+        this.fromPojoType = fromTable;
     }
 
     public LeftJoinDefault(String toTable, Class<?> fromTable, String to, String from) {
@@ -37,6 +42,7 @@ public class LeftJoinDefault extends KeyWorld implements LeftJoin {
                 String.format("%s.%s", toTable, to),
                 String.format("%s.%s", fromTableName, from)
         );
+        this.fromPojoType = fromTable;
     }
 
     @Override

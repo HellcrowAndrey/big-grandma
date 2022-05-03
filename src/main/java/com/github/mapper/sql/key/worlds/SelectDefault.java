@@ -1,9 +1,14 @@
 package com.github.mapper.sql.key.worlds;
 
 import com.github.mapper.StringSqlUtils;
-import com.github.mapper.sql.SelectTemplate;
+import com.github.mapper.sql.Select;
+import com.github.mapper.utils.MapperUtils;
 
-public final class SelectDefault extends KeyWorld implements SelectTemplate {
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.stream.Collectors;
+
+public final class SelectDefault extends KeyWorld implements Select {
 
     private static final String SELECT = "select";
 
@@ -13,29 +18,68 @@ public final class SelectDefault extends KeyWorld implements SelectTemplate {
         this.columns = columns;
     }
 
-    public static SelectTemplate select(String... columns) {
+    public static Select select(String... columns) {
         return new SelectDefault(columns);
     }
 
     @Override
     public String asString() {
-        StringBuilder sb = new StringBuilder(SELECT)
+        StringBuilder start = new StringBuilder(SELECT)
                 .append(StringSqlUtils.SPACE);
         KeyWorld iter = this.next;
         if (iter instanceof DistinctDefault || iter instanceof TopDefault) {
-            sb.append(iter.asString())
-                    .append(StringSqlUtils.SPACE)
-                    .append(StringSqlUtils.toStringSeparatorComa(this.columns));
-            iter = iter.next;
-        } else {
-            sb.append(StringSqlUtils.toStringSeparatorComa(this.columns))
+            start.append(iter.asString())
                     .append(StringSqlUtils.SPACE);
-        }
-        while (iter != null) {
-            sb.append(iter.asString()).append(StringSqlUtils.SPACE);
             iter = iter.next;
         }
-        return sb.toString();
+        Set<String> fields = new LinkedHashSet<>();
+        StringBuilder end = new StringBuilder();
+        while (iter != null) {
+            if (this.columns.length == 0) {
+                if (iter instanceof FromDefault) {
+                    Class<?> type = ((FromDefault) iter).pojoType;
+                    if (Objects.nonNull(type)) {
+                        fields.addAll(fieldNames(type));
+                    }
+                }
+                if (iter instanceof JoinDefault) {
+                    Class<?> toPojo = ((JoinDefault) iter).toPojoType;
+                    Class<?> fromPojo = ((JoinDefault) iter).fromPojoType;
+                    if (Objects.nonNull(toPojo)) {
+                        fields.addAll(fieldNames(toPojo));
+                    }
+                    if (Objects.nonNull(fromPojo)) {
+                        fields.addAll(fieldNames(fromPojo));
+                    }
+                }
+                if (iter instanceof LeftJoinDefault) {
+                    Class<?> toPojo = ((LeftJoinDefault) iter).toPojoType;
+                    Class<?> fromPojo = ((LeftJoinDefault) iter).fromPojoType;
+                    if (Objects.nonNull(toPojo)) {
+                        fields.addAll(fieldNames(toPojo));
+                    }
+                    if (Objects.nonNull(fromPojo)) {
+                        fields.addAll(fieldNames(fromPojo));
+                    }
+                }
+            }
+            end.append(iter.asString()).append(StringSqlUtils.SPACE);
+            iter = iter.next;
+        }
+        return this.columns.length != 0 ? start.append(StringSqlUtils.toStringSeparatorComa(this.columns))
+                .append(StringSqlUtils.SPACE)
+                .append(end)
+                .toString() : start.append(StringSqlUtils.toStringSeparatorComa(fields.toArray(new String[0])))
+                .append(StringSqlUtils.SPACE)
+                .append(end)
+                .toString();
+    }
+
+    private static List<String> fieldNames(Class<?> type) {
+        return Arrays.stream(type.getDeclaredFields())
+                .filter(field -> MapperUtils.isPrimitiveOrWrapper(field.getType()))
+                .map(Field::getName)
+                .collect(Collectors.toList());
     }
 
     @Override

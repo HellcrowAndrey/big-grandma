@@ -16,6 +16,23 @@ public class MapperUtils {
 
     private static final Logger log = LoggerFactory.getLogger(MapperUtils.class);
 
+    private static final Map<Class<?>, Class<?>> WRAPPER_TYPE_MAP;
+    static {
+        WRAPPER_TYPE_MAP = new HashMap<>(16);
+        WRAPPER_TYPE_MAP.put(Integer.class, int.class);
+        WRAPPER_TYPE_MAP.put(Byte.class, byte.class);
+        WRAPPER_TYPE_MAP.put(Character.class, char.class);
+        WRAPPER_TYPE_MAP.put(Boolean.class, boolean.class);
+        WRAPPER_TYPE_MAP.put(Double.class, double.class);
+        WRAPPER_TYPE_MAP.put(Float.class, float.class);
+        WRAPPER_TYPE_MAP.put(Long.class, long.class);
+        WRAPPER_TYPE_MAP.put(Short.class, short.class);
+    }
+
+    public static boolean isPrimitiveOrWrapper(Class<?> type) {
+        return WRAPPER_TYPE_MAP.containsKey(type) || WRAPPER_TYPE_MAP.containsValue(type) || type.equals(String.class);
+    }
+
     public static void setField(Field field, Object target, Object value) {
         try {
             Reflections.setField(field, target, value);
@@ -183,7 +200,7 @@ public class MapperUtils {
 
     public static String findTableName(Class<?> clz) {
         if (!clz.isAnnotationPresent(Table.class)) {
-            throw new RuntimeException("Entity has not Table annotation");
+            return clz.getSimpleName();
         }
         return clz.getAnnotation(Table.class).value();
     }

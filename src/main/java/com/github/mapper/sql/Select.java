@@ -4,7 +4,7 @@ import com.github.mapper.sql.key.worlds.Distinct;
 import com.github.mapper.sql.key.worlds.From;
 import com.github.mapper.sql.key.worlds.TopDefault;
 
-public interface SelectTemplate {
+public interface Select {
 
     Distinct distinct();
 

@@ -6,7 +6,6 @@ import java.util.Objects;
 
 public class WhereDefault extends KeyWorld implements Where {
 
-
     private static final String WHERE_PATTERN = "where %s";
 
     private final String operator;

@@ -11,8 +11,11 @@ public class FromDefault  extends KeyWorld implements From {
 
     private final String tableName;
 
-    public FromDefault(Class<?> clz) {
-        this.tableName = MapperUtils.findTableName(clz);
+    Class<?> pojoType;
+
+    public FromDefault(Class<?> pojoType) {
+        this.tableName = MapperUtils.findTableName(pojoType);
+        this.pojoType = pojoType;
     }
 
     public FromDefault(String tableName) {
