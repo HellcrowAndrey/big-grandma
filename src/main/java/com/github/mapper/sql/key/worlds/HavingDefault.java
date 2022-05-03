@@ -32,6 +32,11 @@ public class HavingDefault extends KeyWorld implements Having {
     }
 
     @Override
+    public String getText() {
+        return asString();
+    }
+
+    @Override
     public KeyWorld toFirst() {
         if (Objects.nonNull(this.prev)) {
             KeyWorld tmp = this.prev;

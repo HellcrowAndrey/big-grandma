@@ -77,6 +77,18 @@ public final class SelectDefault extends KeyWorld implements Select {
                 .toString();
     }
 
+    @Override
+    public String getText() {
+        StringBuilder start = new StringBuilder(SELECT)
+                .append(StringSqlUtils.SPACE);
+        KeyWorld iter = this.next;
+        if (iter instanceof DistinctDefault || iter instanceof TopDefault) {
+            start.append(iter.asString())
+                    .append(StringSqlUtils.SPACE);
+        }
+        return start.toString();
+    }
+
     private static Map<String, Pair<String, Field>> fieldNames(Class<?> type) {
         String tableName = MapperUtils.findTableName(type);
         return Arrays.stream(type.getDeclaredFields())

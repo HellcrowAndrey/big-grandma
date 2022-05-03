@@ -10,6 +10,8 @@ public abstract class KeyWorld implements Iterator<KeyWorld> {
 
     public abstract String asString();
 
+    public abstract String getText();
+
     public abstract KeyWorld toFirst();
 
     @Override

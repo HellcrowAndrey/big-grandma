@@ -119,6 +119,11 @@ public class LeftJoinDefault extends KeyWorld implements LeftJoin {
     }
 
     @Override
+    public String getText() {
+        return this.asString();
+    }
+
+    @Override
     public KeyWorld toFirst() {
         if (Objects.nonNull(this.prev)) {
             KeyWorld tmp = this.prev;

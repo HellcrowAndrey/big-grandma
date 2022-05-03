@@ -30,6 +30,11 @@ public class LimitDefault extends KeyWorld implements Limit {
     }
 
     @Override
+    public String getText() {
+        return this.asString();
+    }
+
+    @Override
     public KeyWorld toFirst() {
         if (Objects.nonNull(this.prev)) {
             KeyWorld tmp = this.prev;
