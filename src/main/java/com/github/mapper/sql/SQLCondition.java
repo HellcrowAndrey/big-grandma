@@ -1,6 +1,7 @@
 package com.github.mapper.sql;
 
 import com.github.mapper.StringSqlUtils;
+import com.github.mapper.utils.MapperUtils;
 
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -8,6 +9,10 @@ import java.util.function.Supplier;
 public interface SQLCondition {
 
     String asString();
+
+    static Operators column(Class<?> entity, String column) {
+        return Operators.newInstance().column(entity, column);
+    }
 
     static Operators column(String column) {
         return Operators.newInstance().column(column);
@@ -29,6 +34,11 @@ public interface SQLCondition {
 
         public static Operators newInstance() {
             return new Operators();
+        }
+
+        public Operators column(Class<?> entity, String column) {
+            this.column = String.format("%s.%s", MapperUtils.findTableName(entity), column);
+            return this;
         }
 
         public Operators column(String column) {
@@ -289,6 +299,12 @@ public interface SQLCondition {
     }
 
     abstract class AfterLogicalOperator extends BaseOperator {
+        public Operators column(Class<?> entity, String column) {
+            this.next = IntermediateOperators.newInstance().column(entity, column);
+            this.next.prev = this;
+            return (Operators) this.next;
+        }
+
         public Operators column(String column) {
             this.next = IntermediateOperators.newInstance().column(column);
             this.next.prev = this;
@@ -321,6 +337,12 @@ public interface SQLCondition {
     }
 
     abstract class AfterNotOperator extends BaseOperator {
+        public Operators column(Class<?> entity, String column) {
+            this.next = IntermediateOperators.newInstance().column(entity, column);
+            this.next.prev = this;
+            return (Operators) this.next;
+        }
+
         public Operators column(String column) {
             this.next = IntermediateOperators.newInstance().column(column);
             this.next.prev = this;

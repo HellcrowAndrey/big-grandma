@@ -20,28 +20,28 @@ public class LeftJoinDefault extends KeyWorld implements LeftJoin {
         this.operator = String.format(LEFT_JOIN, tableName, leftCol, rightCol);
     }
 
-    public LeftJoinDefault(Class<?> toTable, Class<?> fromTable, String to, String from) {
-        var toTableName = MapperUtils.findTableName(toTable);
-        var fromTableName = MapperUtils.findTableName(fromTable);
+    public LeftJoinDefault(Class<?> toJoin, Class<?> toTable, String columnToJoin, String columnToTable) {
+        var toJoinTblName = MapperUtils.findTableName(toJoin);
+        var toTblName = MapperUtils.findTableName(toTable);
         this.operator = String.format(
                 LEFT_JOIN,
-                fromTableName,
-                String.format("%s.%s", toTableName, to),
-                String.format("%s.%s", fromTableName, from)
+                toJoinTblName,
+                String.format("%s.%s", toJoinTblName, columnToJoin),
+                String.format("%s.%s", toTblName, columnToTable)
         );
-        this.toPojoType = toTable;
-        this.fromPojoType = fromTable;
+        this.toPojoType = toJoin;
+        this.fromPojoType = toTable;
     }
 
-    public LeftJoinDefault(String toTable, Class<?> fromTable, String to, String from) {
-        var fromTableName = MapperUtils.findTableName(fromTable);
+    public LeftJoinDefault(String tableNameToJoin, Class<?> toTable, String columnToJoin, String columnToTable) {
+        var toTblName = MapperUtils.findTableName(toTable);
         this.operator = String.format(
                 LEFT_JOIN,
-                fromTableName,
-                String.format("%s.%s", toTable, to),
-                String.format("%s.%s", fromTableName, from)
+                tableNameToJoin,
+                String.format("%s.%s", tableNameToJoin, columnToJoin),
+                String.format("%s.%s", toTblName, columnToTable)
         );
-        this.fromPojoType = fromTable;
+        this.fromPojoType = toTable;
     }
 
     @Override

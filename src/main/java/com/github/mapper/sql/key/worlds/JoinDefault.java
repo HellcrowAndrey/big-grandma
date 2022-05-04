@@ -20,28 +20,28 @@ public class JoinDefault extends KeyWorld implements Join {
         this.operator = String.format(JOIN, tableName, leftColName, rightColName);
     }
 
-    public JoinDefault(Class<?> toTable, Class<?> fromTable, String to, String from) {
-        var toTableName = MapperUtils.findTableName(toTable);
-        var fromTableName = MapperUtils.findTableName(fromTable);
+    public JoinDefault(Class<?> toJoin, Class<?> toTable, String columnToJoin, String columnToTable) {
+        var toJoinTblName = MapperUtils.findTableName(toJoin);
+        var toTblName = MapperUtils.findTableName(toTable);
         this.operator = String.format(
                 JOIN,
-                fromTableName,
-                String.format("%s.%s", toTableName, to),
-                String.format("%s.%s", fromTableName, from)
+                toJoinTblName,
+                String.format("%s.%s", toJoinTblName, columnToJoin),
+                String.format("%s.%s", toTblName, columnToTable)
         );
-        this.toPojoType = toTable;
-        this.fromPojoType = fromTable;
+        this.toPojoType = toJoin;
+        this.fromPojoType = toTable;
     }
 
-    public JoinDefault(String toTable, Class<?> fromTable, String to, String from) {
-        var fromTableName = MapperUtils.findTableName(fromTable);
+    public JoinDefault(String tableNameToJoin, Class<?> toTable, String columnToJoin, String columnToTable) {
+        var toTblName = MapperUtils.findTableName(toTable);
         this.operator = String.format(
                 JOIN,
-                fromTableName,
-                String.format("%s.%s", toTable, to),
-                String.format("%s.%s", fromTableName, from)
+                tableNameToJoin,
+                String.format("%s.%s", tableNameToJoin, columnToJoin),
+                String.format("%s.%s", toTblName, columnToTable)
         );
-        this.fromPojoType = fromTable;
+        this.fromPojoType = toTable;
     }
 
     @Override

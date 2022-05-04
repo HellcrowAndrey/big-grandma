@@ -134,7 +134,7 @@ public class SubGraph {
         }
 
         public OneToEtcBuilder aliases(Map<String, String> aliases) {
-            this.fields.putAll(MapperUtils.fields(aliases, this.rootType));
+            this.fields.putAll(MapperUtils.fields(aliases, this.currentType));
             return this;
         }
 
@@ -240,7 +240,7 @@ public class SubGraph {
         }
 
         public ManyToManyBuilder aliases(Map<String, String> aliases) {
-            this.fields.putAll(MapperUtils.fields(aliases, this.rootType));
+            this.fields.putAll(MapperUtils.fields(aliases, this.currentType));
             return this;
         }
 

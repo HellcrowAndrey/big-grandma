@@ -9,12 +9,21 @@ import org.springframework.r2dbc.core.DatabaseClient;
 public interface LeftJoin {
 
     LeftJoin leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol);
+
     LeftJoin leftJoin(String tableName, String leftCol, String rightCol);
-    LeftJoin leftJoin(Class<?> toTable, Class<?> fromTable, String to, String from);
+
+    LeftJoin leftJoin(Class<?> toJoin, Class<?> toTable, String columnToJoin, String columnToTable);
+
     Join join(String tableName, ColumnName leftCol, ColumnName rightCol);
+
     Join join(String tableName, String leftCol, String rightCol);
-    Join join(Class<?> toTable, Class<?> fromTable, String to, String from);
+
+    Join join(Class<?> toJoin, Class<?> toTable, String columnToJoin, String columnToTable);
+
     Where where(SQLCondition condition);
+
     SQLSelect toSelect();
+
     ReactiveSelect toReactiveSelect(DatabaseClient client);
+
 }

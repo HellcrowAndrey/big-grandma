@@ -3,8 +3,7 @@ package com.github.mapper.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.lang.Nullable;
-import org.springframework.util.ReflectionUtils;
+import org.springframework.data.util.Pair;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.*;
@@ -203,6 +202,20 @@ public class MapperUtils {
             return clz.getSimpleName().toLowerCase(Locale.ROOT);
         }
         return clz.getAnnotation(Table.class).value();
+    }
+
+    public static Map<String, Pair<String, Field>> fieldNames(Class<?> type) {
+        String tableName = MapperUtils.findTableName(type);
+        return Arrays.stream(type.getDeclaredFields())
+                .filter(field -> MapperUtils.isPrimitiveOrWrapper(field.getType()))
+                .collect(Collectors.toMap(k -> tableName + "." + k.getName(), v -> Pair.of(tableName + "_" + v.getName(), v) ));
+    }
+
+    public static Map<String, String> fieldAsAliases(Class<?> type) {
+        String tableName = MapperUtils.findTableName(type);
+        return Arrays.stream(type.getDeclaredFields())
+                .filter(field -> MapperUtils.isPrimitiveOrWrapper(field.getType()))
+                .collect(Collectors.toMap(Field::getName, v -> tableName + "_" + v.getName()));
     }
 
 }

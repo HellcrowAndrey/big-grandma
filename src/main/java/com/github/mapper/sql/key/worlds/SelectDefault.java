@@ -23,6 +23,7 @@ public final class SelectDefault extends KeyWorld implements Select {
         return new SelectDefault(columns);
     }
 
+    // TODO: 03.05.22 what I must do with columns
     @Override
     public String asString() {
         StringBuilder start = new StringBuilder(SELECT)
@@ -79,14 +80,8 @@ public final class SelectDefault extends KeyWorld implements Select {
 
     @Override
     public String getText() {
-        StringBuilder start = new StringBuilder(SELECT)
-                .append(StringSqlUtils.SPACE);
-        KeyWorld iter = this.next;
-        if (iter instanceof DistinctDefault || iter instanceof TopDefault) {
-            start.append(iter.asString())
-                    .append(StringSqlUtils.SPACE);
-        }
-        return start.toString();
+        return SELECT +
+                StringSqlUtils.SPACE;
     }
 
     private static Map<String, Pair<String, Field>> fieldNames(Class<?> type) {
