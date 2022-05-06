@@ -1,9 +1,11 @@
 package com.github.mapper.sql.key.worlds;
 
 import com.github.mapper.StringSqlUtils;
+import com.github.mapper.sql.QueryContext;
 import com.github.mapper.sql.Select;
 import com.github.mapper.utils.MapperUtils;
 import org.springframework.data.util.Pair;
+import org.springframework.r2dbc.core.DatabaseClient;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -13,69 +15,61 @@ public final class SelectDefault extends KeyWorld implements Select {
 
     private static final String SELECT = "select";
 
-    private final String[] columns;
+    private String[] columns;
+
+    private final QueryContext queryContext;
 
     private SelectDefault(String[] columns) {
         this.columns = columns;
+        this.queryContext = new QueryContext();
+    }
+
+    private SelectDefault(DatabaseClient client) {
+        this.queryContext = new QueryContext(client);
     }
 
     public static Select select(String... columns) {
         return new SelectDefault(columns);
     }
 
-    // TODO: 03.05.22 what I must do with columns
+    public static Select select(DatabaseClient client) {
+        return new SelectDefault(client);
+    }
+
     @Override
     public String asString() {
-        StringBuilder start = new StringBuilder(SELECT)
+        StringBuilder sb = new StringBuilder(SELECT)
                 .append(StringSqlUtils.SPACE);
         KeyWorld iter = this.next;
         if (iter instanceof DistinctDefault || iter instanceof TopDefault) {
-            start.append(iter.asString())
+            sb.append(iter.asString())
                     .append(StringSqlUtils.SPACE);
             iter = iter.next;
         }
-        Map<String, Pair<String, Field>> fields = new LinkedHashMap<>();
-        StringBuilder end = new StringBuilder();
+        if (this.columns.length == 0) {
+            Map<QueryContext.Table, List<QueryContext.Column>> columns = this.queryContext.getColumns();
+            List<String> array = new LinkedList<>();
+            columns.forEach((table, cols) -> {
+                cols.forEach(column -> {
+                    String s = column.getColumnName() +
+                            StringSqlUtils.SPACE +
+                            "as" +
+                            StringSqlUtils.SPACE +
+                            column.getAlias();
+                    array.add(s);
+                });
+            });
+            sb.append(StringSqlUtils.toStringSeparatorComa(array.toArray()))
+                    .append(StringSqlUtils.SPACE);
+        } else {
+            sb.append(StringSqlUtils.toStringSeparatorComa(this.columns))
+                    .append(StringSqlUtils.SPACE);
+        }
         while (iter != null) {
-            if (this.columns.length == 0) {
-                if (iter instanceof FromDefault) {
-                    Class<?> type = ((FromDefault) iter).getPojoType();
-                    if (Objects.nonNull(type)) {
-                        fields.putAll(fieldNames(type));
-                    }
-                }
-                if (iter instanceof JoinDefault) {
-                    Class<?> toPojo = ((JoinDefault) iter).getToPojoType();
-                    Class<?> fromPojo = ((JoinDefault) iter).getFromPojoType();
-                    if (Objects.nonNull(toPojo)) {
-                        fields.putAll(fieldNames(toPojo));
-                    }
-                    if (Objects.nonNull(fromPojo)) {
-                        fields.putAll(fieldNames(fromPojo));
-                    }
-                }
-                if (iter instanceof LeftJoinDefault) {
-                    Class<?> toPojo = ((LeftJoinDefault) iter).getToPojoType();
-                    Class<?> fromPojo = ((LeftJoinDefault) iter).getFromPojoType();
-                    if (Objects.nonNull(toPojo)) {
-                        fields.putAll(fieldNames(toPojo));
-                    }
-                    if (Objects.nonNull(fromPojo)) {
-                        fields.putAll(fieldNames(fromPojo));
-                    }
-                }
-            }
-            end.append(iter.asString()).append(StringSqlUtils.SPACE);
+            sb.append(iter.asString()).append(StringSqlUtils.SPACE);
             iter = iter.next;
         }
-        return this.columns.length != 0 ? start.append(StringSqlUtils.toStringSeparatorComa(this.columns))
-                .append(StringSqlUtils.SPACE)
-                .append(end)
-                .toString() : start.append(StringSqlUtils.toStringSeparatorComa(
-                        fields.keySet().stream().map(key -> key + " as " + fields.get(key).getFirst()).toArray())
-                ).append(StringSqlUtils.SPACE)
-                .append(end)
-                .toString();
+        return sb.toString();
     }
 
     @Override
@@ -88,33 +82,33 @@ public final class SelectDefault extends KeyWorld implements Select {
         String tableName = MapperUtils.findTableName(type);
         return Arrays.stream(type.getDeclaredFields())
                 .filter(field -> MapperUtils.isPrimitiveOrWrapper(field.getType()))
-                .collect(Collectors.toMap(k -> tableName + "." + k.getName(), v -> Pair.of(tableName + "_" + v.getName(), v) ));
+                .collect(Collectors.toMap(k -> tableName + "." + k.getName(), v -> Pair.of(tableName + "_" + v.getName(), v)));
     }
 
     @Override
     public Distinct distinct() {
-        this.next = new DistinctDefault();
+        this.next = new DistinctDefault(this.queryContext);
         this.next.prev = this;
         return (DistinctDefault) this.next;
     }
 
     @Override
     public TopDefault top(int number) {
-        this.next = new TopDefault(number);
+        this.next = new TopDefault(number, this.queryContext);
         this.next.prev = this;
         return (TopDefault) this.next;
     }
 
     @Override
     public From from(String tableName) {
-        this.next = new FromDefault(tableName);
+        this.next = new FromDefault(tableName, this.queryContext);
         this.next.prev = this;
         return (FromDefault) this.next;
     }
 
     @Override
     public From from(Class<?> clz) {
-        this.next = new FromDefault(clz);
+        this.next = new FromDefault(clz, this.queryContext);
         this.next.prev = this;
         return (FromDefault) this.next;
     }

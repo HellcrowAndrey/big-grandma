@@ -11,31 +11,37 @@ public class WhereDefault extends KeyWorld implements Where {
 
     private final String operator;
 
-    private WhereDefault(String condition) {
+    private final QueryContext queryContext;
+
+    private WhereDefault(String condition, QueryContext queryContext) {
         this.operator = String.format(WHERE_PATTERN, condition);
+        this.queryContext = queryContext;
     }
 
-    public WhereDefault(SQLCondition condition) {
-        this(Objects.requireNonNull(condition, "Condition is required").asString());
+    public WhereDefault(SQLCondition condition, QueryContext queryContext) {
+        this(
+                Objects.requireNonNull(condition, "Condition is required").asString(),
+                queryContext
+        );
     }
 
     @Override
     public GroupBy groupBy(String... columns) {
-        this.next = new GroupByDefault(columns);
+        this.next = new GroupByDefault(this.queryContext, columns);
         this.next.prev = this;
         return (GroupByDefault) this.next;
     }
 
     @Override
     public OrderBy orderBy(SortedType sortedType, String... columns) {
-        this.next = new OrderByDefault().defaultOrderBy(sortedType, columns);
+        this.next = new OrderByDefault(this.queryContext).defaultOrderBy(sortedType, columns);
         this.next.prev = this;
         return (OrderByDefault) this.next;
     }
 
     @Override
     public Limit limit(int number) {
-        this.next = new LimitDefault(number);
+        this.next = new LimitDefault(number, this.queryContext);
         this.next.prev = this;
         return (LimitDefault) this.next;
     }

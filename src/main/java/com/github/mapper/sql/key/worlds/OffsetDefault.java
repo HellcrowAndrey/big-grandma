@@ -1,5 +1,6 @@
 package com.github.mapper.sql.key.worlds;
 
+import com.github.mapper.sql.QueryContext;
 import com.github.mapper.sql.ReactiveSelect;
 import com.github.mapper.sql.ReactiveSelectDefault;
 import com.github.mapper.sql.SQLSelect;
@@ -13,8 +14,11 @@ public class OffsetDefault extends KeyWorld implements Offset {
 
     private final String operator;
 
-    public OffsetDefault(Integer number) {
+    private final QueryContext queryContext;
+
+    public OffsetDefault(Integer number, QueryContext queryContext) {
         this.operator = String.format(OFFSET, number);
+        this.queryContext = queryContext;
     }
 
     @Override

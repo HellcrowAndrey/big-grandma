@@ -1,6 +1,7 @@
 package com.github.mapper.sql.key.worlds;
 
 import com.github.mapper.StringSqlUtils;
+import com.github.mapper.sql.QueryContext;
 import com.github.mapper.sql.SQLHaving;
 import com.github.mapper.sql.SortedType;
 
@@ -12,20 +13,23 @@ public class GroupByDefault extends KeyWorld implements GroupBy {
 
     private final String operator;
 
-    public GroupByDefault(String... columns) {
+    private final QueryContext queryContext;
+
+    public GroupByDefault(QueryContext queryContext, String... columns) {
         this.operator = String.format(GROUP_BY, StringSqlUtils.toStringSeparatorComa(columns));
+        this.queryContext = queryContext;
     }
 
     @Override
     public Having having(SQLHaving condition) {
-        this.next = new HavingDefault(condition.asString());
+        this.next = new HavingDefault(condition.asString(), this.queryContext);
         this.next.prev = this;
         return (HavingDefault) this.next;
     }
 
     @Override
     public OrderBy orderBy(SortedType sortedType, String... columns) {
-        this.next = new OrderByDefault().defaultOrderBy(sortedType, columns);
+        this.next = new OrderByDefault(this.queryContext).defaultOrderBy(sortedType, columns);
         this.next.prev = this;
         return (OrderByDefault) this.next;
     }

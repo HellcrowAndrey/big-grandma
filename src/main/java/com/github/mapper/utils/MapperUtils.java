@@ -218,4 +218,10 @@ public class MapperUtils {
                 .collect(Collectors.toMap(Field::getName, v -> tableName + "_" + v.getName()));
     }
 
+    public static List<Field> fieldAllFields(Class<?> type) {
+        return Arrays.stream(type.getDeclaredFields())
+                .filter(field -> MapperUtils.isPrimitiveOrWrapper(field.getType()))
+                .collect(Collectors.toCollection(LinkedList::new));
+    }
+
 }

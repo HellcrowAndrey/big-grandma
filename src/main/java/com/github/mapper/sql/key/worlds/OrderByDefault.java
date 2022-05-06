@@ -1,10 +1,7 @@
 package com.github.mapper.sql.key.worlds;
 
 import com.github.mapper.StringSqlUtils;
-import com.github.mapper.sql.ReactiveSelect;
-import com.github.mapper.sql.ReactiveSelectDefault;
-import com.github.mapper.sql.SQLSelect;
-import com.github.mapper.sql.SortedType;
+import com.github.mapper.sql.*;
 import org.springframework.r2dbc.core.DatabaseClient;
 
 import java.util.Objects;
@@ -18,6 +15,12 @@ public class OrderByDefault extends KeyWorld implements OrderBy {
     private int count = 0;
 
     private String operator;
+
+    private final QueryContext queryContext;
+
+    public OrderByDefault(QueryContext queryContext) {
+        this.queryContext = queryContext;
+    }
 
     @Override
     public OrderBy orderBy(SortedType sortedType, String... columns) {
@@ -49,7 +52,7 @@ public class OrderByDefault extends KeyWorld implements OrderBy {
 
     @Override
     public Limit limit(int number) {
-        this.next = new LimitDefault(number);
+        this.next = new LimitDefault(number, this.queryContext);
         this.next.prev = this;
         return (LimitDefault) this.next;
     }

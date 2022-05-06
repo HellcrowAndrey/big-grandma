@@ -10,92 +10,97 @@ public class FromDefault extends KeyWorld implements From {
 
     private static final String FROM = "from %s";
 
-    private final String tableName;
+    private static final String FROM_AND_ALIAS = "from %s as %s";
 
-    private Class<?> pojoType;
+    private final String operator;
 
-    public FromDefault(Class<?> pojoType) {
-        this.tableName = MapperUtils.findTableName(pojoType);
-        this.pojoType = pojoType;
+    private final QueryContext queryContext;
+
+    public FromDefault(Class<?> pojoType, QueryContext queryContext) {
+        this.queryContext = queryContext;
+        this.queryContext.addTable(pojoType);
+        QueryContext.Table table = this.queryContext.getTable(pojoType);
+        this.operator = String.format(FROM_AND_ALIAS, table.getName(), table.getAlias());
     }
 
-    public FromDefault(String tableName) {
-        this.tableName = tableName;
+    public FromDefault(String tableName, QueryContext queryContext) {
+        this.operator = String.format(FROM, tableName);
+        this.queryContext = queryContext;
     }
 
     @Override
     public Where where(SQLCondition condition) {
-        this.next = new WhereDefault(condition);
+        this.next = new WhereDefault(condition, this.queryContext);
         this.next.prev = this;
         return (WhereDefault) this.next;
     }
 
     @Override
     public OrderBy orderBy(SortedType sortedType, String... columns) {
-        this.next = new OrderByDefault().defaultOrderBy(sortedType, columns);
+        this.next = new OrderByDefault(this.queryContext).defaultOrderBy(sortedType, columns);
         this.next.prev = this;
         return (OrderByDefault) this.next;
     }
 
     @Override
     public Limit limit(int number) {
-        this.next = new LimitDefault(number);
+        this.next = new LimitDefault(number, this.queryContext);
         this.next.prev = this;
         return (LimitDefault) this.next;
     }
 
     @Override
     public Join join(String tableName, ColumnName leftCol, ColumnName rightCol) {
-        this.next = new JoinDefault(tableName, leftCol.get(), rightCol.get());
+        this.next = new JoinDefault(tableName, leftCol.get(), rightCol.get(), this.queryContext);
         this.next.prev = this;
         return (JoinDefault) this.next;
     }
 
     @Override
     public Join join(String tableName, String leftCol, String rightCol) {
-        this.next = new JoinDefault(tableName, leftCol, rightCol);
+        this.next = new JoinDefault(tableName, leftCol, rightCol, this.queryContext);
         this.next.prev = this;
         return (JoinDefault) this.next;
     }
 
     @Override
     public Join join(Class<?> fromTable, String to, String from) {
-        this.next = new JoinDefault(this.tableName, fromTable, to, from);
+        this.next = new JoinDefault(fromTable, this.queryContext.getRootTable().getClz(), to, from, this.queryContext);
         this.next.prev = this;
         return (JoinDefault) this.next;
     }
 
     @Override
     public Join join(Class<?> toTable, Class<?> fromTable, String to, String from) {
-        this.next = new JoinDefault(toTable, fromTable, to, from);
+        this.next = new JoinDefault(toTable, fromTable, to, from, this.queryContext);
         this.next.prev = this;
         return (JoinDefault) this.next;
     }
 
     @Override
     public LeftJoin leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol) {
-        this.next = new LeftJoinDefault(tableName, leftCol.get(), rightCol.get());
+        this.next = new LeftJoinDefault(tableName, leftCol.get(), rightCol.get(), this.queryContext);
         this.next.prev = this;
         return (LeftJoinDefault) this.next;
     }
 
     @Override
     public LeftJoin leftJoin(String tableName, String leftCol, String rightCol) {
-        this.next = new LeftJoinDefault(tableName, leftCol, rightCol);
+        this.next = new LeftJoinDefault(tableName, leftCol, rightCol, this.queryContext);
         this.next.prev = this;
         return (LeftJoinDefault) this.next;
     }
 
     @Override
-    public LeftJoin leftJoin(Class<?> fromTable, String to, String from) {
-        this.next = new LeftJoinDefault(this.tableName, fromTable, to, from);
+    public LeftJoin leftJoin(Class<?> toJoin, String to, String from) {
+        this.next = new LeftJoinDefault(this.queryContext.getRootTable().getClz(), toJoin, to, from, this.queryContext);
         this.next.prev = this;
         return (LeftJoinDefault) this.next;
     }
 
     @Override
-    public LeftJoin leftJoin(Class<?> toTable, Class<?> fromTable, String to, String from) {
-        this.next = new LeftJoinDefault(toTable, fromTable, to, from);
+    public LeftJoin leftJoin(Class<?> toJoin, Class<?> toTable, String to, String from) {
+        this.next = new LeftJoinDefault(toJoin, toTable, to, from, this.queryContext);
         this.next.prev = this;
         return (LeftJoinDefault) this.next;
     }
@@ -107,7 +112,7 @@ public class FromDefault extends KeyWorld implements From {
             this.prev = null;
             return tmp.asString();
         }
-        return String.format(FROM, this.tableName);
+        return this.operator;
     }
 
     @Override
@@ -138,9 +143,5 @@ public class FromDefault extends KeyWorld implements From {
                 return FromDefault.this.toFirst();
             }
         };
-    }
-
-    public Class<?> getPojoType() {
-        return pojoType;
     }
 }

@@ -10,85 +10,79 @@ public class LeftJoinDefault extends KeyWorld implements LeftJoin {
 
     private static final String LEFT_JOIN = "left join %s on %s = %s";
 
+    private static final String LEFT_JOIN_WITH_ALIAS = "left join %s as %s on %s = %s";
+
     private final String operator;
 
-    private Class<?> toPojoType;
+    private final QueryContext queryContext;
 
-    private Class<?> fromPojoType;
-
-    public LeftJoinDefault(String tableName, String leftCol, String rightCol) {
+    public LeftJoinDefault(String tableName, String leftCol, String rightCol, QueryContext queryContext) {
         this.operator = String.format(LEFT_JOIN, tableName, leftCol, rightCol);
+        this.queryContext = queryContext;
     }
 
-    public LeftJoinDefault(Class<?> toJoin, Class<?> toTable, String columnToJoin, String columnToTable) {
-        var toJoinTblName = MapperUtils.findTableName(toJoin);
-        var toTblName = MapperUtils.findTableName(toTable);
+    public LeftJoinDefault(Class<?> toJoin, Class<?> toTable, String columnToJoin, String columnToTable, QueryContext queryContext) {
+        this.queryContext = queryContext;
+        this.queryContext.addTable(toJoin, toTable);
+        QueryContext.Table toJoinTbl = this.queryContext.getTable(toJoin);
+        var toJoinTblName = toJoinTbl.getName();
+        var toJoinTblAlias = toJoinTbl.getAlias();
+        QueryContext.Table toTbl = this.queryContext.getTable(toJoin);
+        var toTblAlias = toTbl.getAlias();
         this.operator = String.format(
-                LEFT_JOIN,
+                LEFT_JOIN_WITH_ALIAS,
                 toJoinTblName,
-                String.format("%s.%s", toJoinTblName, columnToJoin),
-                String.format("%s.%s", toTblName, columnToTable)
+                toJoinTblAlias,
+                String.format("%s.%s", toJoinTblAlias, columnToJoin),
+                String.format("%s.%s", toTblAlias, columnToTable)
         );
-        this.toPojoType = toJoin;
-        this.fromPojoType = toTable;
-    }
-
-    public LeftJoinDefault(String tableNameToJoin, Class<?> toTable, String columnToJoin, String columnToTable) {
-        var toTblName = MapperUtils.findTableName(toTable);
-        this.operator = String.format(
-                LEFT_JOIN,
-                tableNameToJoin,
-                String.format("%s.%s", tableNameToJoin, columnToJoin),
-                String.format("%s.%s", toTblName, columnToTable)
-        );
-        this.fromPojoType = toTable;
     }
 
     @Override
     public LeftJoin leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol) {
-        this.next = new LeftJoinDefault(tableName, leftCol.get(), rightCol.get());
+        this.next = new LeftJoinDefault(tableName, leftCol.get(), rightCol.get(), this.queryContext);
         this.next.prev = this;
         return (LeftJoinDefault) this.next;
     }
 
     @Override
     public LeftJoin leftJoin(String tableName, String leftCol, String rightCol) {
-        this.next = new LeftJoinDefault(tableName, leftCol, rightCol);
+        this.next = new LeftJoinDefault(tableName, leftCol, rightCol, this.queryContext);
         this.next.prev = this;
         return (LeftJoinDefault) this.next;
     }
 
     @Override
     public LeftJoin leftJoin(Class<?> toTable, Class<?> fromTable, String to, String from) {
-        this.next = new LeftJoinDefault(toTable, fromTable, to, from);
+        this.next = new LeftJoinDefault(toTable, fromTable, to, from, this.queryContext);
         this.next.prev = this;
         return (LeftJoinDefault) this.next;
     }
 
     @Override
     public Join join(String tableName, ColumnName leftCol, ColumnName rightCol) {
-        this.next = new JoinDefault(tableName, leftCol.get(), rightCol.get());
+        this.next = new JoinDefault(tableName, leftCol.get(), rightCol.get(), this.queryContext);
         this.next.prev = this;
         return (JoinDefault) this.next;
     }
 
     @Override
     public Join join(String tableName, String leftCol, String rightCol) {
-        this.next = new JoinDefault(tableName, leftCol, rightCol);
+        this.next = new JoinDefault(tableName, leftCol, rightCol, this.queryContext);
         this.next.prev = this;
         return (JoinDefault) this.next;
     }
 
     @Override
     public Join join(Class<?> toTable, Class<?> fromTable, String to, String from) {
-        this.next = new JoinDefault(toTable, fromTable, to, from);
+        this.next = new JoinDefault(toTable, fromTable, to, from, this.queryContext);
         this.next.prev = this;
         return (JoinDefault) this.next;
     }
 
     @Override
     public Where where(SQLCondition condition) {
-        this.next = new WhereDefault(condition);
+        this.next = new WhereDefault(condition, this.queryContext);
         this.next.prev = this;
         return (WhereDefault) this.next;
     }
@@ -131,13 +125,5 @@ public class LeftJoinDefault extends KeyWorld implements LeftJoin {
             return tmp.toFirst();
         }
         return this;
-    }
-
-    public Class<?> getToPojoType() {
-        return toPojoType;
-    }
-
-    public Class<?> getFromPojoType() {
-        return fromPojoType;
     }
 }

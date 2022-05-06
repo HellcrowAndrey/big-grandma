@@ -1,27 +1,32 @@
 package com.github.mapper.sql.key.worlds;
 
+import com.github.mapper.sql.QueryContext;
+
 import java.util.Objects;
 
 public class DistinctDefault extends KeyWorld implements Distinct {
 
     private static final String DISTINCT = "distinct";
 
+    private final QueryContext queryContext;
+
     private final String columns;
 
-    public DistinctDefault() {
+    public DistinctDefault(QueryContext queryContext) {
         this.columns = DISTINCT;
+        this.queryContext = queryContext;
     }
 
     @Override
     public From from(String tableName) {
-        this.next = new FromDefault(tableName);
+        this.next = new FromDefault(tableName, this.queryContext);
         this.next.prev = this;
         return (FromDefault) this.next;
     }
 
     @Override
     public From from(Class<?> clz) {
-        this.next = new FromDefault(clz);
+        this.next = new FromDefault(clz, this.queryContext);
         this.next.prev = this;
         return (FromDefault) this.next;
     }

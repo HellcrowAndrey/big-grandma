@@ -1,5 +1,8 @@
 package com.github.mapper.sql;
 
+import com.github.mapper.entityies.Comment;
+import com.github.mapper.entityies.Post;
+import com.github.mapper.entityies.User;
 import com.github.mapper.graph.Root;
 import com.github.mapper.models.RootLvl;
 import com.github.mapper.models.Round1Lvl1;
@@ -171,24 +174,31 @@ class SelectTest {
 //                .eq("Tigr")
 //                .toString();
 //        System.out.println(str4);
+//
+//        SQLSelect select = SQLSelect.select()
+//                .from(RootLvl.class)
+//                .join(Round1Lvl1.class, "id", "root_lvl_id")
+//                .leftJoin(RootLvl.class, Round2Lvl1.class, "id", "root_lvl_id")
+//                .where(SQLCondition.column("name").eq("vasia").get())
+//                .toSelect();
+//
+//        System.out.println("New Select -> " + select.asString());
+//
+//        ReactiveSelect select1 = SQLSelect.select()
+//                .from(RootLvl.class)
+//                .join(Round1Lvl1.class, "id", "root_lvl_id")
+//                .leftJoin(RootLvl.class, Round2Lvl1.class, "id", "root_lvl_id")
+//                .where(SQLCondition.column("name").eq("vasia").get())
+//                .toReactiveSelect(null);
+//        Mono<Object> r = select1.one();
+//        System.out.println(r);
 
         SQLSelect select = SQLSelect.select()
-                .from(RootLvl.class)
-                .join(Round1Lvl1.class, "id", "root_lvl_id")
-                .leftJoin(RootLvl.class, Round2Lvl1.class, "id", "root_lvl_id")
-                .where(SQLCondition.column("name").eq("vasia").get())
+                .from(Post.class)
+                .join(User.class, "id", "user_id")
+                .join(Comment.class, Post.class, "post_id", "id")
                 .toSelect();
-
-        System.out.println("New Select -> " + select.asString());
-
-        ReactiveSelect select1 = SQLSelect.select()
-                .from(RootLvl.class)
-                .join(Round1Lvl1.class, "id", "root_lvl_id")
-                .leftJoin(RootLvl.class, Round2Lvl1.class, "id", "root_lvl_id")
-                .where(SQLCondition.column("name").eq("vasia").get())
-                .toReactiveSelect(null);
-        Mono<Object> r = select1.one();
-        System.out.println(r);
+        System.out.println(select.asString());
     }
 
 }

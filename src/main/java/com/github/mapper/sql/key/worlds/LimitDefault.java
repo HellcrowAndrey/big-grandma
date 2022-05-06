@@ -1,5 +1,7 @@
 package com.github.mapper.sql.key.worlds;
 
+import com.github.mapper.sql.QueryContext;
+
 import java.util.Objects;
 
 public class LimitDefault extends KeyWorld implements Limit {
@@ -8,13 +10,16 @@ public class LimitDefault extends KeyWorld implements Limit {
 
     private final String operator;
 
-    public LimitDefault(int number) {
+    private final QueryContext queryContext;
+
+    public LimitDefault(int number, QueryContext queryContext) {
         this.operator = String.format(LIMIT, number);
+        this.queryContext = queryContext;
     }
 
     @Override
     public Offset offset(int number) {
-        this.next = new OffsetDefault(number);
+        this.next = new OffsetDefault(number, this.queryContext);
         this.next.prev = this;
         return (OffsetDefault) this.next;
     }
