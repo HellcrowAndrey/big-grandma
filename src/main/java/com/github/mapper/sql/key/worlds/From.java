@@ -29,6 +29,6 @@ public interface From {
 
     SQLSelect toSelect();
 
-    ReactiveSelect toReactiveSelect(DatabaseClient client);
+    ReactiveSelect toReactiveSelect();
 
 }

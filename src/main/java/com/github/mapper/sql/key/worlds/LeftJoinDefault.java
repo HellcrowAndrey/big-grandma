@@ -93,11 +93,16 @@ public class LeftJoinDefault extends KeyWorld implements LeftJoin {
     }
 
     @Override
-    public ReactiveSelect toReactiveSelect(DatabaseClient client) {
-        return new ReactiveSelectDefault(client) {
+    public ReactiveSelect toReactiveSelect() {
+        return new ReactiveSelectDefault() {
             @Override
             protected KeyWorld collect() {
                 return LeftJoinDefault.this.toFirst();
+            }
+
+            @Override
+            protected QueryContext context() {
+                return LeftJoinDefault.this.queryContext;
             }
         };
     }

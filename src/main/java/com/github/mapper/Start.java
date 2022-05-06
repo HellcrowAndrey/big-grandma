@@ -33,13 +33,13 @@ public class Start implements ApplicationRunner {
                 .from(Post.class)
                 .join(User.class, "user_id", "id")
                 .join(Comment.class, Post.class,"post_id", "id")
-                .toReactiveSelect(this.client);
+                .toReactiveSelect();
         select.any().subscribe(System.out::println);
         Mono<Post> select1 = SQLSelect.select()
                 .from(Post.class)
                 .join(User.class, "user_id", "id")
                 .where(SQLCondition.column(Post.class, "id").eq(2).get())
-                .toReactiveSelect(this.client)
+                .toReactiveSelect()
                 .one();
         select1.subscribe(s -> {
             System.out.println("===========================================");

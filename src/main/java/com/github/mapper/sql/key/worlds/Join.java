@@ -21,6 +21,6 @@ public interface Join {
 
     SQLSelect toSelect();
 
-    ReactiveSelect toReactiveSelect(DatabaseClient client);
+    ReactiveSelect toReactiveSelect();
 
 }

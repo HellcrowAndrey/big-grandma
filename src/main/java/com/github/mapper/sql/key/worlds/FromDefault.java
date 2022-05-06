@@ -136,11 +136,16 @@ public class FromDefault extends KeyWorld implements From {
     }
 
     @Override
-    public ReactiveSelect toReactiveSelect(DatabaseClient client) {
-        return new ReactiveSelectDefault(client) {
+    public ReactiveSelect toReactiveSelect() {
+        return new ReactiveSelectDefault() {
             @Override
             protected KeyWorld collect() {
                 return FromDefault.this.toFirst();
+            }
+
+            @Override
+            protected QueryContext context() {
+                return FromDefault.this.queryContext;
             }
         };
     }

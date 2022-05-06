@@ -6,5 +6,5 @@ import org.springframework.r2dbc.core.DatabaseClient;
 
 public interface Offset {
     SQLSelect toSelect();
-    ReactiveSelect toReactiveSelect(DatabaseClient client);
+    ReactiveSelect toReactiveSelect();
 }

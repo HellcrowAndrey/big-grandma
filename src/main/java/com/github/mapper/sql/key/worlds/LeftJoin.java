@@ -24,6 +24,6 @@ public interface LeftJoin {
 
     SQLSelect toSelect();
 
-    ReactiveSelect toReactiveSelect(DatabaseClient client);
+    ReactiveSelect toReactiveSelect();
 
 }

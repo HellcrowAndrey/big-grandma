@@ -63,11 +63,16 @@ public class OrderByDefault extends KeyWorld implements OrderBy {
     }
 
     @Override
-    public ReactiveSelect toReactiveSelect(DatabaseClient client) {
-        return new ReactiveSelectDefault(client) {
+    public ReactiveSelect toReactiveSelect() {
+        return new ReactiveSelectDefault() {
             @Override
             protected KeyWorld collect() {
                 return OrderByDefault.this.toFirst();
+            }
+
+            @Override
+            protected QueryContext context() {
+                return OrderByDefault.this.queryContext;
             }
         };
     }

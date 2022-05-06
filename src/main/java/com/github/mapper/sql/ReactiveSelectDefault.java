@@ -22,10 +22,8 @@ import java.util.stream.Collectors;
 
 public abstract class ReactiveSelectDefault implements ReactiveSelect {
 
-    private final DatabaseClient client;
+    public ReactiveSelectDefault() {
 
-    public ReactiveSelectDefault(DatabaseClient client) {
-        this.client = client;
     }
 
     @Override
@@ -166,5 +164,7 @@ public abstract class ReactiveSelectDefault implements ReactiveSelect {
     }
 
     protected abstract KeyWorld collect();
+
+    protected abstract QueryContext context();
 
 }

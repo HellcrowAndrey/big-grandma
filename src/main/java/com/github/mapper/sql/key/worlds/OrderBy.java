@@ -11,5 +11,5 @@ public interface OrderBy {
     OrderBy orderBy(String column, SortedType type);
     Limit limit(int number);
     SQLSelect toSelect();
-    ReactiveSelect toReactiveSelect(DatabaseClient client);
+    ReactiveSelect toReactiveSelect();
 }

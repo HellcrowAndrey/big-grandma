@@ -77,11 +77,16 @@ public class WhereDefault extends KeyWorld implements Where {
     }
 
     @Override
-    public ReactiveSelect toReactiveSelect(DatabaseClient client) {
-        return new ReactiveSelectDefault(client) {
+    public ReactiveSelect toReactiveSelect() {
+        return new ReactiveSelectDefault() {
             @Override
             protected KeyWorld collect() {
                 return WhereDefault.this.toFirst();
+            }
+
+            @Override
+            protected QueryContext context() {
+                return WhereDefault.this.queryContext;
             }
         };
     }

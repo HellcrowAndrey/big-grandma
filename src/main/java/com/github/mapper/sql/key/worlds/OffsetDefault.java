@@ -27,11 +27,16 @@ public class OffsetDefault extends KeyWorld implements Offset {
     }
 
     @Override
-    public ReactiveSelect toReactiveSelect(DatabaseClient client) {
-        return new ReactiveSelectDefault(client) {
+    public ReactiveSelect toReactiveSelect() {
+        return new ReactiveSelectDefault() {
             @Override
             protected KeyWorld collect() {
                 return OffsetDefault.this.toFirst();
+            }
+
+            @Override
+            protected QueryContext context() {
+                return OffsetDefault.this.queryContext;
             }
         };
     }
