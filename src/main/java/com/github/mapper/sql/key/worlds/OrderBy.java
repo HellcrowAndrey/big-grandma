@@ -3,7 +3,6 @@ package com.github.mapper.sql.key.worlds;
 import com.github.mapper.sql.ReactiveSelect;
 import com.github.mapper.sql.SQLSelect;
 import com.github.mapper.sql.SortedType;
-import org.springframework.r2dbc.core.DatabaseClient;
 
 public interface OrderBy {
 

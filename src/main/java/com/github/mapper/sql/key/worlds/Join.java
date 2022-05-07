@@ -1,7 +1,6 @@
 package com.github.mapper.sql.key.worlds;
 
 import com.github.mapper.sql.*;
-import org.springframework.r2dbc.core.DatabaseClient;
 
 public interface Join {
 

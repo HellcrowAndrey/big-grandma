@@ -1,14 +1,14 @@
 package com.github.mapper.sql;
 
 import com.github.mapper.StringSqlUtils;
-import com.github.mapper.utils.MapperUtils;
 
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public interface SQLCondition {
 
-    String asString();
+    String asString(QueryContext context);
 
     static Operators column(Class<?> entity, String column) {
         return Operators.newInstance().column(entity, column);
@@ -27,7 +27,7 @@ public interface SQLCondition {
     }
 
     class Operators extends BaseOperator {
-        protected String column;
+        protected Function<QueryContext, String> column;
 
         private Operators() {
         }
@@ -37,12 +37,12 @@ public interface SQLCondition {
         }
 
         public Operators column(Class<?> entity, String column) {
-            this.column = String.format("%s.%s", MapperUtils.findTableName(entity), column);
+            this.column = c -> String.format("%s.%s", c.getTable(entity).getAlias(), column);
             return this;
         }
 
         public Operators column(String column) {
-            this.column = column;
+            this.column = c -> column;
             return this;
         }
 
@@ -186,7 +186,23 @@ public interface SQLCondition {
 
         @Override
         public String toString() {
-            String start = Objects.nonNull(this.column) ? this.column : StringSqlUtils.EMPTY;
+            String start = Objects.nonNull(this.column) ? this.column.apply(null) : StringSqlUtils.EMPTY;
+            StringBuilder sb = new StringBuilder(start).append(StringSqlUtils.SPACE);
+            BaseOperator iter = this.next;
+            while (iter != null) {
+                if (Objects.nonNull(iter.next)) {
+                    sb.append(iter).append(StringSqlUtils.SPACE);
+                } else {
+                    sb.append(iter);
+                }
+                iter = iter.next;
+            }
+            return sb.toString();
+        }
+
+        @Override
+        public String asString(QueryContext context) {
+            String start = Objects.nonNull(this.column) ? this.column.apply(context) : StringSqlUtils.EMPTY;
             StringBuilder sb = new StringBuilder(start).append(StringSqlUtils.SPACE);
             BaseOperator iter = this.next;
             while (iter != null) {
@@ -213,7 +229,7 @@ public interface SQLCondition {
                 this.prev = null;
                 return tmp.toString();
             }
-            return this.column;
+            return this.column.apply(null);
         }
     }
 
@@ -225,11 +241,14 @@ public interface SQLCondition {
 
         @Override
         public SQLCondition get() {
-            return this::toString;
+            return this::asString;
         }
-
+        // TODO: 07.05.22 aad another get
         @Override
         public abstract String toString();
+
+        public abstract String asString(QueryContext context);
+
     }
 
     abstract class AfterComparisonOperator extends BaseOperator {
@@ -390,6 +409,16 @@ public interface SQLCondition {
             }
             return this.operator;
         }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
+            }
+            return this.operator;
+        }
     }
 
     class NotEq extends AfterComparisonOperator {
@@ -411,6 +440,16 @@ public interface SQLCondition {
                 BaseOperator tmp = this.prev;
                 this.prev = null;
                 return tmp.toString();
+            }
+            return this.operator;
+        }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
             }
             return this.operator;
         }
@@ -438,6 +477,16 @@ public interface SQLCondition {
             }
             return this.operator;
         }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
+            }
+            return this.operator;
+        }
     }
 
     class LessThan extends AfterComparisonOperator {
@@ -459,6 +508,16 @@ public interface SQLCondition {
                 BaseOperator tmp = this.prev;
                 this.prev = null;
                 return tmp.toString();
+            }
+            return this.operator;
+        }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
             }
             return this.operator;
         }
@@ -486,6 +545,16 @@ public interface SQLCondition {
             }
             return this.operator;
         }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
+            }
+            return this.operator;
+        }
     }
 
     class LessThanOrEq extends AfterComparisonOperator {
@@ -507,6 +576,16 @@ public interface SQLCondition {
                 BaseOperator tmp = this.prev;
                 this.prev = null;
                 return tmp.toString();
+            }
+            return this.operator;
+        }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
             }
             return this.operator;
         }
@@ -534,6 +613,16 @@ public interface SQLCondition {
             }
             return this.operator;
         }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
+            }
+            return this.operator;
+        }
     }
 
     class OppositeLessThan extends AfterComparisonOperator {
@@ -558,6 +647,16 @@ public interface SQLCondition {
             }
             return this.operator;
         }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
+            }
+            return this.operator;
+        }
     }
 
     class All extends AfterLogicalOperator {
@@ -574,6 +673,16 @@ public interface SQLCondition {
                 BaseOperator tmp = this.prev;
                 this.prev = null;
                 return tmp.toString();
+            }
+            return this.operator;
+        }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
             }
             return this.operator;
         }
@@ -600,6 +709,16 @@ public interface SQLCondition {
             }
             return this.operator;
         }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
+            }
+            return this.operator;
+        }
     }
 
     class Any extends AfterLogicalOperator {
@@ -616,6 +735,16 @@ public interface SQLCondition {
                 BaseOperator tmp = this.prev;
                 this.prev = null;
                 return tmp.toString();
+            }
+            return this.operator;
+        }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
             }
             return this.operator;
         }
@@ -638,6 +767,16 @@ public interface SQLCondition {
             }
             return this.operator;
         }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
+            }
+            return this.operator;
+        }
     }
 
     class Exists extends NextLogicalOperator {
@@ -654,6 +793,16 @@ public interface SQLCondition {
                 BaseOperator tmp = this.prev;
                 this.prev = null;
                 return tmp.toString();
+            }
+            return this.operator;
+        }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
             }
             return this.operator;
         }
@@ -683,6 +832,16 @@ public interface SQLCondition {
             }
             return this.operator;
         }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
+            }
+            return this.operator;
+        }
     }
 
     class Like extends NextLogicalOperator {
@@ -702,6 +861,16 @@ public interface SQLCondition {
             }
             return this.operator;
         }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
+            }
+            return this.operator;
+        }
     }
 
     class Not extends AfterNotOperator {
@@ -718,6 +887,16 @@ public interface SQLCondition {
                 BaseOperator tmp = this.prev;
                 this.prev = null;
                 return tmp.toString();
+            }
+            return this.operator;
+        }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
             }
             return this.operator;
         }
@@ -745,6 +924,16 @@ public interface SQLCondition {
             }
             return this.operator;
         }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
+            }
+            return this.operator;
+        }
     }
 
     class IsNull extends NextLogicalOperator {
@@ -764,6 +953,16 @@ public interface SQLCondition {
             }
             return this.operator;
         }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
+            }
+            return this.operator;
+        }
     }
 
     class IsNotNull extends NextLogicalOperator {
@@ -780,6 +979,16 @@ public interface SQLCondition {
                 BaseOperator tmp = this.prev;
                 this.prev = null;
                 return tmp.toString();
+            }
+            return this.operator;
+        }
+
+        @Override
+        public String asString(QueryContext context) {
+            if (Objects.nonNull(this.prev)) {
+                BaseOperator tmp = this.prev;
+                this.prev = null;
+                return tmp.asString(context);
             }
             return this.operator;
         }

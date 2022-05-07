@@ -39,7 +39,7 @@ public class Start implements ApplicationRunner {
                 .from(Post.class)
                 .join(User.class, "id", "user_id")
                 .join(Comment.class, Post.class,"post_id", "id")
-                .where(SQLCondition.column("p.id").eq(1).get())
+                .where(SQLCondition.column(Post.class, "id").eq(1).get())
                 .toReactiveSelect()
                 .one();
         select1.subscribe(s -> {

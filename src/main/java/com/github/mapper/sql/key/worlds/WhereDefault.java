@@ -1,8 +1,6 @@
 package com.github.mapper.sql.key.worlds;
 
 import com.github.mapper.sql.*;
-import org.springframework.r2dbc.core.DatabaseClient;
-
 import java.util.Objects;
 
 public class WhereDefault extends KeyWorld implements Where {
@@ -20,7 +18,7 @@ public class WhereDefault extends KeyWorld implements Where {
 
     public WhereDefault(SQLCondition condition, QueryContext queryContext) {
         this(
-                Objects.requireNonNull(condition, "Condition is required").asString(),
+                Objects.requireNonNull(condition, "Condition is required").asString(queryContext),
                 queryContext
         );
     }

@@ -4,7 +4,6 @@ import com.github.mapper.sql.QueryContext;
 import com.github.mapper.sql.ReactiveSelect;
 import com.github.mapper.sql.ReactiveSelectDefault;
 import com.github.mapper.sql.SQLSelect;
-import org.springframework.r2dbc.core.DatabaseClient;
 
 import java.util.Objects;
 
