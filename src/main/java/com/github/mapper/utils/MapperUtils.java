@@ -180,13 +180,34 @@ public class MapperUtils {
     }
 
     public static Class<?> findGenericOfColl(Field field) {
-        Type[] array = ((ParameterizedType) field.getGenericType()).getActualTypeArguments();
-        return hasGeneric(array) ? (Class<?>) array[0] : null;
+        if (isColl(field.getType())) {
+            Type[] array = ((ParameterizedType) field.getGenericType()).getActualTypeArguments();
+            return hasGeneric(array) ? (Class<?>) array[0] : null;
+        }
+        return null;
     }
 
     public static Class<?>[] findGenerics(Field field) {
         Type[] array = ((ParameterizedType) field.getGenericType()).getActualTypeArguments();
         return hasGeneric(array) ? (Class<?>[]) array : null;
+    }
+
+    public static Class<?> genericOfColl(Field field) {
+        Type genericSuperClass = field.getType().getGenericSuperclass();
+
+        ParameterizedType parametrizedType = null;
+        while (parametrizedType == null) {
+            if ((genericSuperClass instanceof ParameterizedType)) {
+                parametrizedType = (ParameterizedType) genericSuperClass;
+            } else {
+                if (Objects.isNull(genericSuperClass)) {
+                    return null;
+                }
+                genericSuperClass = ((Class<?>) genericSuperClass).getGenericSuperclass();
+            }
+        }
+
+        return  (Class<?>) parametrizedType.getActualTypeArguments()[0];
     }
 
     private static boolean hasGeneric(Type[] array) {
@@ -221,6 +242,11 @@ public class MapperUtils {
     public static List<Field> fieldAllFields(Class<?> type) {
         return Arrays.stream(type.getDeclaredFields())
                 .filter(field -> MapperUtils.isPrimitiveOrWrapper(field.getType()))
+                .collect(Collectors.toCollection(LinkedList::new));
+    }
+
+    public static List<Field> fieldFields(Class<?> type) {
+        return Arrays.stream(type.getDeclaredFields())
                 .collect(Collectors.toCollection(LinkedList::new));
     }
 

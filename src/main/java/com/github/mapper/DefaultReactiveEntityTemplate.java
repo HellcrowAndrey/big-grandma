@@ -72,6 +72,11 @@ public class DefaultReactiveEntityTemplate implements ReactiveEntityTemplate {
         return SQLSelect.select(columns);
     }
 
+    @Override
+    public Select select() {
+        return SQLSelect.select(this.client);
+    }
+
     private DatabaseClient.GenericExecuteSpec sqlWithParametersByIndex(String query, Object... params) {
         DatabaseClient.GenericExecuteSpec executeSpec = this.client.sql(query);
         for (int i = 0; i < params.length; i++) {

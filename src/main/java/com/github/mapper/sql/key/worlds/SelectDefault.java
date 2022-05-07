@@ -25,6 +25,7 @@ public final class SelectDefault extends KeyWorld implements Select {
     }
 
     private SelectDefault(DatabaseClient client) {
+        this.columns = new String[0];
         this.queryContext = new QueryContext(client);
     }
 

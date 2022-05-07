@@ -23,6 +23,8 @@ public interface ReactiveEntityTemplate {
 
     Select select(String... columns);
 
+    Select select();
+
     static ReactiveEntityTemplate
     defaultReactiveEntityTemplate(DatabaseClient client, SqlDependenciesMapper sqlDependenciesMapper) {
         return new DefaultReactiveEntityTemplate(client, sqlDependenciesMapper);

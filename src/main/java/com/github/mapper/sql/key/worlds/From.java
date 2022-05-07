@@ -1,7 +1,6 @@
 package com.github.mapper.sql.key.worlds;
 
 import com.github.mapper.sql.*;
-import org.springframework.r2dbc.core.DatabaseClient;
 
 public interface From {
 
@@ -15,7 +14,7 @@ public interface From {
 
     Join join(String tableName, String leftCol, String rightCol);
 
-    Join join(Class<?> fromTable, String to, String from);
+    Join join(Class<?> joinTable, String parent, String join);
 
     Join join(Class<?> toTable, Class<?> fromTable, String to, String from);
 

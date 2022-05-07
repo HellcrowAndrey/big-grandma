@@ -34,6 +34,10 @@ public class QueryContext {
         return rootTable;
     }
 
+    public List<Column> getColumnByTable(Table key) {
+        return this.columns.get(key);
+    }
+
     public Table getTable(Class<?> clz) {
         return this.tables.get(clz);
     }
@@ -44,6 +48,10 @@ public class QueryContext {
 
     public Map<Table, List<Column>> getColumns() {
         return columns;
+    }
+
+    public Map<Table, List<Table>> getTableLinks() {
+        return tableLinks;
     }
 
     public void setRootTable(Class<?> clz) {

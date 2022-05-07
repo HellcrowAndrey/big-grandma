@@ -193,12 +193,12 @@ class SelectTest {
 //        Mono<Object> r = select1.one();
 //        System.out.println(r);
 
-        SQLSelect select = SQLSelect.select()
+        ReactiveSelect select = SQLSelect.select()
                 .from(Post.class)
                 .join(User.class, "id", "user_id")
                 .join(Comment.class, Post.class, "post_id", "id")
-                .toSelect();
-        System.out.println(select.asString());
+                .toReactiveSelect();
+        System.out.println(select.any());
     }
 
 }
