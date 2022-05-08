@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public abstract class ReactiveSelectDefault implements ReactiveSelect {
@@ -65,6 +66,10 @@ public abstract class ReactiveSelectDefault implements ReactiveSelect {
                 .collect(Collectors.toMap(QueryContext.Column::getAlias, QueryContext.Column::getFieldName));
     }
 
+    private Predicate<QueryContext.Table> isTypeTableAndFieldEq(Field f) {
+        return t -> t.getClz().equals(f.getType()) || (MapperUtils.isColl(f.getType()) && t.getClz().equals(MapperUtils.findGenericOfColl(f)));
+    }
+
     private List<SubGraph> buildSubGraph(QueryContext context, Class<?> prevRootType, List<QueryContext.Table> tableLinks) {
         Map<QueryContext.Table, List<QueryContext.Table>> tablesLinks = context.getTableLinks();
         List<SubGraph> subGraphs = new LinkedList<>();
@@ -74,14 +79,19 @@ public abstract class ReactiveSelectDefault implements ReactiveSelect {
             Class<?> currentType = link.getClz();
             Field prevField = findField(prevFields, currentType);
             if (Objects.isNull(prevField)) {
-                prevField = findByCollField(prevFields, prevRootType);
+                prevField = findByCollField(prevFields, currentType);
                 sb.rootCollType(prevField.getType());
             }
             List<Field> currentFields = MapperUtils.fieldFields(currentType);
             Field currentField = findField(currentFields, prevRootType);
             if (Objects.isNull(currentField)) {
-                currentField = findByCollField(currentFields, currentType);
+                currentField = findByCollField(currentFields, prevRootType);
             }
+            List<QueryContext.Table> secondLinksTables = currentFields.stream()
+                    .flatMap(f -> tablesLinks.values().stream()
+                            .flatMap(Collection::stream)
+                            .filter(t -> isTypeTableAndFieldEq(f).test(t)))
+                    .collect(Collectors.toList());
             sb.rootType(prevRootType)
                     .rootFieldName(prevField.getName())
                     .currentType(currentType)
@@ -90,6 +100,9 @@ public abstract class ReactiveSelectDefault implements ReactiveSelect {
             List<QueryContext.Table> lstOfLinks = tablesLinks.get(link);
             if (Objects.nonNull(lstOfLinks)) {
                 sb.graphs(buildSubGraph(context, currentType, lstOfLinks));
+            }
+            if (!secondLinksTables.isEmpty()) {
+                sb.graphs(buildSubGraph(context, currentType, secondLinksTables));
             }
             subGraphs.add(sb.build());
         }
@@ -104,10 +117,11 @@ public abstract class ReactiveSelectDefault implements ReactiveSelect {
     }
 
     private Field findByCollField(List<Field> fields, Class<?> clz) {
-        // TODO: 07.05.22 add clz check
         return fields.stream()
-                .filter(field -> Objects.nonNull(MapperUtils.findGenericOfColl(field)))
-                .findFirst()
+                .filter(field -> {
+                    Class<?> genClz = MapperUtils.findGenericOfColl(field);
+                    return Objects.nonNull(genClz) && genClz.equals(clz);
+                }).findFirst()
                 .orElse(null);
     }
 

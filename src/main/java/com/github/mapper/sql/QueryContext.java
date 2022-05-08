@@ -76,7 +76,8 @@ public class QueryContext {
         if (!this.columns.containsKey(table)) {
             List<Field> fields = MapperUtils.fieldAllFields(clz);
             this.columns.put(table, columns(alias, fields));
-            addToTableLink(this.rootTable, table);
+            List<Table> values = this.tableLinks.getOrDefault(table, new ArrayList<>());
+            this.tableLinks.put(table, values);
             this.tables.put(clz, table);
             this.rootTable = table;
         }
