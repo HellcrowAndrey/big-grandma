@@ -52,11 +52,16 @@ public abstract class ReactiveSelectDefault implements ReactiveSelect {
     private Root buildRoot(QueryContext context) {
         Map<QueryContext.Table, List<QueryContext.Table>> tablesLinks = context.getTableLinks();
         Root.Builder rb = new Root.Builder();
-        QueryContext.Table it = tablesLinks.keySet().stream().filter(Objects::nonNull).findFirst().orElse(null);
-        if (Objects.nonNull(it)) {
-            rb.rootType(it.getClz())
-                    .aliases(aliases(context, it));
-            rb.graphsOneToEtc(buildSubGraph(context, it.getClz(), tablesLinks.get(it)));
+        QueryContext.Table rootTable = context.getRootTable();
+        if (Objects.nonNull(rootTable)) {
+            rb.rootType(rootTable.getClz()).aliases(aliases(context, rootTable));
+            List<SubGraph> graphs = buildSubGraph(context, rootTable.getClz(), tablesLinks.get(rootTable));
+            graphs.stream()
+                    .filter(g -> Objects.nonNull(g.currentCollType()))
+                    .forEach(rb::graphsManyToMany);
+            graphs.stream()
+                    .filter(g -> Objects.isNull(g.currentCollType()))
+                    .forEach(rb::graphOneToEtc);
         }
         return rb.build();
     }
@@ -86,6 +91,9 @@ public abstract class ReactiveSelectDefault implements ReactiveSelect {
             Field currentField = findField(currentFields, prevRootType);
             if (Objects.isNull(currentField)) {
                 currentField = findByCollField(currentFields, prevRootType);
+                if (Objects.nonNull(currentField)) {
+                    sb.currentCollType(prevField.getType());
+                }
             }
             List<QueryContext.Table> secondLinksTables = currentFields.stream()
                     .flatMap(f -> tablesLinks.values().stream()
@@ -99,6 +107,13 @@ public abstract class ReactiveSelectDefault implements ReactiveSelect {
                     .aliases(aliases(context, link));
             List<QueryContext.Table> lstOfLinks = tablesLinks.get(link);
             if (Objects.nonNull(lstOfLinks)) {
+                List<SubGraph> graphs = buildSubGraph(context, currentType, lstOfLinks);
+                graphs.stream()
+                        .filter(g -> Objects.nonNull(g.currentCollType()))
+                        .forEach(sb::graphManyToMany);
+                graphs.stream()
+                        .filter(g -> Objects.isNull(g.currentCollType()))
+                        .forEach(sb::graphOneToEtc);
                 sb.graphs(buildSubGraph(context, currentType, lstOfLinks));
             }
             if (!secondLinksTables.isEmpty()) {

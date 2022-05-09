@@ -313,4 +313,11 @@ public class SubGraph {
         return Objects.hash(rootType, rootFieldName);
     }
 
+    public Class<?> currentType() {
+        return currentType;
+    }
+
+    public Class<?> currentCollType() {
+        return currentCollType;
+    }
 }
