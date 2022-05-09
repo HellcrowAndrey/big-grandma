@@ -4,6 +4,9 @@ import com.github.mapper.utils.MapperUtils;
 import org.springframework.r2dbc.core.DatabaseClient;
 
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -143,6 +146,31 @@ public class QueryContext {
     private boolean isAnyMatch(String alias) {
         return this.columns.keySet().stream()
                 .anyMatch(k -> k.alias.equals(alias));
+    }
+
+    public String hash() {
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            String name = this.tables.keySet().stream()
+                    .map(Class::getSimpleName)
+                    .collect(Collectors.joining("_"));
+            byte[] hash = messageDigest.digest(name.getBytes(StandardCharsets.UTF_8));
+            return bytesToHex(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Can't get hash");
+        }
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 
     public static class Column {
