@@ -16,7 +16,7 @@ public class DependenciesGraphFactory {
     public static final Map<String, DependenciesGraph> graphs = new HashMap<>();
 
     public static DependenciesGraph dependenciesGraph(QueryContext context) {
-        var hash = context.hash();
+        var hash = context.name();
         DependenciesGraph graph = graphs.get(hash);
         if (Objects.isNull(graph)) {
             graph = new DependenciesGraph(buildRoot(context));
