@@ -79,7 +79,7 @@ public class LevelOneOnlyOneToOne implements DependenciesGraphParameterized {
 
     @Override
     public DependenciesGraph graph() {
-        Root root = new Root.RootBuilder()
+        Root root = new Root.Builder()
                 .rootType(RootLvl.class)
                 .graphsOneToEtc(List.of())
                 .alias("ROOTLVLID", "id")

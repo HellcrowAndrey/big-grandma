@@ -13,10 +13,10 @@ public class ManyToManyDependenciesGraphCase2 {
 
     public static DependenciesGraph graph() {
         Root root =
-                new Root.RootBuilder()
+                new Root.Builder()
                         .rootType(RootMTMCase2.class)
                         .graphOneToEtc(
-                                new SubGraph.ManyToManyBuilder()
+                                new SubGraph.Builder()
                                         .rootType(RootMTMCase2.class)
                                         .rootFieldName("round1Lvl1s")
                                         .rootCollType(List.class)
@@ -24,7 +24,7 @@ public class ManyToManyDependenciesGraphCase2 {
                                         .currentFieldName("rootMTMCase2")
                                         .currentCollType(List.class)
                                         .graphManyToMany(
-                                                new SubGraph.OneToEtcBuilder()
+                                                new SubGraph.Builder()
                                                         .rootType(Round1Lvl1.class)
                                                         .rootFieldName("round2Lvl1s")
                                                         .rootCollType(List.class)

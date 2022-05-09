@@ -10,7 +10,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.github.mapper.graph.RelationType.manyToMany;
 import static com.github.mapper.graph.RelationType.oneToEtc;
 import static com.github.mapper.utils.MapperUtils.*;
 
@@ -35,76 +34,15 @@ public class Root {
         this.fields = new HashMap<>();
     }
 
-    private Root(RootBuilder b) {
+    private Root(Builder b) {
         this.rootType = b.rootType;
         this.graphOneToEtc = b.graphOneToEtc;
-        this.graphsManyToMany = new HashMap<>();
-        this.fields = b.fields;
-        this.type = b.type;
-    }
-
-    private Root(RootManyToManyBuilder b) {
-        this.rootType = b.rootType;
         this.graphsManyToMany = b.graphsManyToMany;
-        this.graphOneToEtc = b.graphOneToEtc;
         this.fields = b.fields;
         this.type = b.type;
     }
 
-    public static class RootBuilder {
-
-        Class<?> rootType;
-
-        List<SubGraph> graphOneToEtc = new ArrayList<>(); //optional
-
-        Map<String, Field> fieldNames = new HashMap<>();
-
-        Map<String, Field> fields = new HashMap<>(); // required
-
-        RelationType type;
-
-        public RootBuilder() {
-            this.type = oneToEtc;
-        }
-
-        public RootBuilder rootType(Class<?> rootType) {
-            this.rootType = Objects.requireNonNull(rootType);
-            this.fieldNames.putAll(Arrays.stream(rootType.getDeclaredFields())
-                    .collect(Collectors.toMap(Field::getName, Function.identity())));
-            return this;
-        }
-
-        public RootBuilder graphOneToEtc(SubGraph graph) {
-            this.graphOneToEtc.add(graph);
-            return this;
-        }
-
-        public RootBuilder graphsOneToEtc(List<SubGraph> graphOneToEtc) {
-            this.graphOneToEtc.addAll(graphOneToEtc);
-            return this;
-        }
-
-        public RootBuilder aliases(Map<String, String> aliases) {
-            this.fields.putAll(MapperUtils.fields(aliases, this.rootType));
-            return this;
-        }
-
-        public RootBuilder alias(String alias, String fieldName) {
-            Field field = this.fieldNames.get(fieldName);
-            this.fields.put(alias, field);
-            return this;
-        }
-
-        public Root build() {
-            if (this.fields.isEmpty()) {
-                throw new IllegalArgumentException("Fields is empty pleas add fields to this class");
-            }
-            return new Root(this);
-        }
-
-    }
-
-    public static class RootManyToManyBuilder {
+    public static class Builder {
 
         Class<?> rootType;
 
@@ -118,41 +56,37 @@ public class Root {
 
         RelationType type;
 
-        public RootManyToManyBuilder() {
-            this.type = manyToMany;
+        public Builder() {
         }
 
-        public RootManyToManyBuilder rootType(Class<?> rootType) {
+        public Builder rootType(Class<?> rootType) {
             this.rootType = Objects.requireNonNull(rootType);
             this.fieldNames.putAll(Arrays.stream(rootType.getDeclaredFields())
                     .collect(Collectors.toMap(Field::getName, Function.identity())));
             return this;
         }
 
-        public RootManyToManyBuilder graphsManyToMany(SubGraph outside) {
-            this.graphsManyToMany.put(outside.currentType, outside);
-            return this;
-        }
-
-        public RootManyToManyBuilder graphOneToEtc(SubGraph graph) {
+        public Builder graphOneToEtc(SubGraph graph) {
             this.graphOneToEtc.add(graph);
             return this;
         }
 
-        public RootManyToManyBuilder graphsOneToEtc(List<SubGraph> graphOneToEtc) {
+        public Builder graphsManyToMany(SubGraph outside) {
+            this.graphsManyToMany.put(outside.currentType, outside);
+            return this;
+        }
+
+        public Builder graphsOneToEtc(List<SubGraph> graphOneToEtc) {
             this.graphOneToEtc.addAll(graphOneToEtc);
             return this;
         }
 
-        public RootManyToManyBuilder aliases(Map<String, String> aliases) {
+        public Builder aliases(Map<String, String> aliases) {
             this.fields.putAll(MapperUtils.fields(aliases, this.rootType));
             return this;
         }
 
-        public RootManyToManyBuilder alias(String alias, String fieldName) {
-            if (!StringUtils.hasText(alias) || !StringUtils.hasText(fieldName)) {
-                throw new IllegalArgumentException(String.format("Alias -> %s or field name -> %s", alias, fieldName));
-            }
+        public Builder alias(String alias, String fieldName) {
             Field field = this.fieldNames.get(fieldName);
             this.fields.put(alias, field);
             return this;
@@ -162,6 +96,7 @@ public class Root {
             if (this.fields.isEmpty()) {
                 throw new IllegalArgumentException("Fields is empty pleas add fields to this class");
             }
+            this.type = RelationType.hashManyToMany(this.graphsManyToMany);
             return new Root(this);
         }
 

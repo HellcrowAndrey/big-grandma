@@ -14,12 +14,12 @@ public class ManyToManyDependenciesGraphCase1 {
 
     public static DependenciesGraph graph() {
         Root root =
-                new Root.RootManyToManyBuilder()
+                new Root.Builder()
                         .rootType(RootManyToMany.class)
                         .alias("ROOTMANYTOMANYID", "id")
                         .alias("ROOTMANYTOMANYFIRSTNAME", "firstName")
                         .alias("ROOTMANYTOMANYLASTNAME", "lastName")
-                        .graphsManyToMany(new SubGraph.OneToEtcBuilder()
+                        .graphsManyToMany(new SubGraph.Builder()
                                 .rootType(RootManyToMany.class)
                                 .rootFieldName("roundLefts")
                                 .rootCollType(List.class)
@@ -29,7 +29,7 @@ public class ManyToManyDependenciesGraphCase1 {
                                 .alias("ROUNDLEFTID", "id")
                                 .alias("ROUNDLEFTTYPE", "type")
                                 .build()
-                        ).graphsManyToMany(new SubGraph.OneToEtcBuilder()
+                        ).graphsManyToMany(new SubGraph.Builder()
                                 .rootType(RootManyToMany.class)
                                 .rootFieldName("roundLeft2s")
                                 .rootCollType(List.class)
@@ -39,7 +39,7 @@ public class ManyToManyDependenciesGraphCase1 {
                                 .alias("ROUNDLEFT2ID", "id")
                                 .alias("ROUNDLEFT2ISTYPE", "isType")
                                 .build()
-                        ).graphOneToEtc(new SubGraph.OneToEtcBuilder()
+                        ).graphOneToEtc(new SubGraph.Builder()
                                 .rootType(RootManyToMany.class)
                                 .rootFieldName("round1Lvl1MTMS")
                                 .rootCollType(List.class)

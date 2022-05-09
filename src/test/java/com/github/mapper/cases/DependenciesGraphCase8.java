@@ -572,26 +572,26 @@ public class DependenciesGraphCase8 {
         Root root = new Root(
                 RootLvl.class,
                 List.of(
-                        new SubGraph.OneToEtcBuilder()
+                        new SubGraph.Builder()
                                 .rootType(RootLvl.class)
                                 .currentType(Round1Lvl1.class)
                                 .currentFieldName("rootLvl")
                                 .rootFieldName("round1Lvl1")
                                 .build(),
-                        new SubGraph.OneToEtcBuilder()
+                        new SubGraph.Builder()
                                 .rootType(RootLvl.class)
                                 .currentType(Round2Lvl1.class)
                                 .currentFieldName("rootLvl")
                                 .rootFieldName("round2Lvl1s")
                                 .rootCollType(List.class)
                                 .build(),
-                        new SubGraph.OneToEtcBuilder()
+                        new SubGraph.Builder()
                                 .rootType(RootLvl.class)
                                 .currentType(Round3ManyToManyLvl1.class)
                                 .rootFieldName("round3ManyToManyLvl1s")
                                 .rootCollType(List.class)
                                 .graphs(List.of(
-                                        new SubGraph.OneToEtcBuilder()
+                                        new SubGraph.Builder()
                                                 .rootType(Round3ManyToManyLvl1.class)
                                                 .currentType(Round4ManyToManyLvl2.class)
                                                 .rootFieldName("round4ManyToManyLvl2s")

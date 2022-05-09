@@ -51,7 +51,7 @@ public abstract class ReactiveSelectDefault implements ReactiveSelect {
 
     private Root buildRoot(QueryContext context) {
         Map<QueryContext.Table, List<QueryContext.Table>> tablesLinks = context.getTableLinks();
-        Root.RootBuilder rb = new Root.RootBuilder();
+        Root.Builder rb = new Root.Builder();
         QueryContext.Table it = tablesLinks.keySet().stream().filter(Objects::nonNull).findFirst().orElse(null);
         if (Objects.nonNull(it)) {
             rb.rootType(it.getClz())
@@ -74,7 +74,7 @@ public abstract class ReactiveSelectDefault implements ReactiveSelect {
         Map<QueryContext.Table, List<QueryContext.Table>> tablesLinks = context.getTableLinks();
         List<SubGraph> subGraphs = new LinkedList<>();
         for (QueryContext.Table link : tableLinks) {
-            SubGraph.OneToEtcBuilder sb = new SubGraph.OneToEtcBuilder();
+            SubGraph.Builder sb = new SubGraph.Builder();
             List<Field> prevFields = MapperUtils.fieldFields(prevRootType);
             Class<?> currentType = link.getClz();
             Field prevField = findField(prevFields, currentType);

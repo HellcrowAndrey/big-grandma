@@ -90,10 +90,10 @@ public class DependenciesGraphCase2 {
     }
 
     public static DependenciesGraph graph() {
-        Root root = new Root.RootBuilder()
+        Root root = new Root.Builder()
                 .rootType(RootLvl.class)
                 .graphsOneToEtc(List.of(
-                        new SubGraph.OneToEtcBuilder()
+                        new SubGraph.Builder()
                                 .rootType(RootLvl.class)
                                 .currentType(Round1Lvl1.class)
                                 .rootFieldName("round1Lvl1")

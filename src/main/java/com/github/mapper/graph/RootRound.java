@@ -4,7 +4,6 @@ import java.util.*;
 
 public abstract class RootRound {
 
-
     Object value;
 
     Map<Round, Set<Object>> lefts = new HashMap<>();
