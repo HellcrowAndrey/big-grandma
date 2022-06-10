@@ -35,8 +35,6 @@ public class DependenciesGraph {
         return Flux.fromStream(tuples.stream())
                 .filter(DependenciesGraph::isTupleEmpty)
                 .map(tuple -> root.toRootRound(tuple))
-                .collect(RootRoundCollector.toListOfRootRounds())
-                .flatMapMany(source -> Flux.fromStream(source.stream()))
                 .collect(Collectors.groupingBy(
                         Function.identity(),
                         LinkedHashMap::new,
