@@ -4,7 +4,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.github.mapper.utils.MapperUtils.*;
@@ -31,23 +30,22 @@ public class DependenciesGraph {
                 .single();
     }
 
-    private Mono<LinkedHashMap<RootRound, List<Round>>> intermediateState(List<Map<String, Object>> tuples) {
+    private Mono<LinkedHashMap<Round, List<Round>>> intermediateState(List<Map<String, Object>> tuples) {
         return Flux.fromStream(tuples.stream())
                 .filter(DependenciesGraph::isTupleEmpty)
-                .map(tuple -> root.toRootRound(tuple))
+                .map(this.root::restore)
                 .collect(Collectors.groupingBy(
-                        Function.identity(),
+                        source -> source,
                         LinkedHashMap::new,
-                        Collectors.flatMapping(source -> source.nonMappedValues.stream()
-                                        .flatMap(tuple -> root.graphOneToEtc.stream()
-                                                .map(subGraph -> subGraph.restore(tuple, START_POINT))),
+                        Collectors.flatMapping(
+                                source -> source.roundsOneToEtc.stream(),
                                 RoundCollector.toListOfRounds()
                         )
                 ));
     }
 
     @SuppressWarnings(value = "unchecked")
-    private <T> T ofTarget(RootRound rootRound, LinkedHashMap<RootRound, List<Round>> groupByRoot) {
+    private <T> T ofTarget(Round rootRound, LinkedHashMap<Round, List<Round>> groupByRoot) {
         Object target = rootRound.value;
         Map<String, Object> values = new HashMap<>();
         List<Round> rounds = groupByRoot.get(rootRound);
@@ -61,7 +59,7 @@ public class DependenciesGraph {
         return (T) target;
     }
 
-    private <T> Flux<T> toTargets(LinkedHashMap<RootRound, List<Round>> groupByRoot) {
+    private <T> Flux<T> toTargets(LinkedHashMap<Round, List<Round>> groupByRoot) {
         return Flux.fromStream(groupByRoot.keySet().stream())
                 .map(rootRound -> ofTarget(rootRound, groupByRoot));
     }

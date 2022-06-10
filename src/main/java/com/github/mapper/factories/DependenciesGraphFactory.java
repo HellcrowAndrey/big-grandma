@@ -33,10 +33,10 @@ public class DependenciesGraphFactory {
             rb.rootType(rootTable.getClz()).aliases(aliases(context, rootTable));
             List<SubGraph> graphs = buildSubGraph(context, rootTable.getClz(), tablesLinks.get(rootTable));
             graphs.stream()
-                    .filter(g -> Objects.nonNull(g.currentCollType()))
+                    .filter(g -> Objects.nonNull(g.getCurrentCollType()))
                     .forEach(rb::graphsManyToMany);
             graphs.stream()
-                    .filter(g -> Objects.isNull(g.currentCollType()))
+                    .filter(g -> Objects.isNull(g.getCurrentCollType()))
                     .forEach(rb::graphOneToEtc);
         }
         return rb.build();
@@ -92,7 +92,7 @@ public class DependenciesGraphFactory {
             if (Objects.nonNull(lstOfLinks)) {
                 List<SubGraph> graphs = buildSubGraph(context, currentType, lstOfLinks);
                 graphs.stream()
-                        .filter(g -> Objects.isNull(g.currentCollType()))
+                        .filter(g -> Objects.isNull(g.getCurrentCollType()))
                         .forEach(sb::graphOneToEtc);
                 sb.graphs(buildSubGraph(context, currentType, lstOfLinks));
             }

@@ -195,11 +195,35 @@ public class SubGraph {
         return Objects.hash(rootType, rootFieldName);
     }
 
-    public Class<?> currentType() {
+    public Class<?> getCurrentCollType() {
+        return currentCollType;
+    }
+
+    public Class<?> getRootType() {
+        return rootType;
+    }
+
+    public Class<?> getCurrentType() {
         return currentType;
     }
 
-    public Class<?> currentCollType() {
-        return currentCollType;
+    public Class<?> getRootCollType() {
+        return rootCollType;
+    }
+
+    public String getRootFieldName() {
+        return rootFieldName;
+    }
+
+    public String getCurrentFieldName() {
+        return currentFieldName;
+    }
+
+    public List<SubGraph> getGraphsOneToEtc() {
+        return graphsOneToEtc;
+    }
+
+    public Map<String, Field> getFields() {
+        return fields;
     }
 }

@@ -90,9 +90,15 @@ public class Root {
 
     }
 
-    public RootRound toRootRound(Map<String, Object> nonMappedValues) {
-        return new RootRound(EntityFactory.ofEntity(nonMappedValues, this.fields, this.rootType), nonMappedValues) {
-        };
+    public Round restore(Map<String, Object> values) {
+        var lvl = 0;
+        Round result = Round.ofRound(lvl, this.rootType, EntityFactory.ofEntity(values, this.fields, this.rootType));
+        if (!this.graphOneToEtc.isEmpty()) {
+            for (SubGraph graph : this.graphOneToEtc) {
+                result.addRound(graph.restore(values, lvl));
+            }
+        }
+        return result;
     }
 
     @Override
