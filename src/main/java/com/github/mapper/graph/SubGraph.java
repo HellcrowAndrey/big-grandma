@@ -132,7 +132,7 @@ public class SubGraph {
     }
 
     public Round restore(Map<String, Object> values, int lvl) {
-        Round result = Round.oneToEtc(lvl + 1, this.currentType, EntityFactory.ofEntity(values, this.fields, this.currentType));
+        Round result = Round.ofRound(lvl + 1, this.currentType, EntityFactory.ofEntity(values, this.fields, this.currentType));
         lvl = lvl + 1;
         if (!this.graphsOneToEtc.isEmpty()) {
             for (SubGraph graph : this.graphsOneToEtc) {

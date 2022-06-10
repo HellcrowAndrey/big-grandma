@@ -66,7 +66,7 @@ public abstract class Round {
         this.roundsOneToEtc.add(round);
     }
 
-    public static Round oneToEtc(int lvl, Class<?> type, Object value) {
+    public static Round ofRound(int lvl, Class<?> type, Object value) {
         return new Round(lvl, type, value) {
             @Override
             void collectRounds(Round round) {

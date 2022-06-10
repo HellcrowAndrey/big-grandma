@@ -34,7 +34,7 @@ public class DependenciesGraph {
     private Mono<LinkedHashMap<RootRound, List<Round>>> intermediateState(List<Map<String, Object>> tuples) {
         return Flux.fromStream(tuples.stream())
                 .filter(DependenciesGraph::isTupleEmpty)
-                .map(tuple -> root.toRootRound(tuple, START_POINT))
+                .map(tuple -> root.toRootRound(tuple))
                 .collect(RootRoundCollector.toListOfRootRounds())
                 .flatMapMany(source -> Flux.fromStream(source.stream()))
                 .collect(Collectors.groupingBy(

@@ -90,7 +90,7 @@ public class Root {
 
     }
 
-    public RootRound toRootRound(Map<String, Object> nonMappedValues, int lvl) {
+    public RootRound toRootRound(Map<String, Object> nonMappedValues) {
         return new RootRound(EntityFactory.ofEntity(nonMappedValues, this.fields, this.rootType), nonMappedValues) {
         };
     }
