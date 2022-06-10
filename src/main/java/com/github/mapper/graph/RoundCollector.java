@@ -55,9 +55,9 @@ public class RoundCollector implements Collector<Round, List<Round>, List<Round>
             List<Round> manyToManyList = this.rightValues.getOrDefault(type, new ArrayList<>());
             if (!manyToManyList.isEmpty()) {
                 manyToManyList.forEach(r -> {
-                            r.collectRoundsLeft(round.lefts);
-                            round.collectRoundsLeft(r.lefts);
-                        });
+                    r.collectRoundsLeft(round.lefts);
+                    round.collectRoundsLeft(r.lefts);
+                });
                 if (!manyToManyList.contains(round)) {
                     manyToManyList.add(round);
                 }

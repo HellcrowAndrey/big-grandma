@@ -3,14 +3,15 @@ package com.github.mapper.sql;
 import com.github.mapper.StringSqlUtils;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
-final class HavingDefault {
+public final class HavingDefault {
 
     public static Having newInstance() {
         return new Having();
     }
 
-    static class Having extends NodeNext {
+    public static class Having extends NodeNext {
 
         public ComparisonOperator count(String column) {
             this.next = new ComparisonOperator() {
@@ -119,7 +120,7 @@ final class HavingDefault {
 
     }
 
-    static abstract class IntermediateHaving extends Having {
+    public static abstract class IntermediateHaving extends Having {
 
         public IntermediateHaving() {
         }
@@ -135,7 +136,7 @@ final class HavingDefault {
         }
     }
 
-    static abstract class TerminalHaving extends NodeNext {
+    public static abstract class TerminalHaving extends NodeNext implements Supplier<SQLHaving> {
         public TerminalHaving() {
         }
 
@@ -149,13 +150,14 @@ final class HavingDefault {
             return new StringBuilder(0);
         }
 
-        public final SQLHaving ofCondition() {
+        @Override
+        public final SQLHaving get() {
             return () -> asString().toString();
         }
 
     }
 
-    static abstract class ComparisonOperator extends NodeNext {
+    public static abstract class ComparisonOperator extends NodeNext {
 
         public LogicalOperator eq(Object value) {
             this.next = new LogicalOperator() {
@@ -321,7 +323,7 @@ final class HavingDefault {
 
     }
 
-    static abstract class LogicalOperator extends NodeNext {
+    public static abstract class LogicalOperator extends NodeNext implements Supplier<SQLHaving> {
 
         public IntermediateHaving and() {
             this.next = new IntermediateHaving() {
@@ -355,13 +357,14 @@ final class HavingDefault {
             return (IntermediateHaving) this.next;
         }
 
-        public final SQLHaving ofCondition() {
+        @Override
+        public final SQLHaving get() {
             return () -> asString().toString();
         }
 
     }
 
-    static abstract class AfterBetweenOperator extends NodeNext {
+    public static abstract class AfterBetweenOperator extends NodeNext {
 
         public TerminalHaving and(Object value) {
             this.next = new TerminalHaving() {

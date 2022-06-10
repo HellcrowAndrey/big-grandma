@@ -26,10 +26,10 @@ public class DependenciesGraphFactory {
     }
 
     private static Root buildRoot(QueryContext context) {
-        Map<QueryContext.Table, List<QueryContext.Table>> tablesLinks = context.getTableLinks();
         Root.Builder rb = new Root.Builder();
         QueryContext.Table rootTable = context.getRootTable();
         if (Objects.nonNull(rootTable)) {
+            Map<QueryContext.Table, List<QueryContext.Table>> tablesLinks = context.getTableLinks();
             rb.rootType(rootTable.getClz()).aliases(aliases(context, rootTable));
             List<SubGraph> graphs = buildSubGraph(context, rootTable.getClz(), tablesLinks.get(rootTable));
             graphs.stream()
@@ -40,6 +40,13 @@ public class DependenciesGraphFactory {
                     .forEach(rb::graphOneToEtc);
         }
         return rb.build();
+    }
+
+    private static List<Field> findNotPrimitiveOrWrapperFields(Class<?> clz) {
+        Field[] fields = clz.getDeclaredFields();
+        return Arrays.stream(fields)
+                .filter(field -> !MapperUtils.isPrimitiveOrWrapper(field.getType()))
+                .collect(Collectors.toList());
     }
 
     private static Map<String, String> aliases(QueryContext context, QueryContext.Table next) {

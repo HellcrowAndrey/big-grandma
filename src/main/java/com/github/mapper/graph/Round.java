@@ -159,4 +159,5 @@ public abstract class Round {
     public int hashCode() {
         return Objects.hash(lvl, type, value);
     }
+
 }
