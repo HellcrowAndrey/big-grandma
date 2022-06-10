@@ -6,8 +6,6 @@ public abstract class RootRound {
 
     Object value;
 
-    Map<Round, Set<Object>> lefts = new HashMap<>();
-
     List<Map<String, Object>> nonMappedValues = new ArrayList<>();
 
     RootRound(Object value, Map<String, Object> nonMappedValues) {

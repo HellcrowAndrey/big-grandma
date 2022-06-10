@@ -9,8 +9,6 @@ import java.util.stream.Collector;
 
 public class RootRoundCollector implements Collector<RootRound, List<RootRound>, List<RootRound>> {
 
-    private final Map<Object, Object> rightValues = new HashMap<>();
-
     private RootRoundCollector() {
     }
 
@@ -31,9 +29,6 @@ public class RootRoundCollector implements Collector<RootRound, List<RootRound>,
             } else {
                 var val = round.value;
                 if (Objects.nonNull(val)) {
-                    if (!this.rightValues.containsKey(val)) {
-                        this.rightValues.put(val, val);
-                    }
                     if (!list.contains(round)) {
                         list.add(round);
                     } else {
