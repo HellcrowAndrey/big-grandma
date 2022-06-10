@@ -9,7 +9,7 @@ import java.util.stream.Collector;
 
 public class RootRoundCollector implements Collector<RootRound, List<RootRound>, List<RootRound>> {
 
-    private final Map<Object, Object> rightValues  = new HashMap<>();
+    private final Map<Object, Object> rightValues = new HashMap<>();
 
     private RootRoundCollector() {
     }
@@ -27,34 +27,18 @@ public class RootRoundCollector implements Collector<RootRound, List<RootRound>,
     public BiConsumer<List<RootRound>, RootRound> accumulator() {
         return (list, round) -> {
             if (list.isEmpty()) {
-                if (round.hashManyToMany()) {
-                    this.rightValues.put(round.value, round.value);
-                }
                 list.add(round);
             } else {
-                if (!round.hashManyToMany()) {
+                var val = round.value;
+                if (Objects.nonNull(val)) {
+                    if (!this.rightValues.containsKey(val)) {
+                        this.rightValues.put(val, val);
+                    }
                     if (!list.contains(round)) {
                         list.add(round);
                     } else {
                         RootRound containsRound = list.get(list.indexOf(round));
                         containsRound.addAll(round.nonMappedValues);
-                    }
-                } else {
-                    var val = round.value;
-                    if (Objects.nonNull(val)) {
-                        if (!this.rightValues.containsKey(val)) {
-                            this.rightValues.put(val, val);
-                        }
-                        list.forEach(roundMTM -> {
-                            roundMTM.collectRoundLeft(this.rightValues, round.value, round.lefts);
-                            round.collectRoundLeft(this.rightValues, roundMTM.value, roundMTM.lefts);
-                        });
-                        if (!list.contains(round)) {
-                            list.add(round);
-                        } else {
-                            RootRound containsRound = list.get(list.indexOf(round));
-                            containsRound.addAll(round.nonMappedValues);
-                        }
                     }
                 }
             }

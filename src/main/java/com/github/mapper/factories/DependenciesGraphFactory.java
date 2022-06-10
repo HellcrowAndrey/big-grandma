@@ -92,9 +92,6 @@ public class DependenciesGraphFactory {
             if (Objects.nonNull(lstOfLinks)) {
                 List<SubGraph> graphs = buildSubGraph(context, currentType, lstOfLinks);
                 graphs.stream()
-                        .filter(g -> Objects.nonNull(g.currentCollType()))
-                        .forEach(sb::graphManyToMany);
-                graphs.stream()
                         .filter(g -> Objects.isNull(g.currentCollType()))
                         .forEach(sb::graphOneToEtc);
                 sb.graphs(buildSubGraph(context, currentType, lstOfLinks));

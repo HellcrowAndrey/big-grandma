@@ -1,8 +1,9 @@
 package com.github.mapper.graph;
 
-import com.github.mapper.utils.CollectionsUtils;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -10,8 +11,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 public class RoundCollector implements Collector<Round, List<Round>, List<Round>> {
-
-    private final Map<Class<?>, List<Round>> rightValues = new HashMap<>();
 
     private RoundCollector() {
     }
@@ -31,9 +30,6 @@ public class RoundCollector implements Collector<Round, List<Round>, List<Round>
             if (list.isEmpty()) {
                 if (Objects.nonNull(round.value)) {
                     list.add(round);
-                    if (round.hashManyToMany()) {
-                        this.rightValues.put(round.type, CollectionsUtils.singleList(round));
-                    }
                 }
             } else {
                 if (Objects.nonNull(round.value)) {
@@ -43,29 +39,9 @@ public class RoundCollector implements Collector<Round, List<Round>, List<Round>
                     } else {
                         list.add(round);
                     }
-                    updateIfManyToMany(round);
                 }
             }
         };
-    }
-
-    private void updateIfManyToMany(Round round) {
-        if (round.hashManyToMany()) {
-            Class<?> type = round.type;
-            List<Round> manyToManyList = this.rightValues.getOrDefault(type, new ArrayList<>());
-            if (!manyToManyList.isEmpty()) {
-                manyToManyList.forEach(r -> {
-                    r.collectRoundsLeft(round.lefts);
-                    round.collectRoundsLeft(r.lefts);
-                });
-                if (!manyToManyList.contains(round)) {
-                    manyToManyList.add(round);
-                }
-            } else {
-                manyToManyList.add(round);
-                this.rightValues.put(type, manyToManyList);
-            }
-        }
     }
 
     @Override

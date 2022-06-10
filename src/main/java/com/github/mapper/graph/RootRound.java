@@ -15,12 +15,6 @@ public abstract class RootRound {
         this.nonMappedValues.add(nonMappedValues);
     }
 
-    abstract void putLeft(Round left, Object value);
-
-    abstract void collectRoundLeft(Map<Object, Object> rightValues, Object roundRootVal, Map<Round, Set<Object>> newLefts);
-
-    abstract boolean hashManyToMany();
-
     public void addAll(List<Map<String, Object>> nonMappedValues) {
         this.nonMappedValues.addAll(nonMappedValues);
     }

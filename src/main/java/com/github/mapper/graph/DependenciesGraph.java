@@ -48,23 +48,6 @@ public class DependenciesGraph {
                 ));
     }
 
-    private <T> Flux<T> toTargetManyToMany(LinkedHashMap<RootRound, List<Round>> groupByRoot) {
-        return Mono.just(groupByRoot.keySet())
-                .flatMapMany(rootRounds -> {
-                    List<T> result = rootRounds.stream().map(rootRound -> {
-                        T target = ofTarget(rootRound, groupByRoot);
-                        this.root.roundsManyToMany(rootRound);
-                        return target;
-                    }).collect(Collectors.toList());
-                    return Flux.fromStream(result.stream());
-                });
-    }
-
-    private <T> Flux<T> toTargetOneToEtc(LinkedHashMap<RootRound, List<Round>> groupByRoot) {
-        return Flux.fromStream(groupByRoot.keySet().stream())
-                .map(rootRound -> ofTarget(rootRound, groupByRoot));
-    }
-
     @SuppressWarnings(value = "unchecked")
     private <T> T ofTarget(RootRound rootRound, LinkedHashMap<RootRound, List<Round>> groupByRoot) {
         Object target = rootRound.value;
@@ -81,14 +64,8 @@ public class DependenciesGraph {
     }
 
     private <T> Flux<T> toTargets(LinkedHashMap<RootRound, List<Round>> groupByRoot) {
-        switch (this.root.type) {
-            case oneToEtc:
-                return toTargetOneToEtc(groupByRoot);
-            case manyToMany:
-                return toTargetManyToMany(groupByRoot);
-            default:
-                throw new IllegalArgumentException("Unsupported Relation type");
-        }
+        return Flux.fromStream(groupByRoot.keySet().stream())
+                .map(rootRound -> ofTarget(rootRound, groupByRoot));
     }
 
     private static boolean isTupleEmpty(Map<String, Object> values) {
