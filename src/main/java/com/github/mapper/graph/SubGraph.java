@@ -131,12 +131,25 @@ public class SubGraph {
 
     }
 
-    public Round restore(Map<String, Object> values, int lvl) {
-        Round result = Round.ofRound(lvl + 1, this.currentType, EntityFactory.ofEntity(values, this.fields, this.currentType));
+    public Round restore(Map<String, Object> values, int lvl, List<Round> previous) {
         lvl = lvl + 1;
-        if (!this.graphsOneToEtc.isEmpty()) {
-            for (SubGraph graph : this.graphsOneToEtc) {
-                result.addRound(graph.restore(values, lvl));
+        Object entity = EntityFactory.ofEntity(values, this.fields, this.currentType);
+        Optional<Round> tmp = previous.stream()
+                .filter(r -> r.value.equals(entity))
+                .findFirst();
+        Round result;
+        if (tmp.isPresent()) {
+            Round round = tmp.get();
+            result = Round.ofRound(lvl, round.type, round.value, round.roundsOneToEtc);
+            result.updateLvl();
+        } else {
+            result = Round.ofRound(lvl, this.currentType, entity);
+            previous.add(result);
+            if (!this.graphsOneToEtc.isEmpty()) {
+                for (SubGraph graph : this.graphsOneToEtc) {
+                    List<Round> prev = new ArrayList<>(previous);
+                    result.addRound(graph.restore(values, lvl, prev));
+                }
             }
         }
         return result;

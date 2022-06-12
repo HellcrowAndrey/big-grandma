@@ -92,10 +92,14 @@ public class Root {
 
     public Round restore(Map<String, Object> values) {
         var lvl = 0;
-        Round result = Round.ofRound(lvl, this.rootType, EntityFactory.ofEntity(values, this.fields, this.rootType));
+        Object entity = EntityFactory.ofEntity(values, this.fields, this.rootType);
+        // TODO: 10.06.22 check on null ...
+        Round result = Round.ofRound(lvl, this.rootType, entity);
         if (!this.graphOneToEtc.isEmpty()) {
             for (SubGraph graph : this.graphOneToEtc) {
-                result.addRound(graph.restore(values, lvl));
+                List<Round> previous = new ArrayList<>();
+                previous.add(result);
+                result.addRound(graph.restore(values, lvl, previous));
             }
         }
         return result;

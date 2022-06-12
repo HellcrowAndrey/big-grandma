@@ -19,9 +19,33 @@ public abstract class Round {
         this.value = value;
     }
 
+    public Round(int lvl, Class<?> type, Object value, Set<Round> roundsOneToEtc) {
+        this.lvl = lvl;
+        this.type = type;
+        this.value = value;
+        this.roundsOneToEtc = roundsOneToEtc;
+    }
+
     abstract void collectRounds(Round round);
 
-    void collectRoundOneToEtc(Round round) {
+    void updateLvl() {
+        if (!this.roundsOneToEtc.isEmpty()) {
+            for (Round round : this.roundsOneToEtc) {
+                round.setLvl(this.lvl + 1);
+            }
+        }
+    }
+
+    void setLvl(int lvl) {
+        this.lvl = lvl;
+        if (!this.roundsOneToEtc.isEmpty()) {
+            for (Round round : this.roundsOneToEtc) {
+                round.setLvl(this.lvl + 1);
+            }
+        }
+    }
+
+    void collectDefRounds(Round round) {
         int levels = round.levels();
         for (int i = 1; i < levels; i++) {
             List<Round> currentRounds = findRoundByLvl(i);
@@ -70,7 +94,16 @@ public abstract class Round {
         return new Round(lvl, type, value) {
             @Override
             void collectRounds(Round round) {
-                collectRoundOneToEtc(round);
+                collectDefRounds(round);
+            }
+        };
+    }
+
+    public static Round ofRound(int lvl, Class<?> type, Object value, Set<Round> roundsOneToEtc) {
+        return new Round(lvl, type, value, roundsOneToEtc) {
+            @Override
+            void collectRounds(Round round) {
+                collectDefRounds(round);
             }
         };
     }
@@ -82,6 +115,14 @@ public abstract class Round {
         Round round = (Round) o;
         return lvl == round.lvl &&
                 Objects.equals(type, round.type) &&
+                Objects.equals(value, round.value);
+    }
+
+    public boolean equalsWithoutLvl(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Round)) return false;
+        Round round = (Round) o;
+        return Objects.equals(type, round.type) &&
                 Objects.equals(value, round.value);
     }
 

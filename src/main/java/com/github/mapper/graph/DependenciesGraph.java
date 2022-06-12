@@ -3,14 +3,15 @@ package com.github.mapper.graph;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.github.mapper.utils.MapperUtils.*;
+import static com.github.mapper.utils.MapperUtils.mapFields;
 
 public class DependenciesGraph {
-
-    private static final int START_POINT = 0;
 
     private final Root root;
 
