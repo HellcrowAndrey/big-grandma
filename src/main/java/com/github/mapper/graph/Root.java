@@ -97,8 +97,7 @@ public class Root {
         Round result = Round.ofRound(lvl, this.rootType, entity);
         if (!this.graphOneToEtc.isEmpty()) {
             for (SubGraph graph : this.graphOneToEtc) {
-                List<Round> previous = new ArrayList<>();
-                previous.add(result);
+                List<Round> previous = List.of(result);
                 result.addRound(graph.restore(values, lvl, previous));
             }
         }

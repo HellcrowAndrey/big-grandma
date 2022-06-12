@@ -39,4 +39,10 @@ public class CollectionsUtils {
         return new HashSet<>(Arrays.asList(rounds));
     }
 
+    public static <T> List<T> newArray(Collection<T> coll, T... args) {
+        List<T> result = new ArrayList<T>(List.of(args));
+        result.addAll(coll);
+        return result;
+    }
+
 }

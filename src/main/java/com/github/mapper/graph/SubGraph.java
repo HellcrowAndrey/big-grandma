@@ -1,6 +1,7 @@
 package com.github.mapper.graph;
 
 import com.github.mapper.factories.EntityFactory;
+import com.github.mapper.utils.CollectionsUtils;
 import com.github.mapper.utils.MapperUtils;
 import org.springframework.util.StringUtils;
 
@@ -134,25 +135,29 @@ public class SubGraph {
     public Round restore(Map<String, Object> values, int lvl, List<Round> previous) {
         lvl = lvl + 1;
         Object entity = EntityFactory.ofEntity(values, this.fields, this.currentType);
-        Optional<Round> tmp = previous.stream()
-                .filter(r -> r.value.equals(entity))
-                .findFirst();
+        Optional<Round> tmp = findPrevRound(previous, entity);
         Round result;
         if (tmp.isPresent()) {
             Round round = tmp.get();
-            result = Round.ofRound(lvl, round.type, round.value, round.roundsOneToEtc);
-            result.updateLvl();
+            result = Round.ofRound(lvl, round.type, round.value);
         } else {
             result = Round.ofRound(lvl, this.currentType, entity);
-            previous.add(result);
             if (!this.graphsOneToEtc.isEmpty()) {
                 for (SubGraph graph : this.graphsOneToEtc) {
-                    List<Round> prev = new ArrayList<>(previous);
-                    result.addRound(graph.restore(values, lvl, prev));
+                    result.addRound(graph.restore(
+                            values, lvl,
+                            CollectionsUtils.newArray(previous, result))
+                    );
                 }
             }
         }
         return result;
+    }
+
+    private Optional<Round> findPrevRound(List<Round> previous, Object entity) {
+        return previous.stream()
+                .filter(r -> r.value.equals(entity))
+                .findFirst();
     }
 
     public void rounds(Object root, Round round, Map<String, Object> values) {

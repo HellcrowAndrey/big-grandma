@@ -118,14 +118,6 @@ public abstract class Round {
                 Objects.equals(value, round.value);
     }
 
-    public boolean equalsWithoutLvl(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Round)) return false;
-        Round round = (Round) o;
-        return Objects.equals(type, round.type) &&
-                Objects.equals(value, round.value);
-    }
-
     @Override
     public int hashCode() {
         return Objects.hash(lvl, type, value);
