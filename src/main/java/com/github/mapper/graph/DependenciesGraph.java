@@ -35,12 +35,14 @@ public class DependenciesGraph {
         return Flux.fromStream(tuples.stream())
                 .filter(DependenciesGraph::isTupleEmpty)
                 .map(this.root::restore)
+                .collect(RoundsBeforeWiringCollector.toListOfRounds())
+                .flatMapMany(list -> Flux.fromStream(list.stream()))
                 .collect(Collectors.groupingBy(
                         source -> source,
                         LinkedHashMap::new,
                         Collectors.flatMapping(
                                 source -> source.roundsOneToEtc.stream(),
-                                RoundCollector.toListOfRounds()
+                                RoundsToWiringCollector.toListOfRounds()
                         )
                 ));
     }

@@ -45,6 +45,25 @@ public abstract class Round {
         }
     }
 
+    void merge(Round round) {
+        if (this.type.equals(round.type)) {
+            var lvl = Math.max(levels(), round.levels());
+            List<Round> current = findRoundByLvl(lvl);
+            List<Round> next = round.findRoundByLvl(lvl);
+            List<Round> needToMerge = current.stream().flatMap(currentRound -> next.stream()
+                            .filter(currentRound::equals))
+                    .collect(Collectors.toList());
+            needToMerge.forEach(res -> {
+                var currIndex = current.indexOf(res);
+                Round currRound = current.get(currIndex);
+                currRound.addRounds(res.roundsOneToEtc);
+                var nextIndex = next.indexOf(res);
+                Round nextRound = next.get(nextIndex);
+                nextRound.addRounds(currRound.roundsOneToEtc);
+            });
+        }
+    }
+
     void mergeDefRounds(Round round) {
         int levels = round.levels();
         for (int i = 1; i < levels; i++) {
@@ -79,18 +98,21 @@ public abstract class Round {
 
     List<Round> findRoundByLvl(int lvl) {
         List<Round> result = new ArrayList<>();
-        if (this.lvl < lvl) {
+        if (this.lvl <= lvl) {
             for (Round round : this.roundsOneToEtc) {
                 result.addAll(round.findRoundByLvl(lvl));
             }
-        } else {
-            result.addAll(this.roundsOneToEtc);
         }
+        result.addAll(this.roundsOneToEtc);
         return result;
     }
 
     void addRound(Round round) {
         this.roundsOneToEtc.add(round);
+    }
+
+    void addRounds(Set<Round> rounds) {
+        this.roundsOneToEtc.addAll(rounds);
     }
 
     public static Round ofRound(int lvl, Class<?> type, Object value) {

@@ -10,13 +10,13 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
-public class RoundCollector implements Collector<Round, List<Round>, List<Round>> {
+public class RoundsToWiringCollector implements Collector<Round, List<Round>, List<Round>> {
 
-    private RoundCollector() {
+    private RoundsToWiringCollector() {
     }
 
-    public static RoundCollector toListOfRounds() {
-        return new RoundCollector();
+    public static RoundsToWiringCollector toListOfRounds() {
+        return new RoundsToWiringCollector();
     }
 
     @Override
