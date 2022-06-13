@@ -12,8 +12,6 @@ public class Root {
 
     final Class<?> rootType;
 
-    final Map<Class<?>, SubGraph> graphsManyToMany; //optional
-
     final List<SubGraph> graphOneToEtc; //optional
 
     final Map<String, Field> fields; // required
@@ -22,22 +20,18 @@ public class Root {
     public Root(Class<?> rootType, List<SubGraph> graphOneToEtc) {
         this.rootType = Objects.requireNonNull(rootType);
         this.graphOneToEtc = Objects.requireNonNullElse(graphOneToEtc, new ArrayList<>());
-        this.graphsManyToMany = new HashMap<>();
         this.fields = new HashMap<>();
     }
 
     private Root(Builder b) {
         this.rootType = b.rootType;
         this.graphOneToEtc = b.graphOneToEtc;
-        this.graphsManyToMany = b.graphsManyToMany;
         this.fields = b.fields;
     }
 
     public static class Builder {
 
         Class<?> rootType;
-
-        Map<Class<?>, SubGraph> graphsManyToMany = new HashMap<>();
 
         List<SubGraph> graphOneToEtc = new ArrayList<>(); //optional
 
@@ -57,11 +51,6 @@ public class Root {
 
         public Builder graphOneToEtc(SubGraph graph) {
             this.graphOneToEtc.add(graph);
-            return this;
-        }
-
-        public Builder graphsManyToMany(SubGraph outside) {
-            this.graphsManyToMany.put(outside.currentType, outside);
             return this;
         }
 

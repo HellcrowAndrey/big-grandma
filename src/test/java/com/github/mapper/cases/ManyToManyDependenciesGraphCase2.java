@@ -23,16 +23,17 @@ public class ManyToManyDependenciesGraphCase2 {
                                         .currentType(Round1Lvl1.class)
                                         .currentFieldName("rootMTMCase2")
                                         .currentCollType(List.class)
-                                        .graphManyToMany(
-                                                new SubGraph.Builder()
-                                                        .rootType(Round1Lvl1.class)
-                                                        .rootFieldName("round2Lvl1s")
-                                                        .rootCollType(List.class)
-                                                        .currentType(Round2Lvl1.class)
-                                                        .currentFieldName("round1Lvl1s")
-                                                        .currentCollType(List.class)
-                                                        .build()
-                                        ).build()
+//                                        .graphManyToMany(
+//                                                new SubGraph.Builder()
+//                                                        .rootType(Round1Lvl1.class)
+//                                                        .rootFieldName("round2Lvl1s")
+//                                                        .rootCollType(List.class)
+//                                                        .currentType(Round2Lvl1.class)
+//                                                        .currentFieldName("round1Lvl1s")
+//                                                        .currentCollType(List.class)
+//                                                        .build()
+//                                        )
+                                        .build()
                         ).build();
         return new DependenciesGraph(root);
     }

@@ -35,7 +35,7 @@ public class RoundCollector implements Collector<Round, List<Round>, List<Round>
                 if (Objects.nonNull(round.value)) {
                     if (list.contains(round)) {
                         Round containsRound = list.get(list.indexOf(round));
-                        containsRound.collectRounds(round);
+                        containsRound.mergeRounds(round);
                     } else {
                         list.add(round);
                     }

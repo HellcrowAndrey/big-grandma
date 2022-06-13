@@ -32,9 +32,9 @@ public class DependenciesGraphFactory {
             Map<QueryContext.Table, List<QueryContext.Table>> tablesLinks = context.getTableLinks();
             rb.rootType(rootTable.getClz()).aliases(aliases(context, rootTable));
             List<SubGraph> graphs = buildSubGraph(context, rootTable.getClz(), tablesLinks.get(rootTable));
-            graphs.stream()
-                    .filter(g -> Objects.nonNull(g.getCurrentCollType()))
-                    .forEach(rb::graphsManyToMany);
+//            graphs.stream()
+//                    .filter(g -> Objects.nonNull(g.getCurrentCollType()))
+//                    .forEach(rb::graphsManyToMany);
             graphs.stream()
                     .filter(g -> Objects.isNull(g.getCurrentCollType()))
                     .forEach(rb::graphOneToEtc);

@@ -35,6 +35,7 @@ class DependenciesGraphTest {
         SqlDependenciesMapper sqlDependenciesMapper =
                 SqlDependenciesMapper.defaultMap(dependencies.graph());
         Flux<Object> publisher = sqlDependenciesMapper.many(tuples);
+        publisher.collectList().subscribe(s -> System.out.println(s));
         StepVerifier.create(publisher)
                 .expectNextSequence(expected)
                 .verifyComplete();

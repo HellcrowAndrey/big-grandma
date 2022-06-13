@@ -26,7 +26,7 @@ public abstract class Round {
         this.roundsOneToEtc = roundsOneToEtc;
     }
 
-    abstract void collectRounds(Round round);
+    abstract void mergeRounds(Round round);
 
     void updateLvl() {
         if (!this.roundsOneToEtc.isEmpty()) {
@@ -45,7 +45,7 @@ public abstract class Round {
         }
     }
 
-    void collectDefRounds(Round round) {
+    void mergeDefRounds(Round round) {
         int levels = round.levels();
         for (int i = 1; i < levels; i++) {
             List<Round> currentRounds = findRoundByLvl(i);
@@ -62,10 +62,13 @@ public abstract class Round {
     int levels() {
         int lvl = 0;
         for (Round r : this.roundsOneToEtc) {
-            if (r.roundsOneToEtc.size() == 0) {
-                if (r.levels() > lvl) {
-                    lvl = r.levels();
+            if (r.roundsOneToEtc.size() != 0) {
+                var tmp = r.levels();
+                if (tmp > lvl) {
+                    lvl = tmp;
                 }
+            } else {
+                lvl = r.lvl;
             }
         }
         if (lvl == 0) {
@@ -93,8 +96,8 @@ public abstract class Round {
     public static Round ofRound(int lvl, Class<?> type, Object value) {
         return new Round(lvl, type, value) {
             @Override
-            void collectRounds(Round round) {
-                collectDefRounds(round);
+            void mergeRounds(Round round) {
+                mergeDefRounds(round);
             }
         };
     }
@@ -102,8 +105,8 @@ public abstract class Round {
     public static Round ofRound(int lvl, Class<?> type, Object value, Set<Round> roundsOneToEtc) {
         return new Round(lvl, type, value, roundsOneToEtc) {
             @Override
-            void collectRounds(Round round) {
-                collectDefRounds(round);
+            void mergeRounds(Round round) {
+                mergeDefRounds(round);
             }
         };
     }
