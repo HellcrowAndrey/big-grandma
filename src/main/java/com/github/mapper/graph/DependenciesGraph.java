@@ -52,7 +52,7 @@ public class DependenciesGraph {
         Object target = rootRound.value;
         Map<String, Object> values = new HashMap<>();
         List<Round> rounds = groupByRoot.get(rootRound);
-        List<SubGraph> graphs = root.graphOneToEtc;
+        List<SubGraph> graphs = root.getGraphOneToEtc();
         rounds.forEach(round ->
                 graphs.forEach(graph ->
                         graph.rounds(target, round, values)

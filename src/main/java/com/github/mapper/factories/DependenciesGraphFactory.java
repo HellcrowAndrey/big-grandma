@@ -26,18 +26,16 @@ public class DependenciesGraphFactory {
     }
 
     private static Root buildRoot(QueryContext context) {
-        Root.Builder rb = new Root.Builder();
+        RootBuilder rb = RootBuilder.rootBuilder();
         QueryContext.Table rootTable = context.getRootTable();
         if (Objects.nonNull(rootTable)) {
             Map<QueryContext.Table, List<QueryContext.Table>> tablesLinks = context.getTableLinks();
-            rb.rootType(rootTable.getClz()).aliases(aliases(context, rootTable));
+            rb.setRootType(rootTable.getClz());
+            rb.setAliases(aliases(context, rootTable));
             List<SubGraph> graphs = buildSubGraph(context, rootTable.getClz(), tablesLinks.get(rootTable));
-//            graphs.stream()
-//                    .filter(g -> Objects.nonNull(g.getCurrentCollType()))
-//                    .forEach(rb::graphsManyToMany);
             graphs.stream()
                     .filter(g -> Objects.isNull(g.getCurrentCollType()))
-                    .forEach(rb::graphOneToEtc);
+                    .forEach(rb::setGraphOneToEtc);
         }
         return rb.build();
     }
@@ -62,20 +60,20 @@ public class DependenciesGraphFactory {
         Map<QueryContext.Table, List<QueryContext.Table>> tablesLinks = context.getTableLinks();
         List<SubGraph> subGraphs = new LinkedList<>();
         for (QueryContext.Table link : tableLinks) {
-            SubGraph.Builder sb = new SubGraph.Builder();
+            SubGraphBuilder sb = SubGraphBuilder.subBuilder();
             List<Field> prevFields = MapperUtils.fieldFields(prevRootType);
             Class<?> currentType = link.getClz();
             Field prevField = findField(prevFields, currentType);
             if (Objects.isNull(prevField)) {
                 prevField = findByCollField(prevFields, currentType);
-                sb.rootCollType(prevField.getType());
+                sb.setRootCollType(prevField.getType());
             }
             List<Field> currentFields = MapperUtils.fieldFields(currentType);
             Field currentField = findField(currentFields, prevRootType);
             if (Objects.isNull(currentField)) {
                 currentField = findByCollField(currentFields, prevRootType);
                 if (Objects.nonNull(currentField)) {
-                    sb.currentCollType(prevField.getType());
+                    sb.setCurrentCollType(prevField.getType());
                 }
             }
             List<QueryContext.Table> secondLinksTables = currentFields.stream()
@@ -83,21 +81,21 @@ public class DependenciesGraphFactory {
                             .flatMap(Collection::stream)
                             .filter(t -> isTypeTableAndFieldEq(f).test(t)))
                     .collect(Collectors.toList());
-            sb.rootType(prevRootType)
-                    .rootFieldName(prevField.getName())
-                    .currentType(currentType)
-                    .currentFieldName(Objects.nonNull(currentField) ? currentField.getName() : "")
-                    .aliases(aliases(context, link));
+            sb.setRootType(prevRootType);
+            sb.setRootFieldName(prevField.getName());
+            sb.setCurrentType(currentType);
+            sb.setCurrentFieldName(Objects.nonNull(currentField) ? currentField.getName() : "");
+            sb.setAliases(aliases(context, link));
             List<QueryContext.Table> lstOfLinks = tablesLinks.get(link);
             if (Objects.nonNull(lstOfLinks)) {
                 List<SubGraph> graphs = buildSubGraph(context, currentType, lstOfLinks);
                 graphs.stream()
                         .filter(g -> Objects.isNull(g.getCurrentCollType()))
-                        .forEach(sb::graphOneToEtc);
-                sb.graphs(buildSubGraph(context, currentType, lstOfLinks));
+                        .forEach(sb::setGraph);
+                sb.setGraphs(buildSubGraph(context, currentType, lstOfLinks));
             }
             if (!secondLinksTables.isEmpty()) {
-                sb.graphs(buildSubGraph(context, currentType, secondLinksTables));
+                sb.setGraphs(buildSubGraph(context, currentType, secondLinksTables));
             }
             subGraphs.add(sb.build());
         }

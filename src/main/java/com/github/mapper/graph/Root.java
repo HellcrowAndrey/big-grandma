@@ -10,17 +10,28 @@ import java.util.stream.Collectors;
 
 public class Root {
 
-    final Class<?> rootType;
+    private final Class<?> rootType;
 
-    final List<SubGraph> graphOneToEtc; //optional
+    private final List<SubGraph> graphOneToEtc; //optional
 
-    final Map<String, Field> fields; // required
+    private final Map<String, Field> fields; // required
 
-    @Deprecated
-    public Root(Class<?> rootType, List<SubGraph> graphOneToEtc) {
+    public Root(Class<?> rootType, List<SubGraph> graphOneToEtc, Map<String, Field> fields) {
         this.rootType = Objects.requireNonNull(rootType);
         this.graphOneToEtc = Objects.requireNonNullElse(graphOneToEtc, new ArrayList<>());
-        this.fields = new HashMap<>();
+        this.fields = Objects.requireNonNullElse(fields, new HashMap<>());
+    }
+
+    public Class<?> getRootType() {
+        return rootType;
+    }
+
+    public List<SubGraph> getGraphOneToEtc() {
+        return graphOneToEtc;
+    }
+
+    public Map<String, Field> getFields() {
+        return fields;
     }
 
     private Root(Builder b) {
