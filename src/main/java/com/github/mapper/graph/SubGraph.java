@@ -107,6 +107,11 @@ public class SubGraph {
         }
     }
 
+    public boolean isHasBidirectionalManyToMany() {
+
+        return false;
+    }
+
     public Class<?> getRootType() {
         return rootType;
     }

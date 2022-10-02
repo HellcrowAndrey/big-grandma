@@ -2,32 +2,32 @@ package com.github.mapper.sql.key.worlds;
 
 import com.github.mapper.sql.*;
 
-public interface From {
+public interface From<R> {
 
-    Where where(SQLCondition condition);
+    Where<R> where(SQLCondition condition);
 
-    OrderBy orderBy(SortedType sortedType, String... columns);
+    OrderBy<R> orderBy(SortedType sortedType, String... columns);
 
-    Limit limit(int number);
+    Limit<R> limit(int number);
 
-    Join join(String tableName, ColumnName leftCol, ColumnName rightCol);
+    Join<R> join(String tableName, ColumnName leftCol, ColumnName rightCol);
 
-    Join join(String tableName, String leftCol, String rightCol);
+    Join<R> join(String tableName, String leftCol, String rightCol);
 
-    Join join(Class<?> joinTable, String parent, String join);
+    Join<R> join(Class<?> joinTable, String parent, String join);
 
-    Join join(Class<?> toTable, Class<?> fromTable, String to, String from);
+    Join<R> join(Class<?> toTable, Class<?> fromTable, String to, String from);
 
-    LeftJoin leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol);
+    LeftJoin<R> leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol);
 
-    LeftJoin leftJoin(String tableName, String leftCol, String rightCol);
+    LeftJoin<R> leftJoin(String tableName, String leftCol, String rightCol);
 
-    LeftJoin leftJoin(Class<?> fromTable, String to, String from);
+    LeftJoin<R> leftJoin(Class<?> fromTable, String to, String from);
 
-    LeftJoin leftJoin(Class<?> toTable, Class<?> fromTable, String to, String from);
+    LeftJoin<R> leftJoin(Class<?> toTable, Class<?> fromTable, String to, String from);
 
     SQLSelect toSelect();
 
-    ReactiveSelect toReactiveSelect();
+    ReactiveSelect<R> toReactiveSelect();
 
 }

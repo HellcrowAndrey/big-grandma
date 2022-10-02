@@ -3,18 +3,17 @@ package com.github.mapper.sql;
 import com.github.mapper.SqlDependenciesMapper;
 import com.github.mapper.factories.DependenciesGraphFactory;
 import com.github.mapper.graph.DependenciesGraph;
-import com.github.mapper.sql.key.worlds.KeyWorld;
 import org.springframework.r2dbc.core.DatabaseClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public abstract class ReactiveSelectDefault implements ReactiveSelect {
+public abstract class ReactiveSelectDefault<T> implements ReactiveSelect<T> {
     public ReactiveSelectDefault() {
     }
 
     @Override
-    public <T> Mono<T> one() {
-        KeyWorld it = collect();
+    public Mono<T> one() {
+        SQLSelect it = query();
         String sql = it.asString();
         QueryContext context = context();
         DatabaseClient client = context.getClient();
@@ -27,8 +26,8 @@ public abstract class ReactiveSelectDefault implements ReactiveSelect {
     }
 
     @Override
-    public <T> Flux<T> any() {
-        KeyWorld it = collect();
+    public Flux<T> any() {
+        SQLSelect it = query();
         String sql = it.asString();
         QueryContext context = context();
         DatabaseClient client = context.getClient();
@@ -40,7 +39,7 @@ public abstract class ReactiveSelectDefault implements ReactiveSelect {
                 .flatMapMany(tuples -> SqlDependenciesMapper.defaultMap(graph).many(tuples));
     }
 
-    protected abstract KeyWorld collect();
+    protected abstract SQLSelect query();
 
     protected abstract QueryContext context();
 

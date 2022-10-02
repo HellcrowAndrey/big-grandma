@@ -1,11 +1,9 @@
 package com.github.mapper;
 
-import com.github.mapper.sql.Select;
+import com.github.mapper.sql.key.worlds.Select;
 
 public interface ReactiveEntityTemplate {
 
-    Select select(String... columns);
-
-    Select select();
+    <T> Select<T> select();
 
 }

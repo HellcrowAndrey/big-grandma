@@ -2,24 +2,24 @@ package com.github.mapper.sql.key.worlds;
 
 import com.github.mapper.sql.*;
 
-public interface Join {
+public interface Join<R> {
 
-    Join join(String tableName, ColumnName leftCol, ColumnName rightCol);
+    Join<R> join(String tableName, ColumnName leftCol, ColumnName rightCol);
 
-    Join join(String tableName, String leftCol, String rightCol);
+    Join<R> join(String tableName, String leftCol, String rightCol);
 
-    Join join(Class<?> toJoin, Class<?> toTable, String columnToJoin, String columnToTable);
+    Join<R> join(Class<?> toJoin, Class<?> toTable, String columnToJoin, String columnToTable);
 
-    LeftJoin leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol);
+    LeftJoin<R> leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol);
 
-    LeftJoin leftJoin(String tableName, String leftCol, String rightCol);
+    LeftJoin<R> leftJoin(String tableName, String leftCol, String rightCol);
 
-    LeftJoin leftJoin(Class<?> toJoin, Class<?> toTable, String columnToJoin, String columnToTable);
+    LeftJoin<R> leftJoin(Class<?> toJoin, Class<?> toTable, String columnToJoin, String columnToTable);
 
-    Where where(SQLCondition condition);
+    Where<R> where(SQLCondition condition);
 
     SQLSelect toSelect();
 
-    ReactiveSelect toReactiveSelect();
+    ReactiveSelect<R> toReactiveSelect();
 
 }

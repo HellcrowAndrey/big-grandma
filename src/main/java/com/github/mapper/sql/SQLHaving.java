@@ -1,27 +1,30 @@
 package com.github.mapper.sql;
 
+import com.github.mapper.sql.conditions.operators.ComparisonOperators;
+import com.github.mapper.sql.pipeline.HavingPipeline;
+
 public interface SQLHaving {
 
     String asString();
 
-    static HavingDefault.ComparisonOperator count(String column) {
-        return HavingDefault.newInstance().count(column);
+    static ComparisonOperators count(String column) {
+        return new HavingPipeline().count(column);
     }
 
-    static HavingDefault.ComparisonOperator min(String column) {
-        return HavingDefault.newInstance().min(column);
+    static ComparisonOperators min(String column) {
+        return new HavingPipeline().min(column);
     }
 
-    static HavingDefault.ComparisonOperator max(String column) {
-        return HavingDefault.newInstance().max(column);
+    static ComparisonOperators max(String column) {
+        return new HavingPipeline().max(column);
     }
 
-    static HavingDefault.ComparisonOperator avg(String column) {
-        return HavingDefault.newInstance().avg(column);
+    static ComparisonOperators avg(String column) {
+        return new HavingPipeline().avg(column);
     }
 
-    static HavingDefault.ComparisonOperator sum(String column) {
-        return HavingDefault.newInstance().sum(column);
+    static ComparisonOperators sum(String column) {
+        return new HavingPipeline().sum(column);
     }
 
 }

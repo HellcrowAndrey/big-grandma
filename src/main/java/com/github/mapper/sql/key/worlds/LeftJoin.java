@@ -5,24 +5,24 @@ import com.github.mapper.sql.ReactiveSelect;
 import com.github.mapper.sql.SQLCondition;
 import com.github.mapper.sql.SQLSelect;
 
-public interface LeftJoin {
+public interface LeftJoin<R> {
 
-    LeftJoin leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol);
+    LeftJoin<R> leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol);
 
-    LeftJoin leftJoin(String tableName, String leftCol, String rightCol);
+    LeftJoin<R> leftJoin(String tableName, String leftCol, String rightCol);
 
-    LeftJoin leftJoin(Class<?> toJoin, Class<?> toTable, String columnToJoin, String columnToTable);
+    LeftJoin<R> leftJoin(Class<?> toJoin, Class<?> toTable, String columnToJoin, String columnToTable);
 
-    Join join(String tableName, ColumnName leftCol, ColumnName rightCol);
+    Join<R> join(String tableName, ColumnName leftCol, ColumnName rightCol);
 
-    Join join(String tableName, String leftCol, String rightCol);
+    Join<R> join(String tableName, String leftCol, String rightCol);
 
-    Join join(Class<?> toJoin, Class<?> toTable, String columnToJoin, String columnToTable);
+    Join<R> join(Class<?> toJoin, Class<?> toTable, String columnToJoin, String columnToTable);
 
-    Where where(SQLCondition condition);
+    Where<R> where(SQLCondition condition);
 
     SQLSelect toSelect();
 
-    ReactiveSelect toReactiveSelect();
+    ReactiveSelect<R> toReactiveSelect();
 
 }

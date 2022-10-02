@@ -4,16 +4,16 @@ import com.github.mapper.sql.ReactiveSelect;
 import com.github.mapper.sql.SQLSelect;
 import com.github.mapper.sql.SortedType;
 
-public interface Where {
+public interface Where<R> {
 
-    GroupBy groupBy(String... columns);
+    GroupBy<R> groupBy(String... columns);
 
-    OrderBy orderBy(SortedType sortedType, String... columns);
+    OrderBy<R> orderBy(SortedType sortedType, String... columns);
 
-    Limit limit(int number);
+    Limit<R> limit(int number);
 
     SQLSelect toSelect();
 
-    ReactiveSelect toReactiveSelect();
+    ReactiveSelect<R> toReactiveSelect();
 
 }

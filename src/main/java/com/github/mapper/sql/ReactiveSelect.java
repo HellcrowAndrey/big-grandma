@@ -3,10 +3,10 @@ package com.github.mapper.sql;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface ReactiveSelect {
+public interface ReactiveSelect<T> {
 
-    <T> Mono<T> one();
+    Mono<T> one();
 
-    <T>Flux<T> any();
+    Flux<T> any();
 
 }

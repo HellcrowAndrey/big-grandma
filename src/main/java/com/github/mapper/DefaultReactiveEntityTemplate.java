@@ -1,7 +1,7 @@
 package com.github.mapper;
 
 import com.github.mapper.sql.SQLSelect;
-import com.github.mapper.sql.Select;
+import com.github.mapper.sql.key.worlds.Select;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Component;
 
@@ -15,12 +15,7 @@ public class DefaultReactiveEntityTemplate implements ReactiveEntityTemplate {
     }
 
     @Override
-    public Select select(String... columns) {
-        return SQLSelect.select(columns);
-    }
-
-    @Override
-    public Select select() {
+    public <T> Select<T> select() {
         return SQLSelect.select(this.client);
     }
 

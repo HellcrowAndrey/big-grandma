@@ -3,14 +3,7 @@ package com.github.mapper.sql;
 import com.github.mapper.entityies.Comment;
 import com.github.mapper.entityies.Post;
 import com.github.mapper.entityies.User;
-import com.github.mapper.graph.Root;
-import com.github.mapper.models.RootLvl;
-import com.github.mapper.models.Round1Lvl1;
-import com.github.mapper.models.Round2Lvl1;
-import com.github.mapper.sql.key.worlds.KeyWorld;
-import com.github.mapper.sql.key.worlds.SelectDefault;
 import org.junit.jupiter.api.Test;
-import reactor.core.publisher.Mono;
 
 class SelectTest {
 
@@ -193,7 +186,7 @@ class SelectTest {
 //        Mono<Object> r = select1.one();
 //        System.out.println(r);
 
-        ReactiveSelect select = SQLSelect.select()
+        ReactiveSelect select = SQLSelect.select(null)
                 .from(Post.class)
                 .join(User.class, "id", "user_id")
                 .join(Comment.class, Post.class, "post_id", "id")

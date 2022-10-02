@@ -33,7 +33,7 @@ public class DependenciesGraph {
 
     private Mono<LinkedHashMap<Round, List<Round>>> intermediateState(List<Map<String, Object>> tuples) {
         return Flux.fromStream(tuples.stream())
-                .filter(DependenciesGraph::isTupleEmpty)
+                .filter(DependenciesGraph::isTupleNotEmpty)
                 .map(this.root::restore)
                 .collect(RoundsBeforeWiringCollector.toListOfRounds())
                 .flatMapMany(list -> Flux.fromStream(list.stream()))
@@ -67,7 +67,7 @@ public class DependenciesGraph {
                 .map(rootRound -> ofTarget(rootRound, groupByRoot));
     }
 
-    private static boolean isTupleEmpty(Map<String, Object> values) {
+    private static boolean isTupleNotEmpty(Map<String, Object> values) {
         return !values.isEmpty();
     }
 

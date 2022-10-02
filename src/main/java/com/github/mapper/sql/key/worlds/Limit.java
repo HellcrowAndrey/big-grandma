@@ -1,7 +1,7 @@
 package com.github.mapper.sql.key.worlds;
 
-public interface Limit {
+public interface Limit<R> {
 
-    Offset offset(int number);
+    Offset<R> offset(int number);
 
 }

@@ -1,8 +1,7 @@
 package com.github.mapper.sql.key.worlds;
 
-public interface Distinct {
+public interface Distinct<R> {
 
-    From from(String tableName);
-    From from(Class<?> clz);
+    From<R> from(Class<?> clz);
 
 }

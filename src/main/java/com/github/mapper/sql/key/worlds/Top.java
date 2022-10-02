@@ -1,6 +1,7 @@
 package com.github.mapper.sql.key.worlds;
 
-public interface Top {
-    From from(String tableName);
-    From from(Class<?> clz);
+public interface Top<R> {
+
+    From<R> from(Class<?> clz);
+
 }

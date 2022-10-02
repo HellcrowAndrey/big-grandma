@@ -4,9 +4,11 @@ public class StringSqlUtils {
 
     public static final String EMPTY = "";
     public static final String SPACE = " ";
+
     public static String toStringWithQuote(Object obj) {
         return "'" + obj + "'";
     }
+
     public static String toStringSeparatorComa(Object[] a) {
         if (a == null) {
             throw new IllegalArgumentException();
@@ -25,6 +27,7 @@ public class StringSqlUtils {
             b.append(", ");
         }
     }
+
     public static String toStringSeparatorComaAndQuotes(Object[] a) {
         if (a == null) {
             throw new IllegalArgumentException();
@@ -43,6 +46,7 @@ public class StringSqlUtils {
             b.append(", ");
         }
     }
+
     public static String toStringSeparatorSpace(Object[] a) {
         if (a == null) {
             throw new IllegalArgumentException();
@@ -65,6 +69,5 @@ public class StringSqlUtils {
     public static Object toTextOrSame(Object val) {
         return val instanceof String || val instanceof Character ? toStringWithQuote(val) : val;
     }
-
 
 }
