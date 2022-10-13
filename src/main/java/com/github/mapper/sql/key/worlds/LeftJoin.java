@@ -5,6 +5,8 @@ import com.github.mapper.sql.ReactiveSelect;
 import com.github.mapper.sql.SQLCondition;
 import com.github.mapper.sql.SQLSelect;
 
+import java.util.function.Function;
+
 public interface LeftJoin<R> {
 
     LeftJoin<R> leftJoin(String tableName, ColumnName leftCol, ColumnName rightCol);
@@ -19,7 +21,7 @@ public interface LeftJoin<R> {
 
     Join<R> join(Class<?> toJoin, Class<?> toTable, String columnToJoin, String columnToTable);
 
-    Where<R> where(SQLCondition condition);
+    Where<R> where(Function<SQLCondition, SQLCondition> condition);
 
     SQLSelect toSelect();
 

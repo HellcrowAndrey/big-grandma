@@ -16,6 +16,4 @@ public interface HavingCondition {
 
     ComparisonOperators sum(String column);
 
-
-
 }

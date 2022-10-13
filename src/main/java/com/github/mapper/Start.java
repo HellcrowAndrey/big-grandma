@@ -6,6 +6,7 @@ import com.github.mapper.entityies.User;
 import com.github.mapper.sql.ReactiveSelect;
 import com.github.mapper.sql.SQLCondition;
 import com.github.mapper.sql.SQLSelect;
+import com.github.mapper.sql.SortedType;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;

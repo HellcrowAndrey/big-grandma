@@ -8,6 +8,7 @@ import org.springframework.r2dbc.core.DatabaseClient;
 
 import java.util.LinkedList;
 import java.util.Objects;
+import java.util.function.Function;
 
 public final class SelectPipeline<R> extends SelectTemplatePipeline implements Select<R>, From<R>, Where<R>, GroupBy<R>,
         OrderBy<R>, Limit<R>, Offset<R>, Join<R>, LeftJoin<R>, Having<R>, Top<R>, Distinct<R> {
@@ -41,10 +42,11 @@ public final class SelectPipeline<R> extends SelectTemplatePipeline implements S
     }
 
     @Override
-    public Where<R> where(SQLCondition condition) {
+    public Where<R> where(Function<SQLCondition, SQLCondition> condition) {
+        SQLCondition c = condition.apply(SQLCondition.newInstance(this.queryContext));
         this.partsOfQuery.add(String.format(WHERE_PATTERN,
-                Objects.requireNonNull(condition, "Condition is required")
-                        .asString(this.queryContext)));
+                Objects.requireNonNull(c, "Condition is required")
+                        .asString()));
         return this;
     }
 
@@ -55,8 +57,9 @@ public final class SelectPipeline<R> extends SelectTemplatePipeline implements S
     }
 
     @Override
-    public Having<R> having(SQLHaving condition) {
-        this.partsOfQuery.add(String.format(HAVING, condition.asString()));
+    public Having<R> having(Function<SQLHaving, SQLHaving> condition) {
+        SQLHaving having = condition.apply(SQLHaving.newInstance());
+        this.partsOfQuery.add(String.format(HAVING, having.asString()));
         return this;
     }
 

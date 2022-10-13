@@ -5,13 +5,14 @@ import com.github.mapper.sql.SQLHaving;
 import com.github.mapper.sql.conditions.HavingCondition;
 import com.github.mapper.sql.conditions.operators.AfterBetweenOperators;
 import com.github.mapper.sql.conditions.operators.ComparisonOperators;
-import com.github.mapper.sql.conditions.operators.LogicalOperators;
-import com.github.mapper.sql.conditions.operators.TerminalHaving;
+import com.github.mapper.sql.conditions.operators.ComparisonOperatorsInHaving;
+import com.github.mapper.sql.conditions.operators.LogicalOperatorsInHaving;
+import com.github.mapper.sql.conditions.TerminalHaving;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class HavingPipeline implements HavingCondition, ComparisonOperators, LogicalOperators, AfterBetweenOperators, TerminalHaving {
+public class HavingPipeline implements HavingCondition, ComparisonOperatorsInHaving, LogicalOperatorsInHaving, AfterBetweenOperators, TerminalHaving {
 
     private final List<String> operators;
 
@@ -55,7 +56,7 @@ public class HavingPipeline implements HavingCondition, ComparisonOperators, Log
     }
 
     @Override
-    public LogicalOperators eq(Object value) {
+    public LogicalOperatorsInHaving eq(Object value) {
         this.operators.add("=" +
                 StringSqlUtils.SPACE +
                 StringSqlUtils.toTextOrSame(value));
@@ -63,7 +64,7 @@ public class HavingPipeline implements HavingCondition, ComparisonOperators, Log
     }
 
     @Override
-    public LogicalOperators notEq(Object value) {
+    public LogicalOperatorsInHaving notEq(Object value) {
         this.operators.add("!=" +
                 StringSqlUtils.SPACE +
                 StringSqlUtils.toTextOrSame(value));
@@ -71,7 +72,7 @@ public class HavingPipeline implements HavingCondition, ComparisonOperators, Log
     }
 
     @Override
-    public LogicalOperators greaterThan(Object value) {
+    public LogicalOperatorsInHaving greaterThan(Object value) {
         this.operators.add(">" +
                 StringSqlUtils.SPACE +
                 StringSqlUtils.toTextOrSame(value));
@@ -79,7 +80,7 @@ public class HavingPipeline implements HavingCondition, ComparisonOperators, Log
     }
 
     @Override
-    public LogicalOperators lessThan(Object value) {
+    public LogicalOperatorsInHaving lessThan(Object value) {
         this.operators.add("<" +
                 StringSqlUtils.SPACE +
                 StringSqlUtils.toTextOrSame(value));
@@ -87,7 +88,7 @@ public class HavingPipeline implements HavingCondition, ComparisonOperators, Log
     }
 
     @Override
-    public LogicalOperators greaterThanOrEq(Object value) {
+    public LogicalOperatorsInHaving greaterThanOrEq(Object value) {
         this.operators.add(">=" +
                 StringSqlUtils.SPACE +
                 StringSqlUtils.toTextOrSame(value));
@@ -95,7 +96,7 @@ public class HavingPipeline implements HavingCondition, ComparisonOperators, Log
     }
 
     @Override
-    public LogicalOperators lessThanOrEq(Object value) {
+    public LogicalOperatorsInHaving lessThanOrEq(Object value) {
         this.operators.add("<=" +
                 StringSqlUtils.SPACE +
                 StringSqlUtils.toTextOrSame(value));
@@ -103,7 +104,7 @@ public class HavingPipeline implements HavingCondition, ComparisonOperators, Log
     }
 
     @Override
-    public LogicalOperators notGreaterThan(Object value) {
+    public LogicalOperatorsInHaving notGreaterThan(Object value) {
         this.operators.add("!>" +
                 StringSqlUtils.SPACE +
                 StringSqlUtils.toTextOrSame(value));
@@ -111,7 +112,7 @@ public class HavingPipeline implements HavingCondition, ComparisonOperators, Log
     }
 
     @Override
-    public LogicalOperators notLessThan(Object value) {
+    public LogicalOperatorsInHaving notLessThan(Object value) {
         this.operators.add("!<" +
                 StringSqlUtils.SPACE +
                 StringSqlUtils.toTextOrSame(value));

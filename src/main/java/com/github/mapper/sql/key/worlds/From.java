@@ -2,9 +2,11 @@ package com.github.mapper.sql.key.worlds;
 
 import com.github.mapper.sql.*;
 
+import java.util.function.Function;
+
 public interface From<R> {
 
-    Where<R> where(SQLCondition condition);
+    Where<R> where(Function<SQLCondition, SQLCondition> condition);
 
     OrderBy<R> orderBy(SortedType sortedType, String... columns);
 

@@ -2,22 +2,20 @@ package com.github.mapper.sql.conditions.operators;
 
 public interface ComparisonOperators {
 
-    LogicalOperators eq(Object value);
+    LogicalOperatorsInHaving eq(Object value);
 
-    LogicalOperators notEq(Object value);
+    LogicalOperatorsInHaving notEq(Object value);
 
-    LogicalOperators greaterThan(Object value);
+    LogicalOperatorsInHaving greaterThan(Object value);
 
-    LogicalOperators lessThan(Object value);
+    LogicalOperatorsInHaving lessThan(Object value);
 
-    LogicalOperators greaterThanOrEq(Object value);
+    LogicalOperatorsInHaving greaterThanOrEq(Object value);
 
-    LogicalOperators lessThanOrEq(Object value);
+    LogicalOperatorsInHaving lessThanOrEq(Object value);
 
-    LogicalOperators notGreaterThan(Object value);
+    LogicalOperatorsInHaving notGreaterThan(Object value);
 
-    LogicalOperators notLessThan(Object value);
-
-    AfterBetweenOperators between(Object value);
+    LogicalOperatorsInHaving notLessThan(Object value);
 
 }

@@ -1,4 +1,4 @@
-package com.github.mapper.sql.conditions.operators;
+package com.github.mapper.sql.conditions;
 
 import com.github.mapper.sql.SQLHaving;
 
